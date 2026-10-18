@@ -293,7 +293,7 @@ Example entries showing the new shapes:
 
 ## Systems reference
 
-These are the rules the beta implements, written so a rebuild can be checked against them. Numbers live in the data files; the names in backticks are their keys. The tests in the last section should assert all of this.
+These are the rules the game implements, written so the code can be checked against them. Numbers live in the data files; the names in backticks are their keys. The tests in the last section should assert all of this. M1 ported the beta's rules exactly (git tag `beta-port`); M9 replaced the synergy, bond, growth, gathering and hunting rules with the full design below, and each replaced rule says so.
 
 ### Mission math
 
@@ -305,25 +305,31 @@ Closeness = \max\left(0.1,\ 1 - 2\,\lvert P_{win} - 0.5\rvert\right)
 P_{injury} = Closeness \cdot 0.35 \cdot (1 - ConMod) \cdot (1 - ArmorMod)
 ```
 
-- **Combat Power inputs:** Stat 1 and 2 are the class's two primary stats, with trait bonuses added to CON and PER. Skill is the class skill for the objective plus the `cp` effect of all traits and talents plus the objective's own effect (`exploreCp`, `huntCp`, `gatherCp`). Arcane is the class base, plus trait and talent arcane, plus floor((INT + WIL) / 3) for mage classes. Grief multiplies Combat Power by 0.85.
+- **Combat Power inputs:** Stat 1 and 2 are the class's two primary stats, with trait bonuses added to CON and PER. Skill is the class skill for the objective plus the `cp` effect of all traits and talents plus the objective's own effect (`exploreCp`, `huntCp`, `gatherCp`), plus 2 per point of proficiency the character has in that objective (M9). A talent's effects scale with its rank (see XP and growth). Arcane is the class base, plus trait and talent arcane, plus floor((INT + WIL) / 3) for mage classes. Grief multiplies Combat Power by 0.85.
 - **Matchups:** for each Vector a character carries, +4 Combat Power against an enemy weak to it and -3 against one that resists it. A character wounded earlier in the same mission fights at 0.8.
 - **Squad Power floor:** after matchups and the wounded multiplier, each member contributes at least 1 Combat Power to the sum.
-- **Synergy:** the sum of every pair's bond tier modifier divided by (squad size - 1), plus 0.03 for each clashing trait pair (negative) or synergy trait pair, plus 0.03 each for a front-liner, a support and a Natural Leader. Clamped to -0.4 through +0.6. Only the `support` role counts as a support; a mage (`caster`) does not.
+- **Synergy (M9):** team chemistry plus composition. Team chemistry is the sum of every pair's bond tier modifier divided by the number of pairs. Composition adds +0.10 when the squad has a front-liner (`front`) and a back-liner (`back`), +0.08 when it has a support (`support`), -0.15 when it has a caster (`caster`) but no front-liner, and +0.03 for a Natural Leader (one per squad counts). Clamped to -0.4 through +0.6. Trait pairs no longer add to synergy; they shape how bonds grow. Only the `support` role counts as a support; a mage is a caster.
 - **Injury:** ConMod is min(0.3, max(0, (CON - 5) x 0.03)). Trait injury multipliers apply. A lost fight multiplies by 1.6. Capped at 0.9.
 - **Death, given an injury:** 0.2 x the zone's `deathScale` x talent multipliers. A lost fight multiplies by 1.5, a living support character by 0.6, and an already-wounded character by 2. Capped at 0.9. The talent multipliers are the character's own `deathMul` (Second Wind) times the `squadDeathMul` (Field Medic) of every member still standing in that fight, the character included.
 - **Vigor:** starts at 100. A won fight costs 8, a lost fight 25, a quiet step 3. When vigor is at or below the chosen threshold (25, 35, 50 or 70) before the last step, the squad retreats. A Hunt mission's last step is a fight with the zone's quarry, and losing it ends the mission as a retreat. The quarry is the first enemy in the zone's `hunt` list, and the Hall's preview uses the same one.
+- **Hunt locate check (M9):** before the quarry fight, the squad must find it. P_locate = min(0.95, 0.35 + 0.05 x the highest effective PER in the squad + 0.05 x the best hunt proficiency). The squad gets 3 attempts; each failed attempt costs 6 vigor. If every attempt fails, or vigor falls to the threshold while searching, the mission ends as a retreat without the fight.
 - **Encounters:** each non-final step is an encounter with probability `encounterChance` times every member's `encounterMul`, with the enemy drawn by weight from the zone.
 
 ### Rewards and aftermath
 
-- **Resources:** every completed step yields each zone resource at base x a random 0.6 to 1.4 x (1 + total yield bonus), rounded at random. Gather missions use the full amount and other objectives 30%. Enemy drops roll on every won fight.
+- **Resources (M9):** every completed step yields each zone resource at base x a random 0.6 to 1.4 x (1 + total yield bonus) x PerceptionMod, rounded at random. PerceptionMod = 1 + 0.04 x (the squad's average effective PER - 6), clamped to 0.8 through 1.4. Gather missions use the full amount and other objectives 30%. Enemy drops roll on every won fight.
 - **Exploration:** an Explore mission adds 40 percentage points to the zone, scaled by the share of steps completed. Other objectives add 10. A zone opens when the previous zone is at 60% or more.
 - **Arcane Knowledge and Renown:** Explore missions pay `exploreArcane` x the share completed, at least 1 on success. Renown is the zone value x share completed, halved when the mission does not fully succeed, times the `renownMul` (Silver-Tongued) of every surviving member, rounded. A wiped squad earns no exploration, Arcane Knowledge or Renown.
 - **Boss:** the first kill of a zone's boss grants its Knowledge Fragment once.
 - **Costs and time:** 1 Expedition Supply per squad member. A mission advances the clock by a quarter day.
-- **Injury and death:** a wounded survivor is unavailable until day + 2 on success or day + 3 otherwise. A dead character moves to the memorial, their bonds are deleted, and their gear returns to the armory. Survivors with a bond of 41 or more to the dead grieve for 2 missions unless they are Stoic. Every squad member's existing grief counts down by one mission before new grief is applied, so new grief lasts for the next 2 missions in full.
-- **Bonds:** each surviving pair gains +3 after a success and +1 after a retreat, clamped to -100 through +100.
-- **XP and growth:** XP is 14 x the share completed, plus the enemy XP of every fight won, plus 10 on success, times the character's XP multiplier. Level n needs 20 x n XP, to level 20. Each level adds 2 stat points, weighted 3 to 1 toward primary stats and capped at 15. A talent roll succeeds 55% of the time and is guaranteed after three dry levels (a level that gains no talent is dry, so the fourth level after the last talent always rolls one if any are left).
+- **Injury and death:** a wounded survivor is unavailable until day + 2 on success or day + 3 otherwise. A dead character moves to the memorial, their bonds are deleted, and their gear returns to the armory. Every squad member's existing grief counts down by one mission before new grief is applied.
+- **Witnessed Death (M9):** every survivor of a mission in which someone died grieves (unless Stoic) for the next 2 missions, or 3 if their bond with the dead was 41 or more. The survivors of that mission each gain +10 bond with each other, once per mission. Grief multiplies Combat Power by 0.85.
+- **Bonds (M9):** after a mission each surviving pair gains round(BaseGain x TraitCompat x Outcome), clamped to -100 through +100. BaseGain comes from the mission's Closeness, the highest Closeness of any fight in it (0 if there was no fight): under 0.3 gives 3, 0.3 to 0.6 gives 6, 0.6 to 0.85 gives 10, and over 0.85 gives 18. TraitCompat is 0.7 if the pair has any clashing trait pair, else 1.25 if it has a synergizing pair, else 1. Outcome is 1 on success and 0.6 otherwise. A death applies Witnessed Death on top.
+- **Bond decay (M9):** at each dawn, a pair that has not shared a mission for 10 or more days moves 1 point toward 0, once every 10 days. Bonds of 86 or more never decay. A pair's clock starts when they meet.
+- **Life Debt (M9):** when a wounded member's death roll falls between their death chance with and without another member's help (that member's Field Medic, or a living support), the helper saved them. The pair gains +30 bond and a `life_debt` flag, and the saved character's next growth roll weights Protective talents x3.
+- **Mentor and Romance (M9):** a pair with a level gap of 15 or more, 3 or more shared missions and a bond of 41 or more becomes mentor and apprentice; the apprentice's growth rolls weight talents the mentor knows x1.5. A pair at 66 or more with no clashing traits gains a `romance` flag. Both flags are recorded in each character's history.
+- **XP and growth (M9):** XP is 14 x the share completed, plus the enemy XP of every fight won, plus 10 on success, times the character's XP multiplier. Level n needs 20 x n XP, to level 20. Each level adds 2 stat points, weighted 3 to 1 toward primary stats and capped at 15. Then the growth rolls: a Primary roll every level, a Secondary roll on even levels, and a Breakthrough on every 5th level.
+- **Growth rolls (M9):** a Primary or Secondary roll draws from the class's talent table over all of its talents. An unknown talent is learned at rank 1; a known talent below rank 3 gains a rank; a talent already at rank 3 becomes +1 proficiency instead (in the objective its effect favors, else the character's most-run objective). Talents not yet known get +1% weight for each 2 points of INT above 10. Pity: if a character has learned no new talent in their last 3 levels, the next roll draws only from talents they do not know, still by weight. A Breakthrough gives +1 proficiency in the character's most-run objective (casters change this in M10). A talent at rank r adds its `perRank` effects r - 1 times: added for bonuses, multiplied for multipliers.
 
 ### Characters
 
@@ -348,11 +354,11 @@ The Systems reference above is what the beta does. This section is the full desi
 | --- | --- | --- | --- |
 | Spells | A mage has one fixed Vector and gets +4 or -3 Combat Power against weak or resistant enemies | Spells are Vector + Form + Magnitude, and Combat Power adds a repertoire bonus | M10 |
 | Casting cost | None | Focus Points, with an Instability check on big casts | M10 |
-| Level-up | 2 stat points, then a 55% talent roll with pity after 3 dry levels | Primary roll every level, Secondary on even levels, Breakthrough on every 5th, pity after 3 dry levels | M9 |
-| Squad synergy | Bond average plus 0.03 flags, trait pairs add or subtract 0.03 | Bond average plus composition rules (front and back +10%, support +8%, casters without a front-liner -15%) | M9 |
-| Bond gain | +3 after a success, +1 after a retreat | Scaled by how close the fight was, trait compatibility and outcome, with decay and special events | M9 |
-| Gathering and hunting | Fixed share per step, last step is the fight | Perception scales yield, and hunts need a locate check before the fight | M9 |
-| Character sheet | One card per character in the Roster | Four tabs: Overview, Growth, Bonds, History | M9 |
+| Level-up | 2 stat points, then a 55% talent roll with pity after 3 dry levels | Primary roll every level, Secondary on even levels, Breakthrough on every 5th, pity after 3 dry levels | M9 (built) |
+| Squad synergy | Bond average plus 0.03 flags, trait pairs add or subtract 0.03 | Bond average plus composition rules (front and back +10%, support +8%, casters without a front-liner -15%) | M9 (built) |
+| Bond gain | +3 after a success, +1 after a retreat | Scaled by how close the fight was, trait compatibility and outcome, with decay and special events | M9 (built) |
+| Gathering and hunting | Fixed share per step, last step is the fight | Perception scales yield, and hunts need a locate check before the fight | M9 (built) |
+| Character sheet | One card per character in the Roster | Four tabs: Overview, Growth, Bonds, History | M9 (built) |
 
 ### The Vector idea
 
@@ -494,6 +500,11 @@ These are not specified anywhere yet. Claude Code should put them in data files 
 | Highest Magnitude by Knowledge Tier | Tier 1 Standard, Tier 2 Major, Tier 3 and up Grand |
 | INT modifier | floor((INT - 10) / 2), as in the tabletop game |
 | Spells that count in Repertoire | Only the character's equipped loadout of 3, so a big spellbook is not a runaway bonus |
+| Proficiency (M9, chosen) | +2 Combat Power per point in that objective. Breakthroughs and talents past rank 3 grant it |
+| Talent ranks (M9, chosen) | Up to 3. Each talent's `perRank` in `talents.json` says what a rank adds |
+| Perception and locate (M9, chosen) | PerceptionMod 1 + 0.04 x (average PER - 6), clamped 0.8 to 1.4. P_locate 0.35 + 0.05 x best PER + 0.05 x hunt proficiency, at most 0.95, 3 tries at 6 vigor each |
+| Grief length (M9, chosen) | 2 missions, or 3 if the bond with the dead was 41 or more |
+| Protective talent (M9, added) | Guardian: squadmates' deaths 10% less likely. Life Debt leans the saved character's next roll toward it |
 
 ## Recruitment and the Expedition Hall
 
