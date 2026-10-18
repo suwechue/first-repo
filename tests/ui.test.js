@@ -27,16 +27,25 @@ beforeAll(async () => {
   globalThis.requestAnimationFrame = (fn) => frameCallbacks.push(fn);
   window.addEventListener('error', (e) => errors.push(e.error));
   vi.spyOn(console, 'warn').mockImplementation(() => {});
+  vi.spyOn(performance, 'now').mockImplementation(() => fakeNow);
   localStorage.clear();
   await import('../src/main.js');
 });
 
-function runFrames(n) {
+// The page's clock: each animation frame advances it by `stepsPerFrame` simulation steps.
+let fakeNow = 0;
+function runFrames(n, stepsPerFrame = 1) {
   for (let i = 0; i < n; i++) {
+    fakeNow += (1000 / 60) * stepsPerFrame;
     const cbs = frameCallbacks;
     frameCallbacks = [];
     cbs.forEach((fn) => fn());
   }
+}
+
+/** Lets `frames` of game time pass. The loop drops time beyond 10 steps a frame, so stay under it. */
+function fastForward(frames) {
+  runFrames(Math.ceil(frames / 8) + 2, 8);
 }
 
 const click = (id) => document.getElementById(id).click();
@@ -70,11 +79,11 @@ describe('The page', () => {
     click('sys-save');
     expect(document.getElementById('sys-msg').textContent).toBe('Saved.');
     const saved = JSON.parse(localStorage.getItem('primitive_age_save_v1'));
-    expect(saved.v).toBe(5);
+    expect(saved.v).toBe(6);
     expect(saved.roster.length).toBe(4);
   });
 
-  it('launches an expedition from the Hall once the Nexus is awake, and shows the report', async () => {
+  it('sends a squad from the Hall, and its report waits in the queue when it returns', async () => {
     // Load a save where the Nexus is awake, through the menu's import path.
     const saved = JSON.parse(localStorage.getItem('primitive_age_save_v1'));
     saved.nexus = { dig: 3, awareness: 40, awake: true };
@@ -97,10 +106,20 @@ describe('The page', () => {
     }
     expect(document.querySelector('#hall-body .preview').textContent).toMatch(/Squad Power/);
     click('btn-launch');
+    expect(document.getElementById('status-log').textContent).toMatch(/sets out for The Fringe/);
+    expect(document.querySelectorAll('#hall-body .out-row').length).toBe(1);
+    expect(document.getElementById('modal').classList.contains('open')).toBe(false);
+    // The squad is away: they cannot be picked again.
+    expect(document.querySelector(`[data-pick="${picks[0].getAttribute('data-pick')}"]`).disabled).toBe(true);
+    fastForward(5 * 300 + 20); // five steps of 300 frames
+    expect(document.querySelectorAll('#hall-body .out-row').length).toBe(0);
+    expect(document.getElementById('status-log').textContent).toMatch(/A squad returns from The Fringe/);
+    click('btn-read-report');
     expect(document.getElementById('modal').classList.contains('open')).toBe(true);
     expect(document.getElementById('modal-body').textContent).toMatch(/The Fringe — Explore/);
     click('modal-close');
-    expect(document.querySelectorAll('#hall-body .log-row').length).toBe(1);
+    expect(document.getElementById('btn-read-report')).toBeNull();
+    expect(document.querySelectorAll('#hall-body [data-report]').length).toBe(1);
     runFrames(10);
     expect(errors).toEqual([]);
   });

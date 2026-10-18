@@ -104,7 +104,7 @@ canvas.addEventListener(
 
 // ---- Sound: systems announce moments, the UI turns them into audio ----
 on('sfx', (name) => audio.play(name));
-on('mission:report', (r) => audio.play(r.dead.length ? 'death' : r.levelups.length ? 'levelup' : 'discover'));
+on('mission:return', (r) => audio.play(r.dead.length ? 'death' : r.levelups.length ? 'levelup' : 'discover'));
 document.addEventListener('click', (e) => {
   if (e.target.closest?.('button')) audio.play('click');
 });

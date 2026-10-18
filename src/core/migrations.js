@@ -77,6 +77,10 @@ const MIGRATIONS = {
     out.recruitOffer = withOrigin(out.recruitOffer);
     return out;
   },
+  // v5 -> v6: timed missions (M12). No squads are out in an older save.
+  5(d) {
+    return { ...d, v: 6, expeditions: [], reportQueue: [], nextExpeditionId: 1 };
+  },
 };
 
 /** Returns { data } at SAVE_VERSION, or { error } with a message for the player. */

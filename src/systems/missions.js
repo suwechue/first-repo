@@ -222,6 +222,72 @@ export function chemistry(s, ids) {
   return { pairs, value };
 }
 
+// ---------------- time (M12) ----------------
+/** The expedition a character is away on, or null. */
+export function awayOn(s, id) {
+  return (s.expeditions || []).find((e) => e.order.squad.includes(id)) || null;
+}
+
+/** How long a mission to a zone takes, in frames: `stepFrames` per step. */
+export function missionFrames(realm, zone) {
+  const z = zoneDef(realm, zone);
+  return (z.stepFrames || M.timing.stepFrames) * z.steps;
+}
+
+/**
+ * Sends a squad out: checks the order, pays the supplies, and records the expedition with its return
+ * frame. The mission resolves when the squad returns (updateExpeditions). Returns { ok, expedition }.
+ */
+export function dispatch(s, o) {
+  const err = validate(s, o);
+  if (err) return { ok: false, error: err };
+  if (s.expeditions.length >= M.timing.maxOut)
+    return { ok: false, error: `Only ${M.timing.maxOut} squads can be out at once.` };
+  s.player.inventory[M.supply.item] -= o.squad.length * M.supply.perMember;
+  const e = {
+    id: s.nextExpeditionId++,
+    order: {
+      realm: o.realm,
+      zone: o.zone,
+      objective: o.objective,
+      squad: o.squad.slice(),
+      retreat: o.retreat || M.defaultRetreat,
+    },
+    departed: s.frame,
+    returns: s.frame + missionFrames(o.realm, o.zone),
+    day: s.day,
+  };
+  s.expeditions.push(e);
+  return { ok: true, expedition: e };
+}
+
+/**
+ * Brings home every squad whose time is up, in the order they return (ties in the order they set
+ * out): resolves each mission and queues its report. Returns the reports, oldest first.
+ */
+export function updateExpeditions(s) {
+  if (!s.expeditions.length) return [];
+  const due = s.expeditions
+    .filter((e) => e.returns <= s.frame)
+    .sort((a, b) => a.returns - b.returns || a.id - b.id);
+  const reports = [];
+  for (const e of due) {
+    s.expeditions = s.expeditions.filter((x) => x !== e);
+    const squad = e.order.squad.filter((id) => C.byId(s, id));
+    if (!squad.length) continue;
+    const rep = resolve(s, { ...e.order, squad });
+    rep.departedDay = e.day;
+    s.reportQueue.push(rep);
+    reports.push(rep);
+  }
+  return reports;
+}
+
+/** The oldest unread report, removed from the queue, or null. */
+export function nextReport(s) {
+  return s.reportQueue.shift() || null;
+}
+
 export function validate(s, o) {
   if (!s.nexus.awake) return 'The Nexus is not awake.';
   if (!D.realms[o.realm] || !zoneDef(o.realm, o.zone)) return 'Unknown destination.';
@@ -236,6 +302,8 @@ export function validate(s, o) {
     const c = C.byId(s, id);
     if (!c) return 'Unknown squad member.';
     if (C.isInjured(s, c)) return c.name + ' is recovering from an injury.';
+    const away = awayOn(s, c.id);
+    if (away) return c.name + ' is away in ' + zoneDef(away.order.realm, away.order.zone).name + '.';
   }
   const feud = bloodFeud(s, ids);
   if (feud) return `${feud[0].name} and ${feud[1].name} are in a Blood Feud and refuse to deploy together.`;
@@ -361,13 +429,17 @@ function fight(s, members, hurt, enemyKey, objective, z, events, fp) {
 export function launch(s, o) {
   const err = validate(s, o);
   if (err) return { ok: false, error: err };
+  s.player.inventory[M.supply.item] -= o.squad.length * M.supply.perMember;
+  return { ok: true, report: resolve(s, o) };
+}
 
+/** Plays out a whole mission for an order whose supplies are paid, applies its results and returns the report. */
+export function resolve(s, o) {
   const z = zoneDef(o.realm, o.zone);
   const zs = s.realms[o.realm][o.zone];
   const obj = M.objectives[o.objective];
   const squad = o.squad.map((id) => C.byId(s, id));
   const inv = s.player.inventory;
-  inv[M.supply.item] -= squad.length * M.supply.perMember;
 
   const retreat = o.retreat || M.defaultRetreat;
   for (const c of squad) {
@@ -518,7 +590,10 @@ export function launch(s, o) {
   // ----- exploration, Arcane Knowledge, Renown -----
   const frac = rep.stepsDone / z.steps;
   if (rep.outcome !== 'wipe') {
-    const delta = Math.round(obj.explore * frac);
+    // Time-based Explore: the map revealed per step scales with Perception.
+    const delta = Math.round(
+      obj.explore * frac * (obj.paysArcane ? perceptionMod(squad.filter((c) => live.includes(c))) : 1),
+    );
     const before = zs.explored;
     zs.explored = Math.min(100, zs.explored + delta);
     rep.explored = zs.explored - before;
@@ -602,8 +677,7 @@ export function launch(s, o) {
 
   rep.synergy = startSyn.value;
   s.stats.missions++;
-  s.dayTimer += Math.floor(s.dayLength * M.clockDayFraction);
   s.missionLog.unshift(rep);
   if (s.missionLog.length > M.logSize) s.missionLog.pop();
-  return { ok: true, report: rep };
+  return rep;
 }

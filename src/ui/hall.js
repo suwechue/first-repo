@@ -36,7 +36,7 @@ export function renderHall(s) {
   }
   const realm = D.realms[sel.realm];
   if (!Ms.zoneUnlocked(s, sel.realm, sel.zone)) sel.zone = firstZone(sel.realm);
-  sel.squad = sel.squad.filter((id) => C.byId(s, id) && !C.isInjured(s, C.byId(s, id)));
+  sel.squad = sel.squad.filter((id) => C.byId(s, id) && !C.isInjured(s, C.byId(s, id)) && !Ms.awayOn(s, id));
   const z = realm.zones[sel.zone];
   const obj = M.objectives[sel.objective];
 
@@ -71,10 +71,11 @@ export function renderHall(s) {
   html += `<div class="row"><b>Squad</b> <span class="muted">(${M.squad.min}-${M.squad.max}; ${M.supply.perMember} Supply each — you have ${supplies})</span></div><div class="squad-pick">`;
   for (const c of s.roster) {
     const hurt = C.isInjured(s, c);
+    const away = Ms.awayOn(s, c.id);
     const feud = sel.squad.includes(c.id) ? null : feudWith(s, c.id);
-    const off = hurt || !!feud;
+    const off = hurt || !!feud || !!away;
     html += `<label class="pick ${off ? 'locked' : ''}" title="${feud ? esc('Blood Feud with ' + feud.name) : ''}"><input type="checkbox" data-pick="${c.id}" ${sel.squad.indexOf(c.id) >= 0 ? 'checked' : ''} ${off ? 'disabled' : ''}>
-      ${esc(c.name)} <small>${D.classes[c.cls].name} L${c.level} · CP ${Math.round(Ms.combatPower(c, sel.objective))}${hurt ? ' · injured' : ''}${c.grief > 0 ? ' · grieving' : ''}${feud ? ' · Blood Feud with ' + esc(feud.name.split(' ')[0]) : ''}</small></label>`;
+      ${esc(c.name)} <small>${D.classes[c.cls].name} L${c.level} · CP ${Math.round(Ms.combatPower(c, sel.objective))}${hurt ? ' · injured' : ''}${away ? ' · away' : ''}${c.grief > 0 ? ' · grieving' : ''}${feud ? ' · Blood Feud with ' + esc(feud.name.split(' ')[0]) : ''}</small></label>`;
   }
   html += '</div>';
   if (sel.note) html += `<div class="bad small">${esc(sel.note)}</div>`;
@@ -110,8 +111,22 @@ export function renderHall(s) {
   }
   const order = { realm: sel.realm, zone: sel.zone, objective: sel.objective, squad: sel.squad };
   const err = Ms.validate(s, order);
-  html += `<div class="row"><button class="craft-btn big" id="btn-launch" ${err ? 'disabled' : ''}>Launch Expedition</button>
-    <span class="muted small">${err ? esc(err) : 'Ready.'}</span></div>`;
+  const hours = Math.round(Ms.missionFrames(sel.realm, sel.zone) / M.timing.framesPerHour);
+  const full = s.expeditions.length >= M.timing.maxOut;
+  html += `<div class="row"><button class="craft-btn big" id="btn-launch" ${err || full ? 'disabled' : ''}>Launch Expedition</button>
+    <span class="muted small">${err ? esc(err) : full ? `${M.timing.maxOut} squads are already out.` : `Ready. The trip takes about ${hours} hours.`}</span></div>`;
+
+  // Squads out, and reports of those who have come back.
+  html += '<h4>Out in the field</h4>';
+  if (!s.expeditions.length) html += '<p class="muted small">No squads are out.</p>';
+  for (const e of s.expeditions) {
+    const left = Math.max(0, Math.ceil((e.returns - s.frame) / M.timing.framesPerHour));
+    const names = e.order.squad.map((id) => C.byId(s, id)?.name.split(' ')[0] || '?').join(', ');
+    html += `<div class="log-row out-row">${esc(D.realms[e.order.realm].zones[e.order.zone].name)} · ${M.objectives[e.order.objective].label} · ${esc(names)} — back in about <b>${left} h</b></div>`;
+  }
+  if (s.reportQueue.length) {
+    html += `<div class="row"><button class="craft-btn" id="btn-read-report">Read report (${s.reportQueue.length} waiting)</button></div>`;
+  }
 
   html += '<h4>Recent reports</h4>';
   if (!s.missionLog.length) html += '<p class="muted small">No expeditions yet.</p>';
@@ -177,17 +192,29 @@ export function renderHall(s) {
     renderHall(s);
   });
   $('btn-launch').addEventListener('click', () => {
-    const res = Ms.launch(s, { ...order, squad: sel.squad.slice(), retreat: sel.retreat });
+    const res = Ms.dispatch(s, { ...order, squad: sel.squad.slice(), retreat: sel.retreat });
     if (!res.ok) {
       log(s, res.error);
       renderHall(s);
       return;
     }
     sel.squad = [];
-    emit('mission:report', res.report);
+    const h = Math.round((res.expedition.returns - s.frame) / M.timing.framesPerHour);
+    log(
+      s,
+      `The squad sets out for ${D.realms[order.realm].zones[order.zone].name}. Back in about ${h} hours.`,
+    );
     changed('all');
     renderHall(s);
   });
+  const read = $('btn-read-report');
+  if (read) {
+    read.addEventListener('click', () => {
+      const rep = Ms.nextReport(s);
+      if (rep) emit('mission:report', rep);
+      renderHall(s);
+    });
+  }
   el.querySelectorAll('[data-report]').forEach((r) =>
     r.addEventListener('click', () =>
       emit('mission:report', s.missionLog[parseInt(r.getAttribute('data-report'), 10)]),

@@ -1,5 +1,6 @@
 // Panel management and the glue between system events and the DOM.
 import { on } from '../core/events.js';
+import { D } from '../core/content.js';
 import { $ } from './dom.js';
 import * as hud from './hud.js';
 import { renderCraftPanel } from './craft.js';
@@ -84,6 +85,15 @@ export function createUI(s, actions) {
   on('mission:report', (r) => {
     store(s);
     showReport(r);
+  });
+  // A squad came home: its report waits in the Hall's queue.
+  on('mission:return', (r) => {
+    store(s);
+    hud.showBanner({
+      title: 'A squad returns',
+      text: `${D.realms[r.realm].zones[r.zone].name}: ${r.outcome}${r.dead.length ? ' · ' + r.dead.length + ' fallen' : ''} · the report waits in the Hall`,
+    });
+    refreshAll();
   });
 
   PANELS.forEach((k) => $('btn-' + k).addEventListener('click', () => togglePanel(k)));

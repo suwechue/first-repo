@@ -296,7 +296,7 @@ describe('Save v4', () => {
       ],
     };
     const { data } = migrate(v3);
-    expect(data.v).toBe(5); // and on through later versions
+    expect(data.v).toBe(6); // and on through later versions
     expect(data.roster[0].knowledge.vectors).toEqual({ cold: 1 });
     expect(data.roster[0].loadout).toEqual([{ vector: 'cold', form: 'bolt', magnitude: 'minor' }]);
     expect(data.roster[1].loadout).toEqual([]);

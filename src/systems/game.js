@@ -9,6 +9,8 @@ import { nearestInRange, nearestNode, gatherNode, updateResources, nodeAmount } 
 import { attackEnemy, updateEnemies } from './combat.js';
 import { inNexusRange, interactNexus, nexusPrompt } from './nexus.js';
 import { updateExploration, landmarkInReach, landmarkPrompt, interactLandmark } from './exploration.js';
+import { updateExpeditions } from './missions.js';
+import { emit } from '../core/events.js';
 import { nearBuilding, tryCraft } from './crafting.js';
 import { reqsMet } from './tech.js';
 import { updateBuildings } from './building.js';
@@ -113,5 +115,9 @@ export function update(s, input) {
   updateEnemies(s);
   updateExploration(s);
   updateClock(s);
+  for (const rep of updateExpeditions(s)) {
+    log(s, `A squad returns from ${D.realms[rep.realm].zones[rep.zone].name}: ${rep.outcome}.`);
+    emit('mission:return', rep);
+  }
   checkFaint(s);
 }

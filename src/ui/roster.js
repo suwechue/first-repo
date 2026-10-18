@@ -4,7 +4,7 @@ import { $, esc } from './dom.js';
 import * as C from '../systems/characters.js';
 import { getBond, bondTier } from '../systems/bonds.js';
 import { recruit, recruitCost, rosterCap, dismiss, arrivalChance } from '../systems/recruiting.js';
-import { combatPower } from '../systems/missions.js';
+import { combatPower, awayOn } from '../systems/missions.js';
 import { assets } from '../render/assets.js';
 import { openSheet } from './sheet.js';
 import { log, changed } from '../systems/log.js';
@@ -27,6 +27,7 @@ export function traitChips(c) {
 function statusText(s, c) {
   const bits = [];
   if (C.isInjured(s, c)) bits.push(`<span class="bad">Injured until day ${c.injuredUntil}</span>`);
+  if (awayOn(s, c.id)) bits.push('<span class="muted">Away on an expedition</span>');
   if (c.grief > 0)
     bits.push(`<span class="bad">Grieving (${c.grief} mission${c.grief > 1 ? 's' : ''})</span>`);
   return bits.length ? bits.join(' · ') : '<span class="good">Ready</span>';

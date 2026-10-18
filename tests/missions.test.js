@@ -291,7 +291,7 @@ describe('Perception and the hunt locate check (M9)', () => {
 });
 
 describe('A whole mission', () => {
-  it('a quiet Explore: vigor -3 per step, +40% explored, Arcane, Renown, XP, bonds by the formula, a quarter day', () => {
+  it('a quiet Explore: vigor -3 per step, 40% x PerceptionMod explored, Arcane, Renown, XP, bonds by the formula', () => {
     const s = readyForMissions(freshState());
     const [k, b] = [starter(s, 'Kael'), starter(s, 'Boris')];
     const bond = s.bonds[[k.id, b.id].sort().join('|')];
@@ -308,12 +308,13 @@ describe('A whole mission', () => {
     expect(rep.outcome).toBe('success');
     expect(rep.stepsDone).toBe(5);
     expect(rep.vigorEnd).toBe(100 - 3 * 5);
-    expect(rep.explored).toBe(40);
-    expect(s.realms[R].fringe.explored).toBe(40);
+    const explored = Math.round(40 * Ms.perceptionMod([k, b])); // PER 10 and 6: x1.08 = 43
+    expect(rep.explored).toBe(explored);
+    expect(s.realms[R].fringe.explored).toBe(explored);
     expect(rep.arcane).toBe(1); // exploreArcane 1 x 1.0
     expect(rep.renown).toBe(3);
     expect(s.player.inventory.supplies).toBe(98);
-    expect(s.dayTimer).toBe(900);
+    expect(s.dayTimer).toBe(0); // missions take game time now (M12); they no longer jump the clock
     // No fight: closeness 0 -> BaseGain 3, x1.25 for brave and hardy, x1 for success = 3.75 -> 4.
     expect(s.bonds[[k.id, b.id].sort().join('|')]).toBe(bond + 4);
     // XP = 14 x 1.0 + 0 fights + 10 success = 24: one level (20), 4 left over.
@@ -357,7 +358,7 @@ describe('A whole mission', () => {
     expect(rep.outcome).toBe('retreat');
     expect(rep.stepsDone).toBe(4); // 92, 84, 76, 68 <= 70
     expect(rep.vigorEnd).toBe(68);
-    expect(rep.explored).toBe(Math.round(40 * 0.8));
+    expect(rep.explored).toBe(Math.round(40 * 0.8 * Ms.perceptionMod(s.roster)));
     expect(rep.arcane).toBe(Math.round(1 * 0.8)); // no minimum of 1 without success
     expect(rep.renown).toBe(Math.round(3 * 0.8 * 0.5));
   });

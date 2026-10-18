@@ -61,6 +61,9 @@ export function makeInitialState() {
     missionLog: [], // most recent reports, newest first
     recruitOffer: null,
     squads: [], // saved squads: { name, members: [ids] }
+    expeditions: [], // squads out: { id, order, departed, returns, day } (frames)
+    reportQueue: [], // reports of squads that have returned, oldest first, not yet read
+    nextExpeditionId: 1,
     nextCharId: 1,
     stats: { missions: 0, deaths: 0 },
 

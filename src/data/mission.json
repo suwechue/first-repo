@@ -133,7 +133,6 @@
     "base": 14,
     "success": 10
   },
-  "clockDayFraction": 0.25,
   "logSize": 12,
   "bloodFeud": -86,
   "perception": {
@@ -150,5 +149,10 @@
     "tries": 3,
     "vigorCost": 6
   },
-  "savedSquads": 8
+  "savedSquads": 8,
+  "timing": {
+    "stepFrames": 300,
+    "framesPerHour": 150,
+    "maxOut": 3
+  }
 }
