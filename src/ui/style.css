@@ -609,3 +609,58 @@ h4 {
   font-size: 15px;
   margin-top: 4px;
 }
+
+/* ---- Settings ---- */
+.set-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0;
+  font-size: 13px;
+}
+.set-row input[type='range'] {
+  flex: 1;
+  max-width: 220px;
+}
+.set-row .craft-btn.active {
+  background: var(--ember);
+  color: #fff;
+}
+
+/* ---- Touch controls ---- */
+#touch-pad {
+  position: absolute;
+  left: 28px;
+  bottom: 90px;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: rgba(232, 221, 196, 0.18);
+  border: 2px solid rgba(232, 221, 196, 0.5);
+  z-index: 15;
+  touch-action: none;
+}
+#touch-pad .knob {
+  position: absolute;
+  left: 35px;
+  top: 35px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: rgba(232, 221, 196, 0.6);
+}
+#touch-e {
+  position: absolute;
+  right: 32px;
+  bottom: 200px;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 2px solid var(--bark);
+  background: var(--parchment);
+  font:
+    700 26px Georgia,
+    serif;
+  z-index: 15;
+  touch-action: none;
+}

@@ -9,7 +9,11 @@ const html = fs.readFileSync(path.resolve(__dirname, '../index.html'), 'utf8');
 // jsdom has no canvas; record calls on a do-nothing 2D context instead.
 function fakeContext() {
   return new Proxy(
-    { measureText: () => ({ width: 10 }), createPattern: () => null },
+    {
+      measureText: () => ({ width: 10 }),
+      createPattern: () => null,
+      createRadialGradient: () => ({ addColorStop() {} }),
+    },
     { get: (t, k) => (k in t ? t[k] : () => {}), set: () => true },
   );
 }
@@ -99,6 +103,23 @@ describe('The page', () => {
     expect(document.querySelectorAll('#hall-body .log-row').length).toBe(1);
     runFrames(10);
     expect(errors).toEqual([]);
+  });
+
+  it('keeps settings across a reload, apart from the save', () => {
+    click('btn-sys');
+    document.querySelector('#sys-body [data-zoom="3"]').click();
+    const vol = document.getElementById('set-music');
+    vol.value = '20';
+    vol.dispatchEvent(new Event('input'));
+    const stored = JSON.parse(localStorage.getItem('nexus_settings'));
+    expect(stored).toMatchObject({ zoom: 3, music: 0.2 });
+    expect(JSON.parse(localStorage.getItem('primitive_age_save_v1')).zoom).toBeUndefined();
+    click('btn-sys'); // reopening shows the stored values
+    click('btn-sys');
+    expect(document.querySelector('#sys-body [data-zoom="3"]').classList.contains('active')).toBe(true);
+    expect(document.getElementById('set-music').value).toBe('20');
+    document.querySelector('#sys-body [data-zoom="2"]').click();
+    click('btn-sys');
   });
 
   it('places a building with the mouse', () => {

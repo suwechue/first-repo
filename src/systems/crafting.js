@@ -3,7 +3,7 @@ import { D } from '../core/content.js';
 import { dist } from '../core/geometry.js';
 import { canAfford, spend, give } from './inventory.js';
 import { reqsMet } from './tech.js';
-import { log, changed } from './log.js';
+import { log, changed, cue } from './log.js';
 
 export function nearBuilding(s, type, range) {
   return s.buildings.find((b) => b.type === type && dist(b, s.player) < range) || null;
@@ -43,5 +43,6 @@ export function tryCraft(s, key) {
     log(s, 'Packed ' + r.name + '.');
   }
   changed('craft');
+  cue('craft');
   return true;
 }

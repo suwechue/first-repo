@@ -90,5 +90,5 @@ export function createUI(s, actions) {
   $('modal-close').addEventListener('click', closeModal);
   refreshAll();
 
-  return { refreshAll, closeAllPanels, closeModal };
+  return { refreshAll, closeAllPanels, closeModal, isOpen };
 }

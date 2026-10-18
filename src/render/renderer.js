@@ -14,6 +14,7 @@ import { createCamera, resizeCamera, setZoom, followCamera, snapCamera, screenTo
 export function createRenderer(canvas, assets, makeCanvas = () => document.createElement('canvas')) {
   const ctx = canvas.getContext('2d');
   const fogCanvas = makeCanvas();
+  const nightCanvas = makeCanvas();
   let fogKey = null;
   const cam = createCamera(D.world.camera);
   const tiles = createTilemap(assets);
@@ -169,6 +170,48 @@ export function createRenderer(canvas, assets, makeCanvas = () => document.creat
     ctx.drawImage(fogCanvas, -px, -px, (cw + 2) * px, (ch + 2) * px); // pixel k is centered on cell k - 1
     ctx.globalAlpha = 1;
     ctx.imageSmoothingEnabled = false;
+  }
+
+  /**
+   * Night: a tinted layer over the screen with soft holes cut around light sources (the player,
+   * campfires, shrines and the awake Nexus). Drawn in screen space after the world.
+   */
+  function drawNight(s, view, world) {
+    const dark = view.darkness || 0;
+    if (dark <= 0.01) return;
+    const N = D.game.night;
+    const W = canvas.width;
+    const H = canvas.height;
+    if (nightCanvas.width !== W || nightCanvas.height !== H) {
+      nightCanvas.width = W;
+      nightCanvas.height = H;
+    }
+    const g = nightCanvas.getContext('2d');
+    g.globalCompositeOperation = 'source-over';
+    g.clearRect(0, 0, W, H);
+    g.fillStyle = `rgba(${N.tint[0]},${N.tint[1]},${N.tint[2]},${N.maxAlpha * dark})`;
+    g.fillRect(0, 0, W, H);
+    g.globalCompositeOperation = 'destination-out';
+    const flicker = 1 + Math.sin(now / 130) * 0.04 + Math.sin(now / 57) * 0.02;
+    const lights = [{ x: s.player.x, y: s.player.y, r: N.lights.player }];
+    for (const b of s.buildings)
+      if (N.lights[b.type]) lights.push({ x: b.x, y: b.y, r: N.lights[b.type] * flicker });
+    if (view.nexusStage === 'awake')
+      lights.push({ x: world.nexus.x, y: world.nexus.y, r: N.lights.nexusAwake });
+    for (const l of lights) {
+      const x = (l.x - cam.x) * cam.zoom;
+      const y = (l.y - cam.y) * cam.zoom;
+      const r = l.r * cam.zoom;
+      if (x < -r || y < -r || x > W + r || y > H + r) continue;
+      const grad = g.createRadialGradient(x, y, r * 0.15, x, y, r);
+      grad.addColorStop(0, 'rgba(0,0,0,1)');
+      grad.addColorStop(1, 'rgba(0,0,0,0)');
+      g.fillStyle = grad;
+      g.fillRect(x - r, y - r, r * 2, r * 2);
+    }
+    g.globalCompositeOperation = 'source-over';
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.drawImage(nightCanvas, 0, 0);
   }
 
   function drawBuilding(b) {
@@ -346,6 +389,7 @@ export function createRenderer(canvas, assets, makeCanvas = () => document.creat
       drawTargetHint(s, view);
       if (view.nexusPrompt) label(view.nexusPrompt, world.nexus.x, world.nexus.y - 52);
       drawPlacingGhost(s, view.placement, world);
+      drawNight(s, view, world);
       ctx.setTransform(1, 0, 0, 1, 0, 0);
     },
   };

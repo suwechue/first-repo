@@ -94,5 +94,28 @@
   },
   "building": {
     "range": 6
+  },
+  "night": {
+    "duskAt": 0.68,
+    "fade": 0.07,
+    "tint": [16, 20, 52],
+    "maxAlpha": 0.62,
+    "ambientMul": 2,
+    "lights": {
+      "player": 70,
+      "campfire": 150,
+      "nexusAwake": 180,
+      "shrine": 60
+    }
+  },
+  "settings": {
+    "defaults": {
+      "zoom": 2,
+      "master": 0.8,
+      "music": 0.5,
+      "sfx": 0.8,
+      "touch": "auto"
+    },
+    "touchModes": ["auto", "on", "off"]
   }
 }

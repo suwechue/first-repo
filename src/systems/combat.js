@@ -7,7 +7,7 @@ import { worldOf, randomReachableNear } from '../world/world.js';
 import { moveCircle } from '../world/collision.js';
 import { buildingTiles } from './building.js';
 import { give } from './inventory.js';
-import { log, changed } from './log.js';
+import { log, changed, cue } from './log.js';
 
 const E = D.game.enemies;
 
@@ -47,6 +47,7 @@ export function attackEnemy(s, enemy) {
   const dmg = Math.max(1, Math.round(s.player.weaponDmg * (A.min + rand() * A.range)));
   enemy.hp -= dmg;
   log(s, `You hit the ${enemyName(enemy)} for ${dmg}.`);
+  cue('hit');
   if (enemy.hp <= 0) {
     const drops = D.enemies[enemy.type].overworld.drops;
     const text = Object.entries(drops)
@@ -80,6 +81,7 @@ export function updateEnemies(s) {
         s.player.hp = Math.max(0, s.player.hp - e.dmg);
         e.attackCooldown = O.attackCooldown;
         log(s, `The ${enemyName(e)} bites you for ${e.dmg}!`);
+        cue('hurt');
         changed('vitals');
       }
     } else {

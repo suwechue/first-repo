@@ -4,7 +4,7 @@ import { D } from '../core/content.js';
 import { dist } from '../core/geometry.js';
 import { weightedKey } from '../core/rng.js';
 import { worldOf, nodesNear } from '../world/world.js';
-import { log, changed } from './log.js';
+import { log, changed, cue } from './log.js';
 
 export function nearestInRange(s, list, range) {
   let best = null;
@@ -43,6 +43,7 @@ export function gatherNode(s, node) {
   st.amount -= 1;
   s.player.inventory[item] += 1;
   log(s, `Gathered 1 ${item}. (${st.amount}/${def.amount} left)`);
+  cue('gather');
   if (st.amount <= 0) {
     st.respawnTimer = def.respawn;
     if (node.relic && def.relic && !s.relics[node.id]) findRelic(s, node.id, def.relic.kp);
@@ -55,6 +56,7 @@ export function findRelic(s, key, kp) {
   s.relics[key] = true;
   s.kp += kp;
   log(s, `You find a relic, carved with symbols you almost understand. (+${kp} Knowledge)`);
+  cue('discover');
   changed('kp');
 }
 

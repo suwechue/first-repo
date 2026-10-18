@@ -6,7 +6,7 @@ import { canAfford, spend, give, costText } from './inventory.js';
 import { isUnlocked } from './tech.js';
 import { refreshOffer } from './recruiting.js';
 import { worldOf } from '../world/world.js';
-import { log, changed } from './log.js';
+import { log, changed, cue } from './log.js';
 
 const N = D.nexus;
 
@@ -80,6 +80,7 @@ export function awakenNexus(s) {
     .map(([k, v]) => '+' + v + ' ' + (D.materials[k]?.label || k))
     .join(', ');
   log(s, 'The Nexus awakens! A doorway of light opens. (' + grants + ')');
+  cue('awaken');
   changed('all');
 }
 

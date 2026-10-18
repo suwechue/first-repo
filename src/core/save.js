@@ -73,7 +73,8 @@ export function apply(state, data) {
   }
   state.relics = plainObject(data.relics);
   state.landmarks = plainObject(data.landmarks);
-  state.fog = Array.isArray(data.fog) && data.fog.every((n) => Number.isInteger(n) && n >= 0) ? data.fog.slice() : [];
+  state.fog =
+    Array.isArray(data.fog) && data.fog.every((n) => Number.isInteger(n) && n >= 0) ? data.fog.slice() : [];
   state.buildings = (Array.isArray(state.buildings) ? state.buildings : []).filter(
     (b) => b && D.buildings[b.type] && Number.isFinite(b.x) && Number.isFinite(b.y),
   );

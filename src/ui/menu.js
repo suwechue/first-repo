@@ -35,10 +35,12 @@ export function renderSys(s, actions) {
       <input type="file" id="sys-file" accept="application/json,.json" style="display:none">
     </div>
     <div class="muted small" id="sys-msg">Autosaves every few seconds in this browser.</div>
+    ${settingsHtml(actions.settings?.get())}
     <h4>Progress</h4>
     <p class="small">Day ${s.day} · Expeditions: ${s.stats.missions} · Fallen: ${s.stats.deaths}<br>
     Renown ${s.renown} · Arcane Knowledge ${s.arcane}<br>Knowledge fragments: ${fr}<br>World seed: ${esc(s.seed)}</p>
     <h4>Memorial</h4>${mem}`;
+  if (actions.settings) wireSettings(s, actions);
   $('sys-save').onclick = () => {
     $('sys-msg').textContent = store(s) ? 'Saved.' : 'Browser storage unavailable — use Export.';
   };
@@ -62,4 +64,39 @@ export function renderSys(s, actions) {
     clearStored();
     actions.newGame();
   };
+}
+
+function settingsHtml(st) {
+  if (!st) return '';
+  const slider = (k, label) =>
+    `<label class="set-row">${label}<input type="range" min="0" max="100" step="5" id="set-${k}" value="${Math.round(st[k] * 100)}"><span>${Math.round(st[k] * 100)}%</span></label>`;
+  const zooms = [1, 2, 3]
+    .map((z) => `<button class="craft-btn ${st.zoom === z ? 'active' : ''}" data-zoom="${z}">${z}x</button>`)
+    .join('');
+  const touch = D.game.settings.touchModes
+    .map((m) => `<option value="${m}" ${st.touch === m ? 'selected' : ''}>${m}</option>`)
+    .join('');
+  return `<h4>Settings</h4>
+    <div class="set-row">Zoom ${zooms}</div>
+    ${slider('master', 'Volume')}${slider('music', 'Music')}${slider('sfx', 'Effects')}
+    <label class="set-row">Touch controls <select id="set-touch">${touch}</select></label>`;
+}
+
+/** `actions.settings` is { get(), set(patch) }; set applies and stores the change. */
+function wireSettings(s, actions) {
+  const S = actions.settings;
+  document.querySelectorAll('#sys-body [data-zoom]').forEach((b) =>
+    b.addEventListener('click', () => {
+      S.set({ zoom: Number(b.getAttribute('data-zoom')) });
+      renderSys(s, actions);
+    }),
+  );
+  for (const k of ['master', 'music', 'sfx']) {
+    const el = $('set-' + k);
+    el.addEventListener('input', () => {
+      S.set({ [k]: Number(el.value) / 100 });
+      el.nextElementSibling.textContent = el.value + '%';
+    });
+  }
+  $('set-touch').addEventListener('change', (e) => S.set({ touch: e.target.value }));
 }

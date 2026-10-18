@@ -10,7 +10,8 @@ import { emptyFog, revealCircle } from '../world/fog.js';
 import { addEnemy } from './combat.js';
 import { give } from './inventory.js';
 import { findRelic } from './gathering.js';
-import { log, changed } from './log.js';
+import { isNight } from './clock.js';
+import { log, changed, cue } from './log.js';
 
 const COMPASS = ['east', 'south-east', 'south', 'south-west', 'west', 'north-west', 'north', 'north-east'];
 
@@ -53,6 +54,7 @@ export function discover(s, lm) {
   s.fogRev = (s.fogRev || 0) + 1;
   const reward = R.kp ? `+${R.kp} Knowledge` : '';
   log(s, `Discovered: ${def.name}.${reward ? ' (' + reward + ')' : ''}`);
+  cue('discover');
   emit('banner', { title: def.name, text: R.reveal ? reward + ' · the land around is revealed' : reward });
   return true;
 }
@@ -119,9 +121,9 @@ function updateAmbient(s, world) {
   }
 }
 
-/** Night brings more wolves; the day clock sets this through s.night (see systems/clock.js). */
+/** Night brings more wolves. */
 export function ambientMultiplier(s) {
-  return s.night ? D.game.night?.ambientMul || 1 : 1;
+  return isNight(s) ? D.game.night.ambientMul : 1;
 }
 
 // ---------------------------------------------------------------------------
@@ -172,6 +174,7 @@ function attackDen(s, lm, def, st) {
   const A = D.game.player.attackSpread;
   const dmg = Math.max(1, Math.round(s.player.weaponDmg * (A.min + rand() * A.range)));
   st.hp = Math.max(0, (st.hp ?? def.den.hp) - dmg);
+  cue('hit');
   if (st.hp > 0) {
     log(s, `You tear at the ${def.name}. (${st.hp} left)`);
     return;

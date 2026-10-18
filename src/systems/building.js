@@ -5,7 +5,7 @@ import { dist } from '../core/geometry.js';
 import { worldOf, tileOf, inBounds, isSolidTile, nodeAtTile, propAtTile } from '../world/world.js';
 import { blockedAt } from '../world/collision.js';
 import { canAfford, spend, give } from './inventory.js';
-import { log, changed } from './log.js';
+import { log, changed, cue } from './log.js';
 import { addAwareness } from './nexus.js';
 
 export function enterPlacing(s, key) {
@@ -107,6 +107,7 @@ export function tryPlaceBuilding(s, x, y) {
   if (def.awareness) b.awarenessTimer = def.awareness.time;
   s.buildings.push(b);
   log(s, `Built ${def.name}.`);
+  cue('build');
   s.mode = 'EXPLORE';
   s.placingBuilding = null;
   changed('inventory');

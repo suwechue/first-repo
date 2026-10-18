@@ -8,6 +8,11 @@ export function log(s, msg) {
   emit('log', msg);
 }
 
+/** A moment worth a sound: 'gather', 'hit', 'hurt', 'build', 'craft', 'awaken', 'discover'. The UI maps it to audio. */
+export function cue(name) {
+  emit('sfx', name);
+}
+
 /** Tells the UI that part of the state changed: 'inventory', 'vitals', 'kp', 'day', 'tech', 'roster', 'nexus', 'all'. */
 export function changed(topic) {
   emit('changed', topic);
