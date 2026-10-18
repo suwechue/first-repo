@@ -91,5 +91,8 @@
     "countWithin": 1024,
     "despawnDistance": 1600,
     "packSpread": 48
+  },
+  "building": {
+    "range": 6
   }
 }

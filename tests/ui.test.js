@@ -107,9 +107,15 @@ describe('The page', () => {
     expect(place.disabled).toBe(false);
     place.click();
     expect(document.getElementById('panel-build').classList.contains('open')).toBe(false);
+    // The camera centers on the player, so the middle of the canvas is the player's own tile, which
+    // is clear ground at the spawn; a campfire may stand there.
     const canvas = document.getElementById('game');
-    canvas.getBoundingClientRect = () => ({ left: 0, top: 0, width: 900, height: 560 });
-    canvas.dispatchEvent(new MouseEvent('click', { clientX: 200, clientY: 300 }));
+    canvas.getBoundingClientRect = () => ({ left: 0, top: 0, width: canvas.width, height: canvas.height });
+    canvas.dispatchEvent(
+      new MouseEvent('mousemove', { clientX: canvas.width / 2, clientY: canvas.height / 2 }),
+    );
+    runFrames(2);
+    canvas.dispatchEvent(new MouseEvent('click', { clientX: canvas.width / 2, clientY: canvas.height / 2 }));
     expect(document.getElementById('status-log').textContent).toMatch(/Built Campfire/);
     runFrames(5);
     expect(errors).toEqual([]);

@@ -230,17 +230,31 @@ export function createRenderer(canvas, assets, makeCanvas = () => document.creat
     if (view.targetLabel) label(view.targetLabel, target.x, target.y - 34, enemy ? '#ffb3a8' : '#f0e6c8');
   }
 
-  function drawPlacingGhost(s, mouseWorld) {
-    if (s.mode !== 'PLACING' || !mouseWorld) return;
+  /** The build range around the player, and the snapped footprint: green where it fits, red where not. */
+  function drawPlacingGhost(s, p, world) {
+    if (s.mode !== 'PLACING') return;
+    const ts = world.ts;
+    ctx.save();
+    ctx.strokeStyle = 'rgba(240,230,200,0.35)';
+    ctx.setLineDash([6, 6]);
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(s.player.x, s.player.y, D.game.building.range * ts, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+    if (!p) return;
     const def = D.buildings[s.placingBuilding];
     ctx.save();
-    ctx.globalAlpha = 0.5;
-    ctx.translate(mouseWorld.x, mouseWorld.y);
-    ctx.fillStyle = def.color;
-    ctx.beginPath();
-    ctx.arc(0, 0, 14, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.fillStyle = p.ok ? 'rgba(120,200,110,0.35)' : 'rgba(210,80,70,0.35)';
+    ctx.strokeStyle = p.ok ? 'rgba(170,240,150,0.8)' : 'rgba(240,120,110,0.8)';
+    for (const [tx, ty] of p.tiles) {
+      ctx.fillRect(tx * ts, ty * ts, ts, ts);
+      ctx.strokeRect(tx * ts + 0.5, ty * ts + 0.5, ts - 1, ts - 1);
+    }
+    ctx.globalAlpha = 0.65;
+    if (!drawSprite(ctx, assets, def.sprite, p.x, p.y, { time: now })) drawPlaceholder(ctx, def, p, p.x, p.y);
     ctx.restore();
+    if (!p.ok && p.reason) label(p.reason, p.x, p.y - (def.size?.[1] || 1) * 16 - 12, '#ffb3a8');
   }
 
   /** Every object inside the view (plus a margin for tall sprites), sorted by anchor Y. */
@@ -300,7 +314,7 @@ export function createRenderer(canvas, assets, makeCanvas = () => document.creat
     toWorld(p) {
       return screenToWorld(cam, p.x, p.y);
     },
-    draw(s, view, mouse, time) {
+    draw(s, view, time) {
       const world = worldOf(s);
       now = time;
       followCamera(
@@ -331,7 +345,7 @@ export function createRenderer(canvas, assets, makeCanvas = () => document.creat
       drawFog(s, world);
       drawTargetHint(s, view);
       if (view.nexusPrompt) label(view.nexusPrompt, world.nexus.x, world.nexus.y - 52);
-      drawPlacingGhost(s, mouse && screenToWorld(cam, mouse.x, mouse.y));
+      drawPlacingGhost(s, view.placement, world);
       ctx.setTransform(1, 0, 0, 1, 0, 0);
     },
   };

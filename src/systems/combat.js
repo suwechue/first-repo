@@ -5,6 +5,7 @@ import { rand } from '../core/rng.js';
 import { dist } from '../core/geometry.js';
 import { worldOf, randomReachableNear } from '../world/world.js';
 import { moveCircle } from '../world/collision.js';
+import { buildingTiles } from './building.js';
 import { give } from './inventory.js';
 import { log, changed } from './log.js';
 
@@ -61,6 +62,7 @@ export function attackEnemy(s, enemy) {
 
 export function updateEnemies(s) {
   const world = worldOf(s);
+  const walls = buildingTiles(s).solid;
   for (const e of s.enemies) {
     const O = D.enemies[e.type].overworld;
     if (e.attackCooldown > 0) e.attackCooldown--;
@@ -73,7 +75,7 @@ export function updateEnemies(s) {
       const dy = s.player.y - e.y;
       const len = Math.hypot(dx, dy) || 1;
       if (dToPlayer > O.attackRange) {
-        moveCircle(world, e, (dx / len) * e.speed, (dy / len) * e.speed, E.radius);
+        moveCircle(world, e, (dx / len) * e.speed, (dy / len) * e.speed, E.radius, walls);
       } else if (e.attackCooldown <= 0) {
         s.player.hp = Math.max(0, s.player.hp - e.dmg);
         e.attackCooldown = O.attackCooldown;
@@ -93,7 +95,7 @@ export function updateEnemies(s) {
       } else {
         const bx = e.x;
         const by = e.y;
-        moveCircle(world, e, (dx / d) * O.wanderSpeed, (dy / d) * O.wanderSpeed, E.radius);
+        moveCircle(world, e, (dx / d) * O.wanderSpeed, (dy / d) * O.wanderSpeed, E.radius, walls);
         e.stuck = bx === e.x && by === e.y ? (e.stuck || 0) + 1 : 0;
       }
     }

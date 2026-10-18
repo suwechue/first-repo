@@ -1,11 +1,14 @@
-// Circle collision against the world: blocking terrain tiles, blocking nodes (tree trunks, rocks),
-// the Nexus, and any extra circles the caller passes (buildings). Axes resolve separately, so a
-// mover slides along walls instead of sticking to them.
+// Circle collision against the world: blocking terrain tiles and walls, blocking nodes (tree
+// trunks, rocks), props, the Nexus, and any extra solid tiles the caller passes (the player's
+// buildings). Axes resolve separately, so a mover slides along walls instead of sticking to them.
 import { D } from '../core/content.js';
 import { tileOf, isSolidTile, nodeAtTile, propAtTile } from './world.js';
 
-/** True if a circle of radius r at (x, y) overlaps anything solid. `extra` is a list of {x, y, r}. */
-export function blockedAt(world, x, y, r, extra = []) {
+/**
+ * True if a circle of radius r at (x, y) overlaps anything solid. `extraTiles` is an optional Set of
+ * tile indices (ty * world.w + tx) that also count as solid.
+ */
+export function blockedAt(world, x, y, r, extraTiles = null) {
   const ts = world.ts;
   const tx0 = tileOf(world, x - r);
   const tx1 = tileOf(world, x + r);
@@ -13,7 +16,7 @@ export function blockedAt(world, x, y, r, extra = []) {
   const ty1 = tileOf(world, y + r);
   for (let ty = ty0; ty <= ty1; ty++) {
     for (let tx = tx0; tx <= tx1; tx++) {
-      if (!isSolidTile(world, tx, ty)) continue;
+      if (!isSolidTile(world, tx, ty) && !extraTiles?.has(ty * world.w + tx)) continue;
       const nx = Math.max(tx * ts, Math.min(x, (tx + 1) * ts));
       const ny = Math.max(ty * ts, Math.min(y, (ty + 1) * ts));
       if ((nx - x) ** 2 + (ny - y) ** 2 < r * r) return true;
@@ -37,7 +40,6 @@ export function blockedAt(world, x, y, r, extra = []) {
     }
   }
   if (world.nexus && Math.hypot(world.nexus.x - x, world.nexus.y - y) < r + D.nexus.blocks) return true;
-  for (const c of extra) if (Math.hypot(c.x - x, c.y - y) < r + c.r) return true;
   return false;
 }
 
@@ -45,8 +47,8 @@ export function blockedAt(world, x, y, r, extra = []) {
  * Moves `obj` by (dx, dy) in small steps, resolving x and y separately. A mover that starts inside
  * something solid may move freely until it is out, so nothing can ever get stuck.
  */
-export function moveCircle(world, obj, dx, dy, r, extra = []) {
-  if (blockedAt(world, obj.x, obj.y, r, extra)) {
+export function moveCircle(world, obj, dx, dy, r, extraTiles = null) {
+  if (blockedAt(world, obj.x, obj.y, r, extraTiles)) {
     obj.x += dx;
     obj.y += dy;
     return;
@@ -55,7 +57,7 @@ export function moveCircle(world, obj, dx, dy, r, extra = []) {
   const sx = dx / steps;
   const sy = dy / steps;
   for (let i = 0; i < steps; i++) {
-    if (sx && !blockedAt(world, obj.x + sx, obj.y, r, extra)) obj.x += sx;
-    if (sy && !blockedAt(world, obj.x, obj.y + sy, r, extra)) obj.y += sy;
+    if (sx && !blockedAt(world, obj.x + sx, obj.y, r, extraTiles)) obj.x += sx;
+    if (sy && !blockedAt(world, obj.x, obj.y + sy, r, extraTiles)) obj.y += sy;
   }
 }

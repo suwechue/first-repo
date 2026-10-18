@@ -5,7 +5,7 @@ import { makeInitialState } from './core/state.js';
 import { createLoop } from './core/loop.js';
 import { newGame, update, handleInteract, interactTarget } from './systems/game.js';
 import { nexusStage, nexusPrompt } from './systems/nexus.js';
-import { exitPlacing, tryPlaceBuilding } from './systems/building.js';
+import { exitPlacing, tryPlaceBuilding, placementCheck } from './systems/building.js';
 import { log } from './systems/log.js';
 import { createRenderer } from './render/renderer.js';
 import { assets } from './render/assets.js';
@@ -125,9 +125,14 @@ const loop = createLoop({
       target: t && t.kind !== 'nexus' ? t : null,
       enemy: t?.kind === 'enemy',
       targetLabel: t && t.kind !== 'nexus' ? t.label : null,
+      placement: null,
     };
+    if (state.mode === 'PLACING' && mouse) {
+      const p = renderer.toWorld(mouse);
+      view.placement = placementCheck(state, state.placingBuilding, p.x, p.y);
+    }
     const now = performance.now();
-    renderer.draw(state, view, mouse, now);
+    renderer.draw(state, view, now);
     const world = worldOf(state);
     minimap.draw(state, world, world.landmarks, now);
   },

@@ -2,6 +2,7 @@
 import { D } from '../core/content.js';
 import { worldOf } from '../world/world.js';
 import { moveCircle } from '../world/collision.js';
+import { buildingTiles } from './building.js';
 import { log, changed } from './log.js';
 
 /** Moves the player from the held direction keys: { up, down, left, right }. */
@@ -18,7 +19,7 @@ export function updatePlayer(s, input) {
     dy /= len;
     const P = D.game.player;
     s.player.facing = { x: dx, y: dy };
-    moveCircle(worldOf(s), s.player, dx * P.speed, dy * P.speed, P.radius);
+    moveCircle(worldOf(s), s.player, dx * P.speed, dy * P.speed, P.radius, buildingTiles(s).solid);
   }
   if (s.gatherCooldown > 0) s.gatherCooldown--;
 }
