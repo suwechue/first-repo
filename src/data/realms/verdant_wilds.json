@@ -1,0 +1,143 @@
+{
+  "name": "Verdant Wilds",
+  "blurb": "An overgrown, magic-soaked forest. The mana here cannot be found at home.",
+  "zones": {
+    "fringe": {
+      "name": "The Fringe",
+      "steps": 5,
+      "encounterChance": 0.4,
+      "deathScale": 0.4,
+      "renown": 3,
+      "exploreArcane": 1,
+      "unlock": null,
+      "enemies": [
+        {
+          "id": "wild_sprites",
+          "w": 70
+        },
+        {
+          "id": "thornback_boar",
+          "w": 30
+        }
+      ],
+      "resources": [
+        {
+          "id": "wildroot",
+          "base": 2
+        },
+        {
+          "id": "enchanted_wood",
+          "base": 1
+        }
+      ],
+      "hunt": ["thornback_boar"]
+    },
+    "groves": {
+      "name": "The Groves",
+      "steps": 5,
+      "encounterChance": 0.5,
+      "deathScale": 0.7,
+      "renown": 4,
+      "exploreArcane": 2,
+      "unlock": {
+        "zone": "fringe",
+        "explored": 60
+      },
+      "enemies": [
+        {
+          "id": "wild_sprites",
+          "w": 35
+        },
+        {
+          "id": "thornback_boar",
+          "w": 30
+        },
+        {
+          "id": "mana_wisp",
+          "w": 35
+        }
+      ],
+      "resources": [
+        {
+          "id": "mana_crystal",
+          "base": 1
+        },
+        {
+          "id": "wildroot",
+          "base": 2
+        }
+      ],
+      "hunt": ["mana_wisp"]
+    },
+    "warrens": {
+      "name": "The Warrens",
+      "steps": 6,
+      "encounterChance": 0.55,
+      "deathScale": 1,
+      "renown": 6,
+      "exploreArcane": 2,
+      "unlock": {
+        "zone": "groves",
+        "explored": 60
+      },
+      "enemies": [
+        {
+          "id": "goblin_raiders",
+          "w": 55
+        },
+        {
+          "id": "wild_sprites",
+          "w": 20
+        },
+        {
+          "id": "thornback_boar",
+          "w": 25
+        }
+      ],
+      "resources": [
+        {
+          "id": "beast_core",
+          "base": 1
+        },
+        {
+          "id": "verdant_silk",
+          "base": 1
+        }
+      ],
+      "hunt": ["goblin_raiders"]
+    },
+    "old_grove": {
+      "name": "The Old Grove",
+      "steps": 6,
+      "encounterChance": 0.6,
+      "deathScale": 1,
+      "renown": 10,
+      "exploreArcane": 3,
+      "unlock": {
+        "zone": "warrens",
+        "explored": 60
+      },
+      "enemies": [
+        {
+          "id": "thornback_boar",
+          "w": 50
+        },
+        {
+          "id": "mana_wisp",
+          "w": 50
+        }
+      ],
+      "resources": [
+        {
+          "id": "mana_crystal",
+          "base": 2
+        },
+        {
+          "id": "enchanted_wood",
+          "base": 2
+        }
+      ],
+      "hunt": ["grove_warden"]
+    }
+  }
+}

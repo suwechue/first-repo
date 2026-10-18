@@ -9,7 +9,7 @@ export default [
   js.configs.recommended,
   {
     files: ['**/*.js'],
-    languageOptions: { ecmaVersion: 2022, sourceType: 'module', globals: { ...globals.browser } },
+    languageOptions: { ecmaVersion: 'latest', sourceType: 'module', globals: { ...globals.browser } },
     rules: {
       'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     },

@@ -4,11 +4,74 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>The Nexus Project</title>
-    <link rel="stylesheet" href="/src/ui/style.css" />
   </head>
   <body>
     <div id="game-root">
       <canvas id="game" width="900" height="560"></canvas>
+
+      <div id="vitals">
+        <div class="vital-row">
+          <div class="vital-label">Health</div>
+          <div class="vital-track"><div class="vital-fill" id="hp-fill" style="width: 100%"></div></div>
+        </div>
+        <div class="vital-row">
+          <div class="vital-label">Hunger</div>
+          <div class="vital-track"><div class="vital-fill" id="hunger-fill" style="width: 100%"></div></div>
+        </div>
+      </div>
+
+      <div id="resource-bar"></div>
+      <div id="title-banner">
+        <span class="day" id="day-label">Day 1</span><span id="kp-label">0 Knowledge</span>
+      </div>
+      <div id="status-log"></div>
+
+      <div class="panel" id="panel-craft">
+        <h3>Craft</h3>
+        <div id="craft-list"></div>
+      </div>
+      <div class="panel" id="panel-build">
+        <h3>Build</h3>
+        <div id="build-list"></div>
+      </div>
+      <div class="panel" id="panel-tech">
+        <h3>Knowledge (spend Knowledge Points to unlock technologies)</h3>
+        <div id="tech-list"></div>
+      </div>
+      <div class="panel wide" id="panel-roster">
+        <h3>Roster</h3>
+        <div id="roster-list"></div>
+      </div>
+      <div class="panel wide" id="panel-hall">
+        <h3>Expedition Hall</h3>
+        <div id="hall-body"></div>
+      </div>
+      <div class="panel wide" id="panel-sys">
+        <h3>Settlement &amp; Save</h3>
+        <div id="sys-body"></div>
+      </div>
+
+      <div id="modal">
+        <div id="modal-card">
+          <div id="modal-body"></div>
+          <button class="craft-btn" id="modal-close">Close</button>
+        </div>
+      </div>
+
+      <div id="action-bar">
+        <button class="tab-btn" id="btn-craft">Craft</button>
+        <button class="tab-btn" id="btn-build">Build</button>
+        <button class="tab-btn" id="btn-tech">Knowledge</button>
+        <button class="tab-btn" id="btn-roster">Roster</button>
+        <button class="tab-btn" id="btn-hall" style="display: none">Expedition Hall</button>
+        <button class="tab-btn" id="btn-sys">Menu</button>
+      </div>
+
+      <div id="hint">
+        <b>WASD</b> move · <b>E</b> gather/attack nearest · <b>ESC</b> cancel placement<br />
+        Walk up to a tree, rock, or bush and press E. Cook raw food at a lit Campfire. Explore the north-east
+        for the Nexus.
+      </div>
     </div>
     <script type="module" src="/src/main.js"></script>
   </body>

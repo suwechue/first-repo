@@ -1,0 +1,27 @@
+{
+  "position": {
+    "x": 790,
+    "y": 170
+  },
+  "radius": 34,
+  "interactRange": 70,
+  "digSteps": 3,
+  "digCost": {
+    "stone": 4,
+    "wood": 2
+  },
+  "digTech": "foundation_engineering",
+  "awarenessNeeded": 40,
+  "awarenessCap": 100,
+  "awakenGrants": {
+    "items": {
+      "supplies": 4
+    },
+    "renown": 10
+  },
+  "sprites": {
+    "buried": "nexus_buried",
+    "excavated": "nexus_excavated",
+    "awake": "nexus_awake"
+  }
+}

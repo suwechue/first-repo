@@ -1,0 +1,71 @@
+{
+  "squad": { "min": 2, "max": 4 },
+  "supply": { "item": "supplies", "perMember": 1 },
+  "retreatOptions": [25, 35, 50, 70],
+  "retreatLabels": { "25": "bold", "70": "cautious" },
+  "defaultRetreat": 35,
+  "objectives": {
+    "explore": {
+      "label": "Explore",
+      "desc": "Map the zone. Opens the next zone and earns Arcane Knowledge.",
+      "cpEffect": "exploreCp",
+      "explore": 40,
+      "resourceShare": 0.3,
+      "paysArcane": true
+    },
+    "gather": {
+      "label": "Gather",
+      "desc": "Haul back the zone's native resources.",
+      "cpEffect": "gatherCp",
+      "explore": 10,
+      "resourceShare": 1
+    },
+    "hunt": {
+      "label": "Hunt",
+      "desc": "Track the zone's prize quarry. The final step is a fight with it.",
+      "cpEffect": "huntCp",
+      "explore": 10,
+      "resourceShare": 0.3,
+      "finalFight": true
+    }
+  },
+  "combatPower": { "perLevel": 4, "perPrimaryStat": 1.5, "minPerMember": 1 },
+  "matchup": { "weakTo": 4, "resists": -3 },
+  "woundedCpMul": 0.8,
+  "closenessMin": 0.1,
+  "injury": {
+    "base": 0.35,
+    "conPivot": 5,
+    "conPerPoint": 0.03,
+    "conModMax": 0.3,
+    "lossMul": 1.6,
+    "cap": 0.9
+  },
+  "death": {
+    "base": 0.2,
+    "lossMul": 1.5,
+    "supportAliveMul": 0.6,
+    "alreadyWoundedMul": 2,
+    "cap": 0.9
+  },
+  "synergy": {
+    "traitPair": 0.03,
+    "frontLiner": 0.03,
+    "support": 0.03,
+    "leader": 0.03,
+    "min": -0.4,
+    "max": 0.6
+  },
+  "roles": { "front": "front", "support": "support" },
+  "vigor": { "start": 100, "wonFight": 8, "lostFight": 25, "quietStep": 3 },
+  "resourceRoll": { "min": 0.6, "range": 0.8 },
+  "arcaneMinOnSuccess": 1,
+  "renownPartialMul": 0.5,
+  "injuredDays": { "success": 2, "otherwise": 3 },
+  "grief": { "cpMul": 0.85, "missions": 2, "bondAtLeast": 41 },
+  "bondGain": { "success": 3, "retreat": 1 },
+  "xp": { "base": 14, "success": 10 },
+  "clockDayFraction": 0.25,
+  "logSize": 12,
+  "bloodFeud": -86
+}

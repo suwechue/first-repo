@@ -1,0 +1,79 @@
+{
+  "campfire": {
+    "sprite": "campfire",
+    "placeholder": "campfire",
+    "name": "Campfire",
+    "desc": "Lets you cook food nearby.",
+    "costs": {
+      "wood": 3,
+      "stone": 2
+    },
+    "requires": ["fire_making"],
+    "radius": 14,
+    "color": "#c9702e"
+  },
+  "hut": {
+    "sprite": "hut",
+    "placeholder": "hut",
+    "name": "Hut",
+    "desc": "A place to call home. (Cosmetic this build)",
+    "costs": {
+      "wood": 8,
+      "stone": 2,
+      "fiber": 3
+    },
+    "requires": ["woodworking"],
+    "radius": 20,
+    "color": "#8a5a34"
+  },
+  "palisade": {
+    "sprite": "palisade",
+    "placeholder": "post",
+    "name": "Palisade Post",
+    "desc": "A defensive wall segment.",
+    "costs": {
+      "wood": 5,
+      "stone": 1
+    },
+    "requires": ["basic_construction"],
+    "radius": 8,
+    "color": "#5a3d24"
+  },
+  "farm_plot": {
+    "sprite": "farm_plot",
+    "placeholder": "farm",
+    "name": "Farm Plot",
+    "desc": "Passively produces food over time.",
+    "costs": {
+      "wood": 2,
+      "fiber": 2
+    },
+    "requires": ["basic_agriculture"],
+    "radius": 12,
+    "color": "#7a9c4a",
+    "produces": {
+      "time": 1200,
+      "yields": {
+        "food": 2
+      }
+    }
+  },
+  "shrine": {
+    "sprite": "shrine",
+    "placeholder": "shrine",
+    "name": "Shrine",
+    "desc": "Attunes your people to the Nexus. Each Shrine adds Mana Awareness over time.",
+    "costs": {
+      "wood": 6,
+      "stone": 4,
+      "fiber": 2
+    },
+    "requires": ["shamanic_rites"],
+    "radius": 14,
+    "color": "#8f7ad1",
+    "awareness": {
+      "time": 180,
+      "amount": 1
+    }
+  }
+}

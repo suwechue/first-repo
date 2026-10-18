@@ -1,0 +1,41 @@
+{
+  "tree": {
+    "sprite": "tree",
+    "placeholder": "tree",
+    "yields": "wood",
+    "color": "#2f4a22",
+    "trunk": "#5a3d24",
+    "amount": 5,
+    "respawn": 900,
+    "radius": 16
+  },
+  "rock": {
+    "sprite": "rock",
+    "placeholder": "rock",
+    "yields": "stone",
+    "color": "#7a7568",
+    "amount": 4,
+    "respawn": 1400,
+    "radius": 14
+  },
+  "bush": {
+    "sprite": "bush",
+    "placeholder": "bush",
+    "yields": "fiber",
+    "color": "#3c6b2a",
+    "berry": "#b23a3a",
+    "amount": 3,
+    "respawn": 700,
+    "radius": 10
+  },
+  "berrybush": {
+    "sprite": "berrybush",
+    "placeholder": "bush",
+    "yields": "food",
+    "color": "#3c6b2a",
+    "berry": "#c94f4f",
+    "amount": 3,
+    "respawn": 1100,
+    "radius": 10
+  }
+}

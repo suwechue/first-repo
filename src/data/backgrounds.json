@@ -1,0 +1,50 @@
+{
+  "farmer": {
+    "name": "Farmer",
+    "weight": 25,
+    "classes": {
+      "farmer": 60,
+      "gatherer": 40
+    },
+    "nudge": {
+      "con": 1.4
+    }
+  },
+  "hunter": {
+    "name": "Hunter",
+    "weight": 25,
+    "classes": {
+      "hunter": 70,
+      "scout": 30
+    },
+    "nudge": {
+      "dex": 1.3,
+      "per": 1.3
+    }
+  },
+  "laborer": {
+    "name": "Laborer",
+    "weight": 25,
+    "classes": {
+      "warrior": 50,
+      "gatherer": 30,
+      "toolmaker": 20
+    },
+    "nudge": {
+      "str": 1.4
+    }
+  },
+  "apprentice": {
+    "name": "Apprentice",
+    "weight": 25,
+    "classes": {
+      "toolmaker": 25,
+      "scout": 20,
+      "shaman": 25,
+      "herbalist": 25
+    },
+    "nudge": {
+      "int": 1.4
+    }
+  }
+}

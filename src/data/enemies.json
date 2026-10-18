@@ -1,0 +1,82 @@
+{
+  "wolf": {
+    "name": "wolf",
+    "short": "Wolf",
+    "sprite": "wolf",
+    "placeholder": "beast",
+    "overworld": {
+      "hp": 8,
+      "dmg": 2,
+      "speed": 1.4,
+      "aggro": 120,
+      "attackRange": 22,
+      "attackCooldown": 50,
+      "wanderSpeed": 0.5,
+      "drops": {
+        "fiber": 1,
+        "food": 1,
+        "hide": 1
+      }
+    }
+  },
+  "wild_sprites": {
+    "name": "a swarm of Wild Sprites",
+    "short": "Wild Sprites",
+    "etr": 18,
+    "weakTo": ["cold"],
+    "resists": [],
+    "xp": 6,
+    "drops": {}
+  },
+  "thornback_boar": {
+    "name": "a Thornback Boar",
+    "short": "Thornback Boar",
+    "etr": 55,
+    "weakTo": ["heat"],
+    "resists": ["force"],
+    "xp": 14,
+    "drops": {
+      "hide": [1, 0.6]
+    }
+  },
+  "mana_wisp": {
+    "name": "a Mana Wisp",
+    "short": "Mana Wisp",
+    "etr": 75,
+    "weakTo": ["force"],
+    "resists": ["heat"],
+    "xp": 18,
+    "drops": {
+      "mana_crystal": [1, 0.5]
+    }
+  },
+  "goblin_raiders": {
+    "name": "a Goblin raiding party",
+    "short": "Goblin Raiders",
+    "etr": 120,
+    "weakTo": ["motion", "heat"],
+    "resists": [],
+    "xp": 28,
+    "drops": {
+      "beast_core": [1, 0.45],
+      "verdant_silk": [1, 0.3]
+    }
+  },
+  "grove_warden": {
+    "name": "the Grove Warden",
+    "short": "Grove Warden",
+    "etr": 380,
+    "weakTo": ["heat"],
+    "resists": ["cold"],
+    "xp": 120,
+    "boss": true,
+    "drops": {
+      "mana_crystal": [3, 1],
+      "enchanted_wood": [2, 1]
+    },
+    "fragment": {
+      "id": "gravitational",
+      "amount": 17
+    }
+  }
+}

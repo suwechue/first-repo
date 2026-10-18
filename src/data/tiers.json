@@ -1,0 +1,50 @@
+{
+  "recruit": {
+    "rosterCap": 8,
+    "costItem": "food",
+    "starterTier": "common"
+  },
+  "stats": {
+    "labels": {
+      "str": "STR",
+      "con": "CON",
+      "dex": "DEX",
+      "int": "INT",
+      "per": "PER",
+      "wil": "WIL"
+    },
+    "floor": 3,
+    "cap": 14,
+    "primaryWeight": 3,
+    "otherWeight": 1
+  },
+  "traitPoolWeights": {
+    "common": 70,
+    "uncommon": 27,
+    "notable": 3
+  },
+  "traitRollAttempts": 60,
+  "tiers": {
+    "common": {
+      "label": "Common",
+      "weight": 70,
+      "budget": 24,
+      "traits": 1,
+      "cost": 6
+    },
+    "uncommon": {
+      "label": "Uncommon",
+      "weight": 25,
+      "budget": 32,
+      "traits": 2,
+      "cost": 12
+    },
+    "rare": {
+      "label": "Rare",
+      "weight": 5,
+      "budget": 42,
+      "traits": 3,
+      "cost": 24
+    }
+  }
+}

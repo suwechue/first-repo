@@ -1,0 +1,77 @@
+{
+  "fire_making": {
+    "name": "Fire Making",
+    "cost": 0,
+    "prereq": [],
+    "desc": "Free — everyone starts knowing how to make fire.",
+    "startUnlocked": true
+  },
+  "stone_knapping": {
+    "name": "Stone Knapping",
+    "cost": 0,
+    "prereq": [],
+    "desc": "Free — sharpen stone into tools.",
+    "startUnlocked": true
+  },
+  "woodworking": {
+    "name": "Woodworking",
+    "cost": 10,
+    "prereq": ["stone_knapping"],
+    "desc": "Unlocks huts and wooden tools.",
+    "startUnlocked": false
+  },
+  "basic_construction": {
+    "name": "Basic Construction",
+    "cost": 15,
+    "prereq": ["woodworking"],
+    "desc": "Unlocks the Palisade wall.",
+    "startUnlocked": false
+  },
+  "cooking": {
+    "name": "Cooking",
+    "cost": 8,
+    "prereq": ["fire_making"],
+    "desc": "Cook raw food at a Campfire for more Hunger restored.",
+    "startUnlocked": false
+  },
+  "basic_agriculture": {
+    "name": "Basic Agriculture",
+    "cost": 12,
+    "prereq": ["fire_making"],
+    "desc": "Unlocks the Farm Plot, which slowly grows food on its own.",
+    "startUnlocked": false
+  },
+  "tanning": {
+    "name": "Tanning",
+    "cost": 8,
+    "prereq": ["fire_making"],
+    "desc": "Cure hides from wolves into Hide Armor.",
+    "startUnlocked": false
+  },
+  "shamanic_rites": {
+    "name": "Shamanic Rites",
+    "cost": 12,
+    "prereq": ["woodworking"],
+    "desc": "Unlocks the Shrine, where Mana Awareness slowly gathers.",
+    "startUnlocked": false
+  },
+  "foundation_engineering": {
+    "name": "Foundation Engineering",
+    "cost": 20,
+    "prereq": ["basic_construction"],
+    "desc": "Lets you safely dig out the buried Nexus. Also unlocks Expedition Supplies and realm gear.",
+    "startUnlocked": false
+  },
+  "elemental_attunement": {
+    "name": "Elemental Attunement",
+    "cost": 25,
+    "arcane": 8,
+    "extra": {
+      "mana_crystal": 3
+    },
+    "needsNexus": true,
+    "prereq": ["shamanic_rites"],
+    "desc": "Tier 1 magic. Mages with Heat, Cold, Force or Motion vectors can now be recruited.",
+    "startUnlocked": false
+  }
+}

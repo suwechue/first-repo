@@ -1,0 +1,32 @@
+{
+  "stone_axe": {
+    "name": "Stone Axe",
+    "slot": "weapon",
+    "gear": 3,
+    "dmg": 3
+  },
+  "stone_spear": {
+    "name": "Stone Spear",
+    "slot": "weapon",
+    "gear": 4,
+    "dmg": 4
+  },
+  "hide_armor": {
+    "name": "Hide Armor",
+    "slot": "armor",
+    "gear": 4,
+    "armorMod": 0.12
+  },
+  "wildwood_spear": {
+    "name": "Wildwood Spear",
+    "slot": "weapon",
+    "gear": 9,
+    "dmg": 6
+  },
+  "verdant_cloak": {
+    "name": "Verdant Cloak",
+    "slot": "armor",
+    "gear": 8,
+    "armorMod": 0.22
+  }
+}

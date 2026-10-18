@@ -1,0 +1,11 @@
+{
+  "note": "Balance targets from docs/SPEC.md (Build order, M1): the beta prototype measured over 20,000 runs per row.",
+  "retreat": 35,
+  "missions": [
+    { "realm": "verdant_wilds", "zone": "fringe", "objective": "explore", "win": 99.6 },
+    { "realm": "verdant_wilds", "zone": "warrens", "objective": "hunt", "win": 44 },
+    { "realm": "verdant_wilds", "zone": "old_grove", "objective": "hunt", "win": 21 }
+  ],
+  "tolerance": 3,
+  "campaign": { "expeditions": 15, "deathsMin": 1, "deathsMax": 5 }
+}

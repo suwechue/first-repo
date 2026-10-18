@@ -1,0 +1,74 @@
+{
+  "wood": {
+    "label": "Wood",
+    "icon": "🪵",
+    "alwaysShow": true,
+    "start": 0
+  },
+  "stone": {
+    "label": "Stone",
+    "icon": "🪨",
+    "alwaysShow": true,
+    "start": 0
+  },
+  "fiber": {
+    "label": "Fiber",
+    "icon": "🌾",
+    "alwaysShow": true,
+    "start": 0
+  },
+  "food": {
+    "label": "Food",
+    "icon": "🍒",
+    "alwaysShow": true,
+    "start": 0
+  },
+  "cookedfood": {
+    "label": "Cooked food",
+    "icon": "🍖",
+    "alwaysShow": true,
+    "start": 0
+  },
+  "hide": {
+    "label": "Hide",
+    "icon": "🐾",
+    "alwaysShow": false,
+    "start": 0
+  },
+  "supplies": {
+    "label": "Expedition Supply",
+    "icon": "🎒",
+    "alwaysShow": false,
+    "start": 0
+  },
+  "wildroot": {
+    "label": "Wildroot",
+    "icon": "🌿",
+    "alwaysShow": false,
+    "start": 0
+  },
+  "enchanted_wood": {
+    "label": "Enchanted Wood",
+    "icon": "🪄",
+    "alwaysShow": false,
+    "start": 0
+  },
+  "mana_crystal": {
+    "label": "Mana Crystal",
+    "icon": "💎",
+    "alwaysShow": false,
+    "start": 0
+  },
+  "beast_core": {
+    "label": "Beast Core",
+    "icon": "🔴",
+    "alwaysShow": false,
+    "start": 0
+  },
+  "verdant_silk": {
+    "label": "Verdant Silk",
+    "icon": "🧵",
+    "alwaysShow": false,
+    "start": 0
+  }
+}

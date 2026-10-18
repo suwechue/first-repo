@@ -1,0 +1,77 @@
+{
+  "gatherer": {
+    "name": "Gatherer",
+    "primary": ["per", "con"],
+    "role": "back",
+    "skill": {
+      "gather": 6
+    }
+  },
+  "hunter": {
+    "name": "Hunter",
+    "primary": ["dex", "per"],
+    "role": "back",
+    "skill": {
+      "hunt": 6,
+      "explore": 2
+    }
+  },
+  "toolmaker": {
+    "name": "Toolmaker",
+    "primary": ["int", "dex"],
+    "role": "back",
+    "skill": {
+      "gather": 3
+    }
+  },
+  "farmer": {
+    "name": "Farmer",
+    "primary": ["con", "int"],
+    "role": "back",
+    "skill": {
+      "gather": 3
+    }
+  },
+  "warrior": {
+    "name": "Warrior",
+    "primary": ["str", "con"],
+    "role": "front",
+    "skill": {}
+  },
+  "scout": {
+    "name": "Scout",
+    "primary": ["dex", "per"],
+    "role": "back",
+    "skill": {
+      "explore": 6,
+      "hunt": 3
+    }
+  },
+  "shaman": {
+    "name": "Shaman",
+    "primary": ["wil", "int"],
+    "role": "support",
+    "skill": {
+      "explore": 2
+    },
+    "arcaneBase": 3
+  },
+  "herbalist": {
+    "name": "Herbalist",
+    "primary": ["int", "wil"],
+    "role": "support",
+    "skill": {
+      "gather": 3
+    }
+  },
+  "mage": {
+    "name": "Mage",
+    "primary": ["int", "wil"],
+    "role": "caster",
+    "skill": {},
+    "arcane": true,
+    "needsTech": "elemental_attunement",
+    "vectorPool": ["heat", "cold", "force", "motion"],
+    "recruitWeight": 15
+  }
+}

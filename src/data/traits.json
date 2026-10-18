@@ -1,0 +1,95 @@
+{
+  "traits": {
+    "brave": {
+      "name": "Brave",
+      "rarity": "common",
+      "desc": "+2 Combat Power.",
+      "cp": 2
+    },
+    "cautious": {
+      "name": "Cautious",
+      "rarity": "common",
+      "desc": "10% less likely to be hurt.",
+      "injuryMul": 0.9
+    },
+    "hardy": {
+      "name": "Hardy",
+      "rarity": "common",
+      "desc": "Counts as +2 CON when taking hits.",
+      "conBonus": 2
+    },
+    "curious": {
+      "name": "Curious",
+      "rarity": "common",
+      "desc": "+3 Combat Power while exploring.",
+      "exploreCp": 3
+    },
+    "quick_tempered": {
+      "name": "Quick-Tempered",
+      "rarity": "common",
+      "desc": "+1 Combat Power, clashes with cautious people.",
+      "cp": 1
+    },
+    "keen_eyed": {
+      "name": "Keen-Eyed",
+      "rarity": "uncommon",
+      "desc": "Counts as +2 PER.",
+      "perBonus": 2
+    },
+    "stoic": {
+      "name": "Stoic",
+      "rarity": "uncommon",
+      "desc": "Not shaken by deaths in the squad.",
+      "stoic": true
+    },
+    "silver_tongued": {
+      "name": "Silver-Tongued",
+      "rarity": "uncommon",
+      "desc": "+15% Renown from missions.",
+      "renownMul": 1.15
+    },
+    "night_vision": {
+      "name": "Night Vision",
+      "rarity": "uncommon",
+      "desc": "Squad meets fewer ambushes.",
+      "encounterMul": 0.93
+    },
+    "mana_sensitive": {
+      "name": "Mana Sensitive",
+      "rarity": "notable",
+      "desc": "+4 arcane power. Rare gift.",
+      "arcane": 4
+    },
+    "dragon_blood": {
+      "name": "Dragon Blood",
+      "rarity": "notable",
+      "desc": "+6 Combat Power, 20% less likely to be hurt.",
+      "cp": 6,
+      "injuryMul": 0.8
+    },
+    "genius": {
+      "name": "Genius",
+      "rarity": "notable",
+      "desc": "Learns 40% faster.",
+      "xpMul": 1.4
+    },
+    "prodigy": {
+      "name": "Prodigy",
+      "rarity": "notable",
+      "desc": "+3 Combat Power, learns 25% faster.",
+      "cp": 3,
+      "xpMul": 1.25
+    }
+  },
+  "clash": [
+    ["brave", "cautious"],
+    ["quick_tempered", "cautious"],
+    ["silver_tongued", "quick_tempered"]
+  ],
+  "synergy": [
+    ["brave", "stoic"],
+    ["cautious", "curious"],
+    ["hardy", "brave"],
+    ["keen_eyed", "curious"]
+  ]
+}

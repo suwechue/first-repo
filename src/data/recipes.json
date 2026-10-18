@@ -1,0 +1,83 @@
+{
+  "stone_axe": {
+    "name": "Stone Axe",
+    "desc": "Weapon. Raises your damage and a squad member's Combat Power.",
+    "costs": {
+      "wood": 2,
+      "stone": 3
+    },
+    "requires": ["stone_knapping"],
+    "type": "item",
+    "item": "stone_axe"
+  },
+  "stone_spear": {
+    "name": "Stone Spear",
+    "desc": "Weapon. Better damage and Combat Power.",
+    "costs": {
+      "wood": 3,
+      "stone": 2
+    },
+    "requires": ["stone_knapping"],
+    "type": "item",
+    "item": "stone_spear"
+  },
+  "hide_armor": {
+    "name": "Hide Armor",
+    "desc": "Armor. Lowers injury chance on expeditions.",
+    "costs": {
+      "hide": 3,
+      "fiber": 2
+    },
+    "requires": ["tanning"],
+    "type": "item",
+    "item": "hide_armor"
+  },
+  "cook_food": {
+    "name": "Cook Food (at Campfire)",
+    "desc": "Turn raw food into cooked food (restores more Hunger)",
+    "costs": {
+      "food": 1
+    },
+    "requires": ["cooking"],
+    "type": "cook",
+    "yields": {
+      "cookedfood": 1
+    },
+    "nearBuilding": "campfire"
+  },
+  "supplies": {
+    "name": "Expedition Supplies ×2",
+    "desc": "Packed rations and rope. Each squad member uses one per expedition.",
+    "costs": {
+      "food": 3,
+      "fiber": 2
+    },
+    "requires": ["foundation_engineering"],
+    "type": "supply",
+    "yields": {
+      "supplies": 2
+    }
+  },
+  "wildwood_spear": {
+    "name": "Wildwood Spear",
+    "desc": "Weapon made from Enchanted Wood. Strong Combat Power.",
+    "costs": {
+      "enchanted_wood": 3,
+      "stone": 2
+    },
+    "requires": ["woodworking", "foundation_engineering"],
+    "type": "item",
+    "item": "wildwood_spear"
+  },
+  "verdant_cloak": {
+    "name": "Verdant Cloak",
+    "desc": "Armor lined with Verdant Silk. Strong injury protection.",
+    "costs": {
+      "verdant_silk": 3,
+      "hide": 2
+    },
+    "requires": ["tanning", "foundation_engineering"],
+    "type": "item",
+    "item": "verdant_cloak"
+  }
+}

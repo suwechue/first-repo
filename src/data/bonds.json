@@ -1,0 +1,16 @@
+{
+  "min": -100,
+  "max": 100,
+  "seed": { "low": -10, "range": 25, "clash": -15, "synergy": 10 },
+  "tiers": [
+    { "min": 86, "name": "Unbreakable Bond", "mod": 0.15 },
+    { "min": 66, "name": "Close Bond", "mod": 0.1 },
+    { "min": 41, "name": "Trusted", "mod": 0.06 },
+    { "min": 21, "name": "Familiar", "mod": 0.03 },
+    { "min": -20, "name": "Stranger", "mod": 0 },
+    { "min": -40, "name": "Tension", "mod": -0.05 },
+    { "min": -65, "name": "Rivalry", "mod": -0.1 },
+    { "min": -85, "name": "Grudge", "mod": -0.18 },
+    { "min": -100, "name": "Blood Feud", "mod": -0.3 }
+  ]
+}
