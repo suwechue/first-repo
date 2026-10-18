@@ -2,6 +2,7 @@
 // Pure: localStorage and files are handled in src/ui/persistence.js.
 // The world is regenerated from `seed`, so a save holds only what changed: depleted nodes,
 // buildings, the player and the settlement. Enemies are not saved.
+import { D } from './content.js';
 import { makeInitialState } from './state.js';
 import { migrate, SAVE_VERSION } from './migrations.js';
 import { getRngState, setRngState } from './rng.js';
@@ -63,7 +64,19 @@ export function apply(state, data) {
   state.player.inventory = Object.assign({}, fresh.player.inventory, data.player.inventory || {});
   state.nexus = Object.assign({}, fresh.nexus, data.nexus || {});
   state.stats = Object.assign({}, fresh.stats, data.stats || {});
-  state.nodes = data.nodes && typeof data.nodes === 'object' ? structuredClone(data.nodes) : {};
+  // The world's changes: anything malformed is dropped rather than trusted, since the world itself
+  // is regenerated from the seed and a bad entry would only point at nothing.
+  const plainObject = (o) => (o && typeof o === 'object' && !Array.isArray(o) ? structuredClone(o) : {});
+  state.nodes = {};
+  for (const [id, n] of Object.entries(plainObject(data.nodes))) {
+    if (n && Number.isFinite(n.amount) && Number.isFinite(n.respawnTimer)) state.nodes[id] = n;
+  }
+  state.relics = plainObject(data.relics);
+  state.landmarks = plainObject(data.landmarks);
+  state.fog = Array.isArray(data.fog) && data.fog.every((n) => Number.isInteger(n) && n >= 0) ? data.fog.slice() : [];
+  state.buildings = (Array.isArray(state.buildings) ? state.buildings : []).filter(
+    (b) => b && D.buildings[b.type] && Number.isFinite(b.x) && Number.isFinite(b.y),
+  );
   // Merge realm progress so zones added in newer content still exist.
   const saved = data.realms || {};
   state.realms = {};
