@@ -48,10 +48,16 @@ export function zoneAt(world, x, y) {
   return world.zoneIds[world.zone[ty * world.w + tx]];
 }
 
-/** True if the tile blocks movement by its terrain, or lies outside the map. */
+/** True if the tile blocks movement by its terrain or a solid prop (a wall), or lies outside the map. */
 export function isSolidTile(world, tx, ty) {
   const t = terrainAt(world, tx, ty);
-  return !t || !!t.blocks;
+  return !t || !!t.blocks || world.solid[ty * world.w + tx] === 1;
+}
+
+export function propAtTile(world, tx, ty) {
+  if (!inBounds(world, tx, ty)) return null;
+  const n = world.propAt[ty * world.w + tx];
+  return n >= 0 ? world.props[n] : null;
 }
 
 export function nodeAtTile(world, tx, ty) {

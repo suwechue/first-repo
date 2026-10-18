@@ -1,5 +1,6 @@
 {
   "tree": {
+    "name": "Tree",
     "sprite": "tree_pine",
     "placeholder": "tree",
     "yields": "wood",
@@ -11,6 +12,7 @@
     "blocks": 10
   },
   "rock": {
+    "name": "Rock",
     "sprite": "rock",
     "placeholder": "rock",
     "yields": "stone",
@@ -21,6 +23,7 @@
     "blocks": 11
   },
   "bush": {
+    "name": "Bush",
     "sprite": "bush",
     "placeholder": "bush",
     "yields": "fiber",
@@ -32,6 +35,7 @@
     "blocks": 0
   },
   "berrybush": {
+    "name": "Berry bush",
     "sprite": "berrybush",
     "placeholder": "bush",
     "yields": "food",
@@ -41,5 +45,23 @@
     "respawn": 1100,
     "radius": 10,
     "blocks": 0
+  },
+  "salvage_pile": {
+    "name": "Salvage pile",
+    "sprite": "salvage_pile",
+    "placeholder": "salvage",
+    "verb": "search",
+    "yields": {
+      "stone": 2,
+      "fiber": 1
+    },
+    "color": "#7d7466",
+    "amount": 4,
+    "respawn": 5400,
+    "blocks": 0,
+    "relic": {
+      "chance": 0.1,
+      "kp": 3
+    }
   }
 }

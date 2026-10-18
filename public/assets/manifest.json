@@ -444,6 +444,10 @@
     "seal": {
       "file": "tiles/seal.png",
       "variants": 6
+    },
+    "mossy_stone": {
+      "file": "tiles/mossy_stone.png",
+      "variants": 6
     }
   },
   "icons": {

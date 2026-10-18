@@ -1,0 +1,37 @@
+{
+  "ruin_wall": {
+    "name": "Ruined wall",
+    "sprite": "ruin_wall",
+    "placeholder": "wall",
+    "color": "#7b7466",
+    "solid": true
+  },
+  "ruin_pillar": {
+    "name": "Pillar",
+    "sprite": "ruin_pillar",
+    "placeholder": "pillar",
+    "color": "#8d8779",
+    "blocks": 9
+  },
+  "ruin_rubble": {
+    "name": "Rubble",
+    "sprite": "ruin_rubble",
+    "placeholder": "rubble",
+    "color": "#746d5f",
+    "blocks": 11
+  },
+  "ruin_statue": {
+    "name": "Statue",
+    "sprite": "ruin_statue",
+    "placeholder": "statue",
+    "color": "#9c9586",
+    "blocks": 10
+  },
+  "ruin_fountain": {
+    "name": "Old fountain",
+    "sprite": "ruin_fountain",
+    "placeholder": "fountain",
+    "color": "#8d8779",
+    "blocks": 15
+  }
+}

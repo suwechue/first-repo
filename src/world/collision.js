@@ -2,7 +2,7 @@
 // the Nexus, and any extra circles the caller passes (buildings). Axes resolve separately, so a
 // mover slides along walls instead of sticking to them.
 import { D } from '../core/content.js';
-import { tileOf, isSolidTile, nodeAtTile } from './world.js';
+import { tileOf, isSolidTile, nodeAtTile, propAtTile } from './world.js';
 
 /** True if a circle of radius r at (x, y) overlaps anything solid. `extra` is a list of {x, y, r}. */
 export function blockedAt(world, x, y, r, extra = []) {
@@ -26,6 +26,14 @@ export function blockedAt(world, x, y, r, extra = []) {
       if (!n) continue;
       const b = D.resources[n.type].blocks;
       if (b > 0 && Math.hypot(n.x - x, n.y - y) < r + b) return true;
+    }
+  }
+  for (let ty = ty0 - 1; ty <= ty1 + 1; ty++) {
+    for (let tx = tx0 - 1; tx <= tx1 + 1; tx++) {
+      const p = propAtTile(world, tx, ty);
+      if (!p) continue;
+      const b = D.props[p.type].blocks;
+      if (b > 0 && Math.hypot(p.x - x, p.y - y) < r + b) return true;
     }
   }
   if (world.nexus && Math.hypot(world.nexus.x - x, world.nexus.y - y) < r + D.nexus.blocks) return true;

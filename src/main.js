@@ -126,7 +126,7 @@ const loop = createLoop({
       targetLabel: enemy
         ? 'E: attack ' + D.enemies[enemy.type].short
         : node
-          ? `E: gather ${D.materials[D.resources[node.type].yields].label} (${nodeAmount(state, node)})`
+          ? `E: ${D.resources[node.type].verb || 'gather'} ${D.resources[node.type].name} (${nodeAmount(state, node)})`
           : null,
     };
     renderer.draw(state, view, mouse, performance.now());

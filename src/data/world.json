@@ -10,15 +10,8 @@
   },
   "city": {
     "prefab": "old_city",
-    "zone": "old_city",
     "center": [80, 56],
-    "size": [48, 36],
-    "mossgate": [20, 6],
-    "points": {
-      "spawn": [0, 15],
-      "center": [0, 3],
-      "nexus": [0, 0]
-    }
+    "size": [48, 36]
   },
   "rings": [
     {
@@ -81,6 +74,10 @@
       "tileset": "seal",
       "color": "#3b3458",
       "blocks": true
+    },
+    "mossy_stone": {
+      "tileset": "mossy_stone",
+      "color": "#6a7360"
     }
   },
   "meadows": {

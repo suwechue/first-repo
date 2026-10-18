@@ -1,0 +1,116 @@
+{
+  "name": "The Old City",
+  "notes": "Hand-authored. One character per tile; the legend says what each one places. Rows must all be the city's width, and there must be as many rows as the city's height.",
+  "legend": {
+    ".": {
+      "zone": "old_city"
+    },
+    ",": {
+      "zone": "old_city",
+      "clear": true
+    },
+    "d": {
+      "zone": "old_city",
+      "terrain": "dirt_road",
+      "clear": true
+    },
+    "m": {
+      "zone": "mossgate"
+    },
+    "M": {
+      "zone": "mossgate",
+      "clear": true
+    },
+    "#": {
+      "zone": "old_city",
+      "prop": "ruin_wall"
+    },
+    "+": {
+      "zone": "old_city",
+      "prop": "ruin_pillar",
+      "clear": true
+    },
+    "r": {
+      "zone": "old_city",
+      "prop": "ruin_rubble",
+      "clear": true
+    },
+    "S": {
+      "zone": "old_city",
+      "prop": "ruin_statue",
+      "clear": true
+    },
+    "F": {
+      "zone": "mossgate",
+      "prop": "ruin_fountain",
+      "clear": true
+    },
+    "s": {
+      "zone": "old_city",
+      "node": "salvage_pile",
+      "clear": true
+    },
+    "x": {
+      "zone": "mossgate",
+      "node": "salvage_pile",
+      "clear": true
+    },
+    "~": {
+      "zone": "old_city",
+      "terrain": "water"
+    },
+    "N": {
+      "zone": "old_city",
+      "point": "nexus",
+      "clear": true
+    },
+    "c": {
+      "zone": "old_city",
+      "point": "center",
+      "clear": true
+    },
+    "@": {
+      "zone": "mossgate",
+      "point": "spawn",
+      "clear": true
+    }
+  },
+  "rows": [
+    "#########,,r###########ddd###########r,#########",
+    "#.....................+.d.+....................#",
+    "#.......................d......................#",
+    "#.......................d....####..............#",
+    "#...###r#,,#####...####.d....#..#..............#",
+    "#...#..........#...#....d..s.#..#..............#",
+    "#...#.+..+..+s.#...#....d........sr.sr.sr.sr.s.#",
+    "#...#s....r....#....s...d.......,,,,,,,,,,,,,,.#",
+    ",...#..s.......,........d.,,,,,,,,,,,,,,,,,,,,.#",
+    "r...#.r....s...,........d.......,,,,,,,,,,,,,,.,",
+    "#...r...s......#........d.......r.sr.sr.sr.sr..#",
+    "#...#.+..+..+r.#........d......................#",
+    "#...#..........#.+,,,,,,,,,,,,,+...............#",
+    "#...##,#####,###.,,,,,,,,,,,,,,,....####....s..#",
+    "#................,,,S,,,,,,,S,,,....#..........#",
+    "#..s.............+,,,,,,,,,,,,,+..s.#..#####...#",
+    "#+..........s....,,,,,,,,,,,,,,,..............+#",
+    "d................,,,,,,,,,,,,,,,...............d",
+    "ddddddddddddddddd,,,,,,,N,,,,,,,dddddddddddddddd",
+    "d................,,,,,,,,,,,,,,,.........s.....d",
+    "#+.........s.....,,,,,,,,,,,,,,,..............+#",
+    "#................+,,,,,,c,,,,,,+..r,r,r,r,r,...#",
+    "#.....####...####,,,S,,,,,,,S,,,...~~~~~~~~....#",
+    "#.....#......#..#,,,,,,,,,,,,,,,...~~~~~~~~....#",
+    "#.....#......#..#+,,,,,,,,,,,,,+..,~~~~~~~~,...#",
+    "#.............s.........d..........~~~~~~~~.s..#",
+    "#........####...........d..........~~~~~~~~....#",
+    "#........#..#m##r##mmmmmdmmmmm##,##r,r,r,r,r...#",
+    ",........#..#mmmxmmmmmmmdmmmmmxmmmmm...........r",
+    "#............mmmmmmMMMMMdmmmmmmmmmmm.s.........,",
+    "#....#####...mmmmmmMMMMMdmmmmmmmmmmm...........#",
+    "#............mmmmmmMMFMMdMMMMMmmmmmm....#####..#",
+    "#........s...mmmmmmMMMMMdMMMMMmmmmmm...........#",
+    "#..s.........mmmmmmMMMMM@MMMMMmmmxmm.........s.#",
+    "#............mmmmmmmmm+mdMMMMMmmmmmm...........#",
+    "######,r###############MMM#############r,,######"
+  ]
+}

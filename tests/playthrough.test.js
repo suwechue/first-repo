@@ -6,40 +6,78 @@ import { newGame, update, handleInteract } from '../src/systems/game.js';
 import { tryUnlockTech } from '../src/systems/tech.js';
 import { tryCraft } from '../src/systems/crafting.js';
 import { enterPlacing, tryPlaceBuilding } from '../src/systems/building.js';
-import { nexusStage } from '../src/systems/nexus.js';
+import { nexusStage, nexusPrompt, inNexusRange } from '../src/systems/nexus.js';
 import { launch } from '../src/systems/missions.js';
-import { nodeAmount } from '../src/systems/gathering.js';
-import { worldOf } from '../src/world/world.js';
+import { nodeAmount, nearestNode } from '../src/systems/gathering.js';
+import { worldOf, zoneAt, nodesNear, nodeAtTile } from '../src/world/world.js';
+import { on } from '../src/core/events.js';
+import { walkTo } from './helpers/walk.js';
 
 const idle = { up: false, down: false, left: false, right: false };
 
+/** Runs n frames standing still. Overworld enemies are cleared: this test is about the loop, not fights. */
 function frames(s, n, input = idle) {
-  for (let i = 0; i < n; i++) update(s, input);
+  for (let i = 0; i < n; i++) {
+    update(s, input);
+    s.enemies = [];
+  }
 }
 
 describe('Stage 1 playthrough', () => {
-  it('plays from the first gather to an expedition', () => {
+  it('walks from Mossgate through gathering, a relic, research and the Nexus to an expedition', () => {
     const s = makeInitialState();
     newGame(s, 2026);
     expect(s.roster.length).toBe(4);
     const world = worldOf(s);
     expect(world.nodes.length).toBeGreaterThan(1000);
     expect([s.player.x, s.player.y]).toEqual([world.spawn.x, world.spawn.y]);
+    expect(zoneAt(world, s.player.x, s.player.y)).toBe('mossgate');
+    const range = D.game.interact.range;
+    const near = (x, y, o) => Math.hypot((x + 0.5) * world.ts - o.x, (y + 0.5) * world.ts - o.y);
 
-    // Gather: stand just below a tree and press E until it runs out.
-    const tree = world.nodes.find((n) => n.type === 'tree');
+    // Gather: walk to a tile beside a tree with nothing else in reach, and press E until it runs out.
+    walkTo(s, (x, y) => {
+      const ns = nodesNear(world, (x + 0.5) * world.ts, (y + 0.5) * world.ts, range);
+      return ns.length === 1 && ns[0].type === 'tree';
+    });
+    const tree = nearestNode(s);
+    expect(tree.type).toBe('tree');
     const full = D.resources.tree.amount;
-    Object.assign(s.player, { x: tree.x, y: tree.y + 20 });
-    s.enemies = [];
+    const wood = s.player.inventory.wood;
     for (let i = 0; i < full; i++) {
       handleInteract(s);
       frames(s, D.game.interact.cooldown.gather);
     }
-    expect(s.player.inventory.wood).toBe(full);
+    expect(s.player.inventory.wood).toBe(wood + full);
     expect(nodeAmount(s, tree)).toBe(0);
     frames(s, D.resources.tree.respawn);
     expect(nodeAmount(s, tree)).toBe(full);
     expect(s.nodes[tree.id]).toBeUndefined(); // a full node is not stored
+
+    // Salvage: a pile with a relic pays stone and fiber, and 3 Knowledge once when emptied.
+    const pile = world.nodes.find((n) => n.type === 'salvage_pile' && n.relic);
+    expect(pile).toBeDefined();
+    walkTo(s, (x, y) => x === pile.tx && y === pile.ty);
+    expect(nearestNode(s)).toBe(pile);
+    const before = { stone: s.player.inventory.stone, fiber: s.player.inventory.fiber, kp: s.kp };
+    const salvage = D.resources.salvage_pile;
+    for (let i = 0; i < salvage.amount; i++) {
+      handleInteract(s);
+      frames(s, D.game.interact.cooldown.gather);
+    }
+    const got = s.player.inventory.stone - before.stone + (s.player.inventory.fiber - before.fiber);
+    expect(got).toBe(salvage.amount);
+    expect(s.relics[pile.id]).toBe(true);
+    expect(s.kp).toBeGreaterThanOrEqual(before.kp + salvage.relic.kp);
+    frames(s, salvage.respawn); // the pile refills, but its relic is gone
+    const kpAfter = s.kp;
+    for (let i = 0; i < salvage.amount; i++) {
+      handleInteract(s);
+      frames(s, 1);
+      s.kp = kpAfter;
+      frames(s, D.game.interact.cooldown.gather - 1);
+    }
+    expect(s.kp).toBe(kpAfter);
 
     // Passive Knowledge: +1 per 90 frames.
     const kp = s.kp;
@@ -67,9 +105,11 @@ describe('Stage 1 playthrough', () => {
     expect(tryCraft(s, 'supplies')).toBe(true);
     expect(s.player.inventory.supplies).toBe(2);
 
-    // Dig out the Nexus: 3 digs of 4 stone and 2 wood.
-    Object.assign(s.player, { x: world.nexus.x, y: world.nexus.y + 40 });
-    s.enemies = [];
+    // Walk into the city to the buried Nexus under the plaza, and dig it out: 3 digs of 4 stone and 2 wood.
+    expect(inNexusRange(s)).toBe(false);
+    walkTo(s, (x, y) => near(x, y, world.nexus) < D.nexus.interactRange - 6 && !nodeAtTile(world, x, y));
+    expect(inNexusRange(s)).toBe(true);
+    expect(nexusPrompt(s)).toMatch(/dig/);
     const stone = s.player.inventory.stone;
     for (let i = 0; i < D.nexus.digSteps; i++) {
       handleInteract(s);
@@ -81,7 +121,7 @@ describe('Stage 1 playthrough', () => {
     // Two Shrines: each adds 1 Awareness per 180 frames, so 40 Awareness takes 3,600 frames.
     for (const dx of [-60, 60]) {
       enterPlacing(s, 'shrine');
-      expect(tryPlaceBuilding(s, s.player.x + dx, s.player.y + 40)).toBe(true);
+      expect(tryPlaceBuilding(s, world.nexus.x + dx, world.nexus.y + 64)).toBe(true);
     }
     frames(s, 3599);
     expect(nexusStage(s)).toBe('excavated');
@@ -90,6 +130,14 @@ describe('Stage 1 playthrough', () => {
     expect(s.renown).toBe(10);
     expect(s.player.inventory.supplies).toBe(2 + 4);
     expect(s.recruitOffer).not.toBeNull();
+
+    // E at the awake Nexus opens the Expedition Hall.
+    const opened = [];
+    const stop = on('panel:open', (k) => opened.push(k));
+    s.gatherCooldown = 0;
+    handleInteract(s);
+    stop();
+    expect(opened).toEqual(['hall']);
 
     // The Expedition Hall: send the four starters into the Fringe.
     const r = launch(s, {
@@ -138,7 +186,7 @@ describe('Stage 1 playthrough', () => {
       wanderTarget: { x: 0, y: 0 },
       attackCooldown: 0,
     });
-    frames(s, 1);
+    update(s, idle);
     expect(s.player.hp).toBe(18);
     s.player.weaponDmg = 100;
     handleInteract(s);

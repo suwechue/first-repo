@@ -17,8 +17,10 @@ export function checkData(d) {
   for (const k of ids(d.materials)) {
     if (typeof d.materials[k].start !== 'number') errors.push(`materials.${k}: start must be a number`);
   }
-  for (const [k, r] of Object.entries(d.resources))
-    need(`resources.${k}.yields`, r.yields, d.materials, 'material');
+  for (const [k, r] of Object.entries(d.resources)) {
+    if (typeof r.yields === 'string') need(`resources.${k}.yields`, r.yields, d.materials, 'material');
+    else ids(r.yields).forEach((m) => need(`resources.${k}.yields`, m, d.materials, 'material'));
+  }
   for (const [k, t] of Object.entries(d.tech)) {
     t.prereq.forEach((p) => need(`tech.${k}.prereq`, p, d.tech, 'tech'));
     ids(t.extra).forEach((m) => need(`tech.${k}.extra`, m, d.materials, 'material'));
@@ -109,7 +111,6 @@ export function checkData(d) {
   W.rings.forEach((r, i) => need(`world.rings[${i}].zone`, r.zone, d.biomes, 'zone'));
   need('world.seal.zone', W.seal.zone, d.biomes, 'zone');
   need('world.spawn.zone', W.spawn.zone, d.biomes, 'zone');
-  need('world.city.zone', W.city.zone, d.biomes, 'zone');
   need('world.hills.zone', W.hills.zone, d.biomes, 'zone');
   need('world.hills.within', W.hills.within, d.biomes, 'zone');
   need('world.hills.ground', W.hills.ground, terrain, 'terrain');
@@ -123,6 +124,38 @@ export function checkData(d) {
   for (const [k, r] of Object.entries(d.resources)) {
     if (typeof r.blocks !== 'number') errors.push(`resources.${k}.blocks: must be a number (0 for none)`);
     if (r.blocks >= W.tileSize / 2) errors.push(`resources.${k}.blocks: must be under half a tile`);
+  }
+
+  // City prefabs and their props.
+  need('world.city.prefab', W.city.prefab, d.prefabs, 'prefab');
+  for (const [k, pf] of Object.entries(d.prefabs)) {
+    const at = `prefabs.${k}`;
+    for (const [ch, cell] of Object.entries(pf.legend)) {
+      need(`${at}.legend["${ch}"].zone`, cell.zone, d.biomes, 'zone');
+      if (cell.terrain) need(`${at}.legend["${ch}"].terrain`, cell.terrain, terrain, 'terrain');
+      if (cell.prop) need(`${at}.legend["${ch}"].prop`, cell.prop, d.props, 'prop');
+      if (cell.node) need(`${at}.legend["${ch}"].node`, cell.node, d.resources, 'resource');
+    }
+    pf.rows.forEach((row, y) => {
+      for (const ch of row) if (!pf.legend[ch]) errors.push(`${at}.rows[${y}]: "${ch}" is not in the legend`);
+    });
+    if (k === W.city.prefab) {
+      if (pf.rows.length !== W.city.size[1]) errors.push(`${at}: needs ${W.city.size[1]} rows`);
+      pf.rows.forEach((row, y) => {
+        if (row.length !== W.city.size[0]) errors.push(`${at}.rows[${y}]: must be ${W.city.size[0]} wide`);
+      });
+      const count = (pt) =>
+        pf.rows
+          .join('')
+          .split('')
+          .filter((ch) => pf.legend[ch]?.point === pt).length;
+      for (const pt of ['spawn', 'center', 'nexus'])
+        if (count(pt) !== 1) errors.push(`${at}: needs exactly one "${pt}" point`);
+    }
+  }
+  for (const [k, p] of Object.entries(d.props)) {
+    if (!p.solid && !(typeof p.blocks === 'number' && p.blocks < W.tileSize / 2))
+      errors.push(`props.${k}: needs "solid": true or "blocks" under half a tile`);
   }
 
   for (const [rk, realm] of Object.entries(d.realms)) {

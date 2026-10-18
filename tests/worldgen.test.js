@@ -54,7 +54,7 @@ describe('World generation', () => {
   it('lays out rings: city at the center, outskirts, deep forest, then the Seal', () => {
     const w = getWorld(7);
     const at = (fx, fy) => zoneAt(w, fx * w.w * w.ts, fy * w.h * w.ts);
-    expect(at(0.5, 0.5)).toBe(D.world.city.zone);
+    expect(at(0.5, 0.5)).toBe('old_city');
     expect(zoneAt(w, w.spawn.x, w.spawn.y)).toBe(D.world.spawn.zone);
     expect(at(0.5, 0.25)).toBe('outskirts');
     expect(at(0.5, 0.06)).toBe('deep_forest');

@@ -21,8 +21,11 @@ import mission from '../data/mission.json' with { type: 'json' };
 import verdantWilds from '../data/realms/verdant_wilds.json' with { type: 'json' };
 import world from '../data/world.json' with { type: 'json' };
 import biomes from '../data/biomes.json' with { type: 'json' };
+import props from '../data/props.json' with { type: 'json' };
+import oldCity from '../data/prefabs/old_city.json' with { type: 'json' };
 
 const REALM_FILES = { verdant_wilds: verdantWilds };
+const PREFAB_FILES = { old_city: oldCity };
 
 export const RAW = {
   game,
@@ -46,6 +49,8 @@ export const RAW = {
   realms: REALM_FILES,
   world,
   biomes,
+  props,
+  prefabs: PREFAB_FILES,
 };
 
 function deepFreeze(o) {

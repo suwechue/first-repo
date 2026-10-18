@@ -125,6 +125,13 @@ export function createRenderer(canvas, assets) {
     }
   }
 
+  function drawProp(p) {
+    const def = D.props[p.type];
+    if (drawSprite(ctx, assets, def.sprite, p.x, def.solid ? p.y + 16 : p.y + 8, { time: now })) return;
+    if (!def.solid) shadow(p.x, p.y + 6, 11);
+    drawPlaceholder(ctx, def, p, p.x, p.y);
+  }
+
   function drawBuilding(b) {
     const def = D.buildings[b.type];
     drawThing(def.sprite, def, b);
@@ -214,6 +221,12 @@ export function createRenderer(canvas, assets) {
       for (let tx = tx0; tx <= tx1; tx++) {
         const n = world.nodeAt[ty * world.w + tx];
         if (n >= 0) list.push({ y: world.nodes[n].y, draw: () => drawNode(s, world.nodes[n]) });
+        const p = world.propAt[ty * world.w + tx];
+        // a wall sorts by its tile's bottom edge, a standing prop by its base
+        if (p >= 0) {
+          const prop = world.props[p];
+          list.push({ y: prop.y + (D.props[prop.type].solid ? 15 : 6), draw: () => drawProp(prop) });
+        }
       }
     }
     if (inView(world.nexus)) list.push({ y: world.nexus.y, draw: () => drawNexus(s, view) });

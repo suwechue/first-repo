@@ -2,6 +2,7 @@
 // Nodes come from the world generator; GameState keeps only the ones that have been gathered from.
 import { D } from '../core/content.js';
 import { dist } from '../core/geometry.js';
+import { weightedKey } from '../core/rng.js';
 import { worldOf, nodesNear } from '../world/world.js';
 import { log, changed } from './log.js';
 
@@ -34,14 +35,27 @@ export function nearestNode(s) {
   );
 }
 
+/** One gather: a node yields one item, or for a `yields` table, one item drawn by weight. */
 export function gatherNode(s, node) {
   const def = D.resources[node.type];
   const st = s.nodes[node.id] || (s.nodes[node.id] = { amount: def.amount, respawnTimer: 0 });
+  const item = typeof def.yields === 'string' ? def.yields : weightedKey(def.yields);
   st.amount -= 1;
-  s.player.inventory[def.yields] += 1;
-  log(s, `Gathered 1 ${def.yields}. (${st.amount}/${def.amount} left)`);
-  if (st.amount <= 0) st.respawnTimer = def.respawn;
+  s.player.inventory[item] += 1;
+  log(s, `Gathered 1 ${item}. (${st.amount}/${def.amount} left)`);
+  if (st.amount <= 0) {
+    st.respawnTimer = def.respawn;
+    if (node.relic && def.relic && !s.relics[node.id]) findRelic(s, node.id, def.relic.kp);
+  }
   changed('inventory');
+}
+
+/** A relic grants Knowledge at once, and only the first time. */
+export function findRelic(s, key, kp) {
+  s.relics[key] = true;
+  s.kp += kp;
+  log(s, `You find a relic, carved with symbols you almost understand. (+${kp} Knowledge)`);
+  changed('kp');
 }
 
 /** Depleted nodes count down and return to full, which removes them from the state. */

@@ -14,6 +14,7 @@ const FIELDS = [
   'arcane',
   'player',
   'nodes',
+  'relics',
   'buildings',
   'nexus',
   'roster',

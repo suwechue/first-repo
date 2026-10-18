@@ -31,10 +31,11 @@ export function generateWorld(seed) {
   const terrain = new Uint8Array(N);
   const zone = new Uint8Array(N);
   const keepClear = new Uint8Array(N); // roads, trails, fords and clearings: no node grows here
+  const solid = new Uint8Array(N); // tiles filled by a solid prop such as a city wall
   const idx = (x, y) => y * w + x;
   const inside = (x, y) => x >= 0 && y >= 0 && x < w && y < h;
   const zoneOf = (x, y) => zoneIds[zone[idx(x, y)]];
-  const terrainBlocks = (i) => !!W.terrain[terrainIds[terrain[i]]].blocks;
+  const terrainBlocks = (i) => !!W.terrain[terrainIds[terrain[i]]].blocks || solid[i] === 1;
   /** Elliptical distance from the map center: 0 at the center, 1 at the middle of each edge. */
   const ell = (x, y) => Math.hypot((x + 0.5 - w / 2) / (w / 2), (y + 0.5 - h / 2) / (h / 2));
   const clearDisc = (cx, cy, r) => {
@@ -63,24 +64,47 @@ export function generateWorld(seed) {
     }
   }
 
-  // 2. The Old City, with Mossgate along its south edge.
+  // 2. The Old City, stamped from its hand-authored prefab: zones first, the rest after the ground.
   const C = W.city;
+  const prefab = D.prefabs[C.prefab];
   const city = {
     x: C.center[0] - Math.floor(C.size[0] / 2),
     y: C.center[1] - Math.floor(C.size[1] / 2),
     w: C.size[0],
     h: C.size[1],
   };
-  const [mgW, mgH] = C.mossgate;
-  for (let y = city.y; y < city.y + city.h; y++) {
-    for (let x = city.x; x < city.x + city.w; x++) {
-      const inGate = y >= city.y + city.h - mgH && Math.abs(x + 0.5 - C.center[0]) <= mgW / 2;
-      zone[idx(x, y)] = Z[inGate ? W.spawn.zone : C.zone];
+  const inCity = (x, y) => x >= city.x && y >= city.y && x < city.x + city.w && y < city.y + city.h;
+  const cells = []; // [x, y, legend entry]
+  prefab.rows.forEach((row, py) => {
+    for (let px = 0; px < row.length; px++) {
+      const cell = prefab.legend[row[px]];
+      const x = city.x + px;
+      const y = city.y + py;
+      zone[idx(x, y)] = Z[cell.zone];
+      cells.push([x, y, cell]);
+    }
+  });
+
+  // 3. Ground from each zone's biome, then the prefab's own terrain, props and key points.
+  for (let i = 0; i < N; i++) terrain[i] = T[D.biomes[zoneIds[zone[i]]].ground];
+  const props = [];
+  const propAt = new Int32Array(N).fill(-1);
+  const points = {};
+  const prefabNodes = [];
+  for (const [x, y, cell] of cells) {
+    const i = idx(x, y);
+    if (cell.terrain) terrain[i] = T[cell.terrain];
+    if (cell.clear) keepClear[i] = 1;
+    if (cell.point) points[cell.point] = [x, y];
+    if (cell.node) prefabNodes.push([cell.node, x, y]);
+    if (cell.prop) {
+      const def = D.props[cell.prop];
+      propAt[i] = props.length;
+      props.push({ id: props.length, type: cell.prop, tx: x, ty: y, x: (x + 0.5) * ts, y: (y + 0.5) * ts });
+      if (def.solid) solid[i] = 1;
+      keepClear[i] = 1;
     }
   }
-
-  // 3. Ground from each zone's biome.
-  for (let i = 0; i < N; i++) terrain[i] = T[D.biomes[zoneIds[zone[i]]].ground];
 
   // 4. Meadows: open patches in the light forest.
   const M = W.meadows;
@@ -148,8 +172,7 @@ export function generateWorld(seed) {
   const pad = Math.ceil(RV.marsh) + 1;
   for (let y = Math.max(0, Math.floor(ry0) - pad); y <= Math.min(h - 1, Math.ceil(ry1) + pad); y++) {
     for (let x = Math.max(0, Math.floor(rx0) - pad); x <= Math.min(w - 1, Math.ceil(rx1) + pad); x++) {
-      const z = zoneOf(x, y);
-      if (z === W.seal.zone || z === C.zone || z === W.spawn.zone) continue;
+      if (zoneOf(x, y) === W.seal.zone || inCity(x, y)) continue;
       const d = distToPolyline(x + 0.5, y + 0.5, river);
       if (d < RV.width) {
         terrain[idx(x, y)] = T[RV.water];
@@ -247,11 +270,10 @@ export function generateWorld(seed) {
     trail(f.x, f.y, ang + Math.PI, false, W.rings[0].to);
   }
 
-  // 9. Key points: the spawn in Mossgate, the plaza at the center, and the Nexus beneath it.
-  const S = C.points;
-  const spawnTile = [C.center[0] + S.spawn[0], C.center[1] + S.spawn[1]];
-  const centerTile = [C.center[0] + S.center[0], C.center[1] + S.center[1]];
-  const nexusTile = [C.center[0] + S.nexus[0], C.center[1] + S.nexus[1]];
+  // 9. Key points from the prefab: the spawn in Mossgate, the plaza, and the Nexus beneath it.
+  const spawnTile = points.spawn;
+  const centerTile = points.center;
+  const nexusTile = points.nexus;
   clearDisc(spawnTile[0], spawnTile[1], W.clear.spawnRadius);
   clearDisc(centerTile[0], centerTile[1], W.clear.centerRadius);
   clearDisc(nexusTile[0], nexusTile[1], W.clear.centerRadius);
@@ -261,8 +283,9 @@ export function generateWorld(seed) {
   const nodeAt = new Int32Array(N).fill(-1);
   const addNode = (type, x, y) => {
     const id = nodes.length;
-    const jitter = D.resources[type].blocks ? 4 : 8;
-    nodes.push({
+    const def = D.resources[type];
+    const jitter = def.blocks ? 4 : 8;
+    const node = {
       id,
       type,
       tx: x,
@@ -270,9 +293,12 @@ export function generateWorld(seed) {
       x: (x + 0.5) * ts + (rng() - 0.5) * jitter,
       y: (y + 0.5) * ts + (rng() - 0.5) * jitter,
       angle: rng() * Math.PI * 2,
-    });
+    };
+    if (def.relic && rng() < def.relic.chance) node.relic = true; // found once, when the pile is emptied
+    nodes.push(node);
     nodeAt[idx(x, y)] = id;
   };
+  for (const [type, x, y] of prefabNodes) addNode(type, x, y);
   for (let y = 0; y < h; y++) {
     for (let x = 0; x < w; x++) {
       const i = idx(x, y);
@@ -292,7 +318,10 @@ export function generateWorld(seed) {
   // unreachable pockets. Walking between 4-adjacent open tiles always fits the player's circle.
   const nexusIndex = idx(nexusTile[0], nexusTile[1]);
   const blocked = (i) =>
-    i === nexusIndex || terrainBlocks(i) || (nodeAt[i] >= 0 && D.resources[nodes[nodeAt[i]].type].blocks > 0);
+    i === nexusIndex ||
+    terrainBlocks(i) ||
+    (propAt[i] >= 0 && D.props[props[propAt[i]].type].blocks > 0) ||
+    (nodeAt[i] >= 0 && D.resources[nodes[nodeAt[i]].type].blocks > 0);
   const spawnIndex = idx(spawnTile[0], spawnTile[1]);
   let reach = flood(spawnIndex, w, h, blocked);
   for (let i = 0; i < N; i++) {
@@ -315,8 +344,11 @@ export function generateWorld(seed) {
     zoneIds,
     terrain,
     zone,
+    solid,
     nodes,
     nodeAt,
+    props,
+    propAt,
     reach,
     city,
     spawn: center(spawnTile),

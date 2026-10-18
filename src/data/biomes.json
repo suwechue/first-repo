@@ -1,54 +1,121 @@
 {
   "mossgate": {
     "name": "Mossgate",
-    "ground": "city_stone",
-    "density": { "rock": 0.02, "bush": 0.05, "berrybush": 0.01 },
+    "ground": "mossy_stone",
+    "density": {
+      "bush": 0.06,
+      "berrybush": 0.015,
+      "rock": 0.015
+    },
     "fill": "rock",
     "enemies": [],
-    "ambient": { "max": 0 }
+    "ambient": {
+      "max": 0
+    }
   },
   "old_city": {
     "name": "The Old City",
     "ground": "city_stone",
-    "density": { "rock": 0.012, "bush": 0.03 },
+    "density": {
+      "rock": 0.012,
+      "bush": 0.03
+    },
     "fill": "rock",
-    "enemies": [{ "id": "wolf", "weight": 100 }],
-    "ambient": { "max": 0 }
+    "enemies": [
+      {
+        "id": "wolf",
+        "weight": 100
+      }
+    ],
+    "ambient": {
+      "max": 0
+    }
   },
   "outskirts": {
     "name": "The Outskirts",
     "ground": "forest_floor",
-    "density": { "tree": 0.1, "bush": 0.02, "berrybush": 0.012, "rock": 0.01 },
+    "density": {
+      "tree": 0.1,
+      "bush": 0.02,
+      "berrybush": 0.012,
+      "rock": 0.01
+    },
     "fill": "tree",
-    "enemies": [{ "id": "wolf", "weight": 100 }],
-    "ambient": { "max": 2, "pack": [1, 1] }
+    "enemies": [
+      {
+        "id": "wolf",
+        "weight": 100
+      }
+    ],
+    "ambient": {
+      "max": 2,
+      "pack": [1, 1]
+    }
   },
   "deep_forest": {
     "name": "The Deep Forest",
     "ground": "forest_floor",
-    "density": { "tree": 0.44, "bush": 0.025, "berrybush": 0.02, "rock": 0.008 },
+    "density": {
+      "tree": 0.44,
+      "bush": 0.025,
+      "berrybush": 0.02,
+      "rock": 0.008
+    },
     "fill": "tree",
     "enemies": [
-      { "id": "wolf", "weight": 75 },
-      { "id": "boar", "weight": 25 }
+      {
+        "id": "wolf",
+        "weight": 75
+      },
+      {
+        "id": "boar",
+        "weight": 25
+      }
     ],
-    "ambient": { "max": 4, "pack": [1, 3] }
+    "ambient": {
+      "max": 4,
+      "pack": [1, 3]
+    }
   },
   "hills": {
     "name": "The Hills",
     "ground": "stony_ground",
-    "density": { "rock": 0.07, "tree": 0.04, "bush": 0.01 },
+    "density": {
+      "rock": 0.07,
+      "tree": 0.04,
+      "bush": 0.01
+    },
     "fill": "rock",
-    "enemies": [{ "id": "boar", "weight": 100 }],
-    "ambient": { "max": 2, "pack": [1, 1] }
+    "enemies": [
+      {
+        "id": "boar",
+        "weight": 100
+      }
+    ],
+    "ambient": {
+      "max": 2,
+      "pack": [1, 1]
+    }
   },
   "marsh": {
     "name": "The Marsh",
     "ground": "marsh",
-    "density": { "bush": 0.06, "berrybush": 0.03, "tree": 0.03 },
+    "density": {
+      "bush": 0.06,
+      "berrybush": 0.03,
+      "tree": 0.03
+    },
     "fill": "tree",
-    "enemies": [{ "id": "wolf", "weight": 100 }],
-    "ambient": { "max": 1, "pack": [1, 1] }
+    "enemies": [
+      {
+        "id": "wolf",
+        "weight": 100
+      }
+    ],
+    "ambient": {
+      "max": 1,
+      "pack": [1, 1]
+    }
   },
   "seal": {
     "name": "The Seal",
@@ -56,6 +123,8 @@
     "density": {},
     "fill": null,
     "enemies": [],
-    "ambient": { "max": 0 }
+    "ambient": {
+      "max": 0
+    }
   }
 }

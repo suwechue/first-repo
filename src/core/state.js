@@ -43,6 +43,7 @@ export function makeInitialState() {
     gatherCooldown: 0,
 
     nodes: {}, // nodeId -> { amount, respawnTimer }, only for nodes gathered from
+    relics: {}, // relics already found, so each pays its Knowledge once
     buildings: [],
     enemies: [], // runtime only: spawned near the player, never saved
 
