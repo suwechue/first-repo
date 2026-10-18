@@ -1,0 +1,57 @@
+{
+  "bolt": {
+    "name": "Bolt",
+    "tier": 1,
+    "desc": "A single strike at one foe."
+  },
+  "burst": {
+    "name": "Burst",
+    "tier": 1,
+    "desc": "A blast around the caster."
+  },
+  "shield": {
+    "name": "Shield",
+    "tier": 1,
+    "desc": "A ward that turns blows aside."
+  },
+  "weapon_infusion": {
+    "name": "Weapon Infusion",
+    "tier": 1,
+    "desc": "Charges a squadmate's weapon."
+  },
+  "line": {
+    "name": "Line",
+    "tier": 2,
+    "desc": "Everything in a row."
+  },
+  "sphere": {
+    "name": "Sphere",
+    "tier": 2,
+    "desc": "A held globe of effect."
+  },
+  "projectile": {
+    "name": "Projectile",
+    "tier": 2,
+    "desc": "Thrown far and true."
+  },
+  "touch": {
+    "name": "Touch",
+    "tier": 2,
+    "desc": "Power through contact."
+  },
+  "aura": {
+    "name": "Aura",
+    "tier": 2,
+    "desc": "A lasting field around the caster."
+  },
+  "construct": {
+    "name": "Construct",
+    "tier": 2,
+    "desc": "A shape that acts on its own."
+  },
+  "glyph": {
+    "name": "Glyph",
+    "tier": 2,
+    "desc": "A written spell that waits."
+  }
+}

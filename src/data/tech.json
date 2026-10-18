@@ -3,14 +3,14 @@
     "name": "Fire Making",
     "cost": 0,
     "prereq": [],
-    "desc": "Free — everyone starts knowing how to make fire.",
+    "desc": "Free \u2014 everyone starts knowing how to make fire.",
     "startUnlocked": true
   },
   "stone_knapping": {
     "name": "Stone Knapping",
     "cost": 0,
     "prereq": [],
-    "desc": "Free — sharpen stone into tools.",
+    "desc": "Free \u2014 sharpen stone into tools.",
     "startUnlocked": true
   },
   "woodworking": {
@@ -72,6 +72,31 @@
     "needsNexus": true,
     "prereq": ["shamanic_rites"],
     "desc": "Tier 1 magic. Mages with Heat, Cold, Force or Motion vectors can now be recruited.",
+    "startUnlocked": false
+  },
+  "vector_dynamics": {
+    "name": "Vector Dynamics",
+    "cost": 40,
+    "arcane": 20,
+    "extra": {
+      "mana_crystal": 5
+    },
+    "needsNexus": true,
+    "prereq": ["elemental_attunement"],
+    "desc": "Knowledge Tier 2: Major spells, Binding and Light, Tier 2 Forms, and specializations.",
+    "startUnlocked": false
+  },
+  "conservation_axioms": {
+    "name": "Conservation Axioms",
+    "cost": 80,
+    "arcane": 45,
+    "extra": {
+      "mana_crystal": 8,
+      "beast_core": 3
+    },
+    "needsNexus": true,
+    "prereq": ["vector_dynamics"],
+    "desc": "Knowledge Tier 3: Grand spells, and Transmutation, Vitality and Corrosion.",
     "startUnlocked": false
   }
 }

@@ -3,6 +3,7 @@ import { D } from '../core/content.js';
 import { weightedKey, pick } from '../core/rng.js';
 import { seedBond, deleteBondsOf, addHistory, mentorTalents } from './bonds.js';
 import { levelRolls } from './growth.js';
+import { knowledgeTier } from './magic.js';
 
 const G = D.talents.growth;
 
@@ -37,14 +38,20 @@ export function talentAtRank(key, rank = 1) {
   return def;
 }
 
-/** Every trait and talent definition a character has, traits first, talents at their rank. */
+/**
+ * Every trait and talent definition a character has, traits first, talents at their rank, then their
+ * specialization's effects.
+ */
 export function traitDefs(c) {
-  return c.traits
+  const defs = c.traits
     .map((t) => D.traits.traits[t])
     .filter(Boolean)
     .concat(
       c.talents.filter((t) => D.talents.talents[t]).map((t) => talentAtRank(t, c.talentRanks?.[t] || 1)),
     );
+  const spec = c.specialization && D.specializations[c.specialization];
+  if (spec) defs.push(spec.effects || {});
+  return defs;
 }
 
 /** Sums a numeric effect across a character's traits and talents. */
@@ -69,11 +76,9 @@ export function statEff(c, stat) {
   return v;
 }
 
+/** Class arcane base plus trait and talent arcane. A caster's spells count in their Repertoire (magic.js). */
 export function arcanePower(c) {
-  const cl = D.classes[c.cls];
-  let a = (cl.arcaneBase || 0) + sumEffect(c, 'arcane');
-  if (cl.arcane) a += Math.floor((c.stats.int + c.stats.wil) / 3);
-  return a;
+  return (D.classes[c.cls].arcaneBase || 0) + sumEffect(c, 'arcane');
 }
 
 export function xpToNext(level) {
@@ -113,8 +118,19 @@ export function build(s, spec) {
     history: [{ day: s.day, event: 'joined', how: spec.how || 'recruited' }],
     ups: [],
     lean: null,
+    // M10 Axiom Magic
+    knowledge: { vectors: {}, forms: {}, pairUses: {}, magnitudes: {} },
+    loadout: [],
+    specialization: null,
   };
   if (cl.vectorPool) c.vectors = [pick(cl.vectorPool)];
+  if (cl.caster) {
+    // A new caster knows one Vector and the first Form, and carries that spell at Minor.
+    const form = D.knowledgeTiers.magic.startForm;
+    for (const v of c.vectors) c.knowledge.vectors[v] = 1;
+    c.knowledge.forms[form] = 1;
+    if (c.vectors.length) c.loadout = [{ vector: c.vectors[0], form, magnitude: 'minor' }];
+  }
   return c;
 }
 
@@ -187,7 +203,11 @@ export function addXp(c, amount, s = null) {
         gains[k] = (gains[k] || 0) + 1;
       }
     }
-    const ctx = { lean: c.lean, mentorTalents: s ? mentorTalents(s, c) : null };
+    const ctx = {
+      lean: c.lean,
+      mentorTalents: s ? mentorTalents(s, c) : null,
+      tier: s ? knowledgeTier(s) : 1,
+    };
     const { rolls, breakthrough } = levelRolls(c, c.level, ctx);
     const talent = rolls.find((r) => r.kind === 'new')?.talent || null;
     const up = { level: c.level, gains, talent, rolls, breakthrough };

@@ -2,6 +2,7 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import { D } from '../src/core/content.js';
 import * as Ms from '../src/systems/missions.js';
+import * as Mg from '../src/systems/magic.js';
 import { setBond, baseGain } from '../src/systems/bonds.js';
 import { build } from '../src/systems/characters.js';
 import {
@@ -20,6 +21,8 @@ const R = 'verdant_wilds';
 function mage(s, vector, stats = { str: 3, con: 5, dex: 3, int: 10, per: 3, wil: 8 }) {
   const c = build(s, { name: 'Test Mage', cls: 'mage', stats, traits: [] });
   c.vectors = [vector];
+  c.knowledge.vectors = { [vector]: 1 };
+  c.loadout = [{ vector, form: 'bolt', magnitude: 'minor' }];
   return c;
 }
 
@@ -53,13 +56,15 @@ describe('Combat Power', () => {
     expect(Ms.combatPower(lin, 'hunt')).toBe(4 + 28.5 + 4 + 3);
   });
 
-  it('gives mages floor((INT + WIL) / 3) arcane plus trait and talent arcane', () => {
+  it('gives casters their Repertoire (M10) plus trait and talent arcane', () => {
     const s = freshState();
-    const m = mage(s, 'heat'); // INT 10 WIL 8: floor(18 / 3) = 6
+    const m = mage(s, 'heat'); // Minor Bolt: 5 + floor((1 + 1) / 2) = 6
     expect(Ms.combatPower(m, 'explore')).toBe(4 + 1.5 * 18 + 6);
     m.traits = ['mana_sensitive'];
     m.talents = ['arcane_affinity'];
     expect(Ms.combatPower(m, 'explore')).toBe(4 + 27 + 6 + 4 + 4);
+    m.loadout = [];
+    expect(Ms.combatPower(m, 'explore')).toBe(4 + 27 + 4 + 4);
   });
 
   it('multiplies by 0.85 while grieving', () => {
@@ -72,13 +77,13 @@ describe('Combat Power', () => {
 });
 
 describe('Matchups, wounds and Squad Power', () => {
-  it('gives +4 per Vector the enemy is weak to and -3 per Vector it resists', () => {
+  it('Repertoire matchup: x1.5 against an enemy weak to the Vector, x0.6 if it resists (M10)', () => {
     const s = freshState();
     const warden = D.enemies.grove_warden; // weak to heat, resists cold
-    expect(Ms.matchupBonus(mage(s, 'heat'), warden)).toBe(4);
-    expect(Ms.matchupBonus(mage(s, 'cold'), warden)).toBe(-3);
-    expect(Ms.matchupBonus(mage(s, 'force'), warden)).toBe(0);
-    expect(Ms.matchupBonus(starter(s, 'Kael'), warden)).toBe(0);
+    expect(Mg.repertoire(mage(s, 'heat'), warden)).toBe(6 * 1.5);
+    expect(Mg.repertoire(mage(s, 'cold'), warden)).toBeCloseTo(6 * 0.6, 10);
+    expect(Mg.repertoire(mage(s, 'force'), warden)).toBe(6);
+    expect(Mg.repertoire(starter(s, 'Kael'), warden)).toBe(0);
   });
 
   it('is (sum of CP) x (1 + synergy), with wounded members at 0.8 and a floor of 1 each', () => {
@@ -93,8 +98,10 @@ describe('Matchups, wounds and Squad Power', () => {
     expect(Ms.squadPower(s, [a, b], 'explore', null, hurt).cp).toBeCloseTo(cpA * 0.8 + cpB, 10);
     const weak = mage(s, 'cold', { str: 1, con: 1, dex: 1, int: 1, per: 1, wil: 1 });
     weak.level = 0;
-    // A negative matchup can push CP below 1; the member still counts as 1.
-    expect(Ms.squadPower(s, [weak], 'hunt', D.enemies.grove_warden).cp).toBe(1);
+    // A bad Wild Surge can push CP below 1; the member still counts as 1.
+    expect(Ms.squadPower(s, [weak], 'hunt', D.enemies.grove_warden, null, new Map([[weak.id, -50]])).cp).toBe(
+      1,
+    );
   });
 });
 

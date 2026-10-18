@@ -57,8 +57,9 @@
     "mana_sensitive": {
       "name": "Mana Sensitive",
       "rarity": "notable",
-      "desc": "+4 arcane power. Rare gift.",
-      "arcane": 4
+      "desc": "+4 arcane power; new Vectors come 10% more easily. Rare gift.",
+      "arcane": 4,
+      "newVectorMul": 1.1
     },
     "dragon_blood": {
       "name": "Dragon Blood",

@@ -1,0 +1,93 @@
+{
+  "magnitudes": {
+    "minor": 5,
+    "standard": 10,
+    "major": 20,
+    "grand": 35
+  },
+  "tiers": [
+    {
+      "tier": 1,
+      "name": "Runic Literacy",
+      "tech": null,
+      "maxMagnitude": "standard",
+      "desc": "The first four Vectors."
+    },
+    {
+      "tier": 2,
+      "name": "Vector Dynamics",
+      "tech": "vector_dynamics",
+      "maxMagnitude": "major",
+      "desc": "Magnitude scaling, Instability, Binding and Light, and the specializations."
+    },
+    {
+      "tier": 3,
+      "name": "Conservation Axioms",
+      "tech": "conservation_axioms",
+      "maxMagnitude": "grand",
+      "desc": "Transmutation, Vitality and Corrosion, and fuel-powered Grand effects."
+    },
+    {
+      "tier": 4,
+      "name": "Dimensional Calculus",
+      "tech": null,
+      "locked": true,
+      "maxMagnitude": "grand",
+      "desc": "Teleportation and Realm-anchor magic. Not yet reachable."
+    },
+    {
+      "tier": 5,
+      "name": "Grand Unification",
+      "tech": null,
+      "locked": true,
+      "maxMagnitude": "grand",
+      "desc": "True reality rewriting: how the Ascension Engine breaks the Seal. Not yet reachable."
+    }
+  ],
+  "magic": {
+    "fp": {
+      "base": 5,
+      "perLevel": 2,
+      "arcaneAffinityPerLevel": 1
+    },
+    "loadoutSize": 3,
+    "affinityCap": 10,
+    "matchup": {
+      "weak": 1.5,
+      "neutral": 1,
+      "resists": 0.6
+    },
+    "instability": {
+      "threshold": 0.5,
+      "riskBelow": 0.5,
+      "die": 20,
+      "dcBase": 10,
+      "tierBonus": 2,
+      "statPivot": 10,
+      "results": [
+        {
+          "upTo": 3,
+          "kind": "reduced",
+          "mul": 0.7
+        },
+        {
+          "upTo": 6,
+          "kind": "misfire"
+        },
+        {
+          "upTo": 9,
+          "kind": "backlash"
+        },
+        {
+          "kind": "surge",
+          "magnitude": "minor"
+        }
+      ]
+    },
+    "specializeAt": {
+      "tier": 2,
+      "level": 8
+    },
+    "startForm": "bolt"
+  }
+}

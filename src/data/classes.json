@@ -72,6 +72,7 @@
     "arcane": true,
     "needsTech": "elemental_attunement",
     "vectorPool": ["heat", "cold", "force", "motion"],
-    "recruitWeight": 15
+    "recruitWeight": 15,
+    "caster": true
   }
 }

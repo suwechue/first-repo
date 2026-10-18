@@ -1,0 +1,50 @@
+{
+  "runeforger": {
+    "name": "Runeforger",
+    "from": ["toolmaker"],
+    "rollMods": {
+      "binding": 15,
+      "light": 10
+    },
+    "startForm": "glyph",
+    "effects": {},
+    "desc": "Binding and Light come easier. Cheaper Refined Mana for enchantments and permanent Glyph items, once those exist."
+  },
+  "alchemical_theorist": {
+    "name": "Alchemical Theorist",
+    "from": ["herbalist"],
+    "rollMods": {
+      "cold": 10,
+      "force": 10
+    },
+    "effects": {
+      "yieldMul": 0.1
+    },
+    "desc": "Cold and Force come easier, and a keen eye for useful plants (+10% gathered). Pre-cast potions arrive with Refined Mana."
+  },
+  "kinetic_logician": {
+    "name": "Kinetic Logician",
+    "from": ["mage"],
+    "rollMods": {
+      "force": 15,
+      "motion": 15
+    },
+    "effects": {
+      "injuryMul": 0.9
+    },
+    "desc": "Force and Motion come easier, and a redirected blow means 10% fewer wounds."
+  },
+  "axiom_monk": {
+    "name": "Contemplative Axiom Monk",
+    "from": ["shaman", "mage"],
+    "rollMods": {
+      "light": 15
+    },
+    "effects": {
+      "fpCostFlat": 2,
+      "dcMul": 0.8,
+      "autoSucceedDc": 10
+    },
+    "desc": "Light comes easier. Casts cost 2 less FP, Instability DCs are 20% lower, and checks of DC 10 or less always succeed."
+  }
+}

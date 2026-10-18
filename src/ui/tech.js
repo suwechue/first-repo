@@ -2,6 +2,7 @@
 import { D } from '../core/content.js';
 import { $, label, techNames } from './dom.js';
 import { isUnlocked, tryUnlockTech } from '../systems/tech.js';
+import { knowledgeTier, tierInfo, magnitudeCap } from '../systems/magic.js';
 
 function techCostText(t) {
   const bits = [`${t.cost} Knowledge`];
@@ -18,7 +19,8 @@ function techCostText(t) {
 
 export function renderTechPanel(s) {
   const el = $('tech-list');
-  el.innerHTML = '';
+  const tier = knowledgeTier(s);
+  el.innerHTML = `<p class="small">Knowledge Tier ${tier}: <b>${tierInfo(tier).name}</b>. Spells up to ${magnitudeCap(tier)}.</p>`;
   for (const key in D.tech) {
     const t = D.tech[key];
     const done = isUnlocked(s, key);

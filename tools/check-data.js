@@ -148,6 +148,33 @@ export function checkData(d) {
     }
   }
 
+  // Axiom Magic.
+  const KT = d.knowledgeTiers;
+  const mags = KT.magnitudes;
+  KT.tiers.forEach((t, i) => {
+    if (t.tech) need(`knowledge_tiers.tiers[${i}].tech`, t.tech, d.tech, 'tech');
+    need(`knowledge_tiers.tiers[${i}].maxMagnitude`, t.maxMagnitude, mags, 'magnitude');
+  });
+  need('knowledge_tiers.magic.startForm', KT.magic.startForm, d.forms, 'form');
+  for (const kind of ['vectors', 'forms']) {
+    for (const [cls, table] of Object.entries(d.growthTables[kind])) {
+      if (cls !== 'default') need(`growth_tables.${kind}.${cls}`, cls, d.classes, 'class');
+      ids(table).forEach((k) => need(`growth_tables.${kind}.${cls}`, k, d[kind], kind.slice(0, -1)));
+    }
+  }
+  for (const [k, c] of Object.entries(d.classes)) {
+    (c.vectorPool || []).forEach((v) => need(`classes.${k}.vectorPool`, v, d.vectors, 'vector'));
+  }
+  for (const [k, sp] of Object.entries(d.specializations)) {
+    sp.from.forEach((c) => need(`specializations.${k}.from`, c, d.classes, 'class'));
+    ids(sp.rollMods).forEach((v) => need(`specializations.${k}.rollMods`, v, d.vectors, 'vector'));
+    if (sp.startForm) need(`specializations.${k}.startForm`, sp.startForm, d.forms, 'form');
+  }
+  for (const [k, e] of Object.entries(d.enemies)) {
+    for (const list of ['weakTo', 'resists'])
+      (e[list] || []).forEach((v) => need(`enemies.${k}.${list}`, v, d.vectors, 'vector'));
+  }
+
   // City prefabs and their props.
   need('world.city.prefab', W.city.prefab, d.prefabs, 'prefab');
   for (const [k, pf] of Object.entries(d.prefabs)) {

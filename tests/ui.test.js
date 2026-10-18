@@ -60,7 +60,7 @@ describe('The page', () => {
     click('btn-roster');
     expect(document.querySelectorAll('#roster-list .char-card').length).toBe(4);
     click('btn-tech');
-    expect(document.querySelectorAll('#tech-list .tech-node').length).toBe(10);
+    expect(document.querySelectorAll('#tech-list .tech-node').length).toBe(12);
     click('btn-tech');
     expect(document.getElementById('panel-tech').classList.contains('open')).toBe(false);
   });
@@ -70,7 +70,7 @@ describe('The page', () => {
     click('sys-save');
     expect(document.getElementById('sys-msg').textContent).toBe('Saved.');
     const saved = JSON.parse(localStorage.getItem('primitive_age_save_v1'));
-    expect(saved.v).toBe(3);
+    expect(saved.v).toBe(4);
     expect(saved.roster.length).toBe(4);
   });
 
@@ -117,7 +117,9 @@ describe('The page', () => {
     expect(body().querySelectorAll('.sbar').length).toBeGreaterThan(5);
     expect(body().textContent).toMatch(/Next Breakthrough at level/);
     tab('bonds');
-    expect(body().querySelectorAll('table.bonds tr').length).toBe(1 + 3); // header + three squadmates
+    expect(body().querySelectorAll('table.bonds tr').length).toBe(
+      document.querySelectorAll('#roster-list .char-card:not(.offer)').length,
+    ); // header + every squadmate
     expect(body().textContent).toMatch(/●|○/);
     tab('history');
     expect(body().textContent).toMatch(/One of the first four|Joined|expedition/);

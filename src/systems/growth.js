@@ -3,6 +3,7 @@
 // Rules: docs/SPEC.md, Systems reference, Growth rolls.
 import { D } from '../core/content.js';
 import { weightedKey } from '../core/rng.js';
+import { isCaster, casterRoll, magnitudeBreakthrough } from './magic.js';
 
 const G = D.talents.growth;
 
@@ -61,21 +62,33 @@ export function growthRoll(c, ctx = {}) {
   return { kind: 'proficiency', talent: t, objective };
 }
 
-/** The growth rolls for reaching `level`. Updates pity and clears any lean once used. */
+/**
+ * The growth rolls for reaching `level`. A caster's Primary roll is on their Vector table and their
+ * Secondary on their Form table; everyone else rolls talents. Updates pity and clears any lean.
+ * `ctx.tier` is the settlement's Knowledge Tier (1 if absent).
+ */
 export function levelRolls(c, level, ctx = {}) {
   const rolls = [];
+  const caster = isCaster(c);
+  const tier = ctx.tier || 1;
   const once = { ...ctx };
-  rolls.push(growthRoll(c, once));
+  rolls.push(caster ? casterRoll(c, 'vectors', tier) : growthRoll(c, once));
   once.lean = null; // a Life Debt leans only the next roll
-  if (level % G.secondaryEvery === 0) rolls.push(growthRoll(c, once));
+  if (level % G.secondaryEvery === 0) rolls.push(caster ? casterRoll(c, 'forms', tier) : growthRoll(c, once));
   if (ctx.lean) c.lean = null;
   let breakthrough = null;
   if (level % G.breakthroughEvery === 0) {
-    const objective = mostRunObjective(c);
-    addProficiency(c, objective);
-    breakthrough = { objective };
+    const m = caster ? magnitudeBreakthrough(c) : null;
+    if (m) breakthrough = m;
+    else {
+      const objective = mostRunObjective(c);
+      addProficiency(c, objective);
+      breakthrough = { objective };
+    }
   }
-  const learned = rolls.some((r) => r?.kind === 'new');
+  const learned = rolls.some(
+    (r) => r && (r.kind === 'new' || r.kind === 'new-vector' || r.kind === 'new-form'),
+  );
   c.pity = learned ? 0 : c.pity + 1;
   return { rolls: rolls.filter(Boolean), breakthrough };
 }

@@ -11,7 +11,7 @@ import fs from 'node:fs';
 import { D } from '../src/core/content.js';
 import { makeInitialState } from '../src/core/state.js';
 import { createRng, useRandomSource } from '../src/core/rng.js';
-import { initStarters, isInjured, equip } from '../src/systems/characters.js';
+import { initStarters, isInjured, equip, build } from '../src/systems/characters.js';
 import { recruit, refreshOffer } from '../src/systems/recruiting.js';
 import { launch, zoneUnlocked, combatPower } from '../src/systems/missions.js';
 import { loadReference, referenceAvailable } from './reference.js';
@@ -296,6 +296,66 @@ if (ref) cRow('Prototype', campaignStats(refEngine(SEED + 1)));
 console.log(
   `Target: about ${TARGETS.campaign.expeditions} expeditions, ${TARGETS.campaign.deathsMin} to ${TARGETS.campaign.deathsMax} deaths.`,
 );
+// ---------------------------------------------------------------------------
+// Part 3 (M10): how a mage's Vector changes the odds. Three starters (Kael, Boris, Lin) plus a
+// level 6 mage carrying a Standard Bolt and a Minor Burst of one Vector, against each zone's Hunt.
+// ---------------------------------------------------------------------------
+function vectorRates(vector, zone) {
+  let wins = 0;
+  for (let i = 0; i < RUNS; i++) {
+    port.reset();
+    const s = port.s;
+    s.nexus.awake = true;
+    s.player.inventory[D.mission.supply.item] = 100;
+    for (const z in s.realms[realm]) s.realms[realm][z].explored = 100;
+    const squad = s.roster.filter((c) => c.cls !== 'gatherer' && c.cls !== 'herbalist').slice(0, 3);
+    if (vector) {
+      const m = build(s, {
+        name: 'Sim Mage',
+        cls: 'mage',
+        stats: { str: 4, con: 6, dex: 5, int: 12, per: 5, wil: 10 },
+        traits: [],
+      });
+      m.level = 6;
+      m.vectors = [vector];
+      m.knowledge.vectors = { [vector]: 2 };
+      m.knowledge.forms = { bolt: 2, burst: 1 };
+      m.knowledge.magnitudes = { [vector + '+bolt']: 'standard' };
+      m.loadout = [
+        { vector, form: 'bolt', magnitude: 'standard' },
+        { vector, form: 'burst', magnitude: 'minor' },
+      ];
+      s.roster.push(m);
+      squad.push(m);
+    }
+    const r = port.launch({
+      realm,
+      zone,
+      objective: 'hunt',
+      squad: squad.map((c) => c.id),
+      retreat: RETREAT,
+    });
+    if (!r.ok) throw new Error(r.error);
+    if (r.report.outcome === 'success') wins++;
+  }
+  return (wins / RUNS) * 100;
+}
+
+const vectors = Object.keys(D.vectors).filter((v) => D.vectors[v].tier === 1);
+const zones = Object.keys(D.realms[realm].zones);
+console.log(`\nVector matchups: Hunt win % for three starters plus a level 6 mage (${RUNS} runs per cell)`);
+const vw = [12, ...zones.map(() => 11)];
+console.log([pad('Mage Vector', vw[0]), ...zones.map((z, i) => padL(z, vw[i + 1]))].join(' '));
+for (const v of [null, ...vectors]) {
+  const cells = zones.map((z, i) => {
+    const quarry = D.enemies[D.realms[realm].zones[z].hunt[0]];
+    const mark = !v ? '' : quarry.weakTo.includes(v) ? '+' : quarry.resists.includes(v) ? '-' : ' ';
+    return padL(f1(vectorRates(v, z)) + mark, vw[i + 1]);
+  });
+  console.log([pad(v ? D.vectors[v].name : '(no mage)', vw[0]), ...cells].join(' '));
+}
+console.log('+ the quarry is weak to that Vector, - it resists it.');
+
 console.log(
   fails
     ? `\n${fails} row(s) are more than ${TARGETS.tolerance} points from the target.`

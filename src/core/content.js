@@ -23,6 +23,11 @@ import world from '../data/world.json' with { type: 'json' };
 import biomes from '../data/biomes.json' with { type: 'json' };
 import props from '../data/props.json' with { type: 'json' };
 import landmarks from '../data/landmarks.json' with { type: 'json' };
+import vectors from '../data/vectors.json' with { type: 'json' };
+import forms from '../data/forms.json' with { type: 'json' };
+import knowledgeTiers from '../data/knowledge_tiers.json' with { type: 'json' };
+import growthTables from '../data/growth_tables.json' with { type: 'json' };
+import specializations from '../data/specializations.json' with { type: 'json' };
 import oldCity from '../data/prefabs/old_city.json' with { type: 'json' };
 
 const REALM_FILES = { verdant_wilds: verdantWilds };
@@ -52,6 +57,11 @@ export const RAW = {
   biomes,
   props,
   landmarks,
+  vectors,
+  forms,
+  knowledgeTiers,
+  growthTables,
+  specializations,
   prefabs: PREFAB_FILES,
 };
 

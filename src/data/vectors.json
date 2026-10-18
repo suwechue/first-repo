@@ -1,0 +1,56 @@
+{
+  "heat": {
+    "name": "Heat",
+    "tier": 1,
+    "color": "#e6934a",
+    "desc": "Fire and warmth. Strong against Binding and organic armor."
+  },
+  "cold": {
+    "name": "Cold",
+    "tier": 1,
+    "color": "#8fc6e8",
+    "desc": "Frost and stillness. Strong against fast, agile enemies."
+  },
+  "force": {
+    "name": "Force",
+    "tier": 1,
+    "color": "#b0a48a",
+    "desc": "Raw push and impact. Strong against armored and constructed enemies."
+  },
+  "motion": {
+    "name": "Motion",
+    "tier": 1,
+    "color": "#9fd0a0",
+    "desc": "Speed and redirection. Strong against evasive enemies."
+  },
+  "binding": {
+    "name": "Binding",
+    "tier": 2,
+    "color": "#b9a6ff",
+    "desc": "Holds and snares. Strong against beasts and swarms."
+  },
+  "light": {
+    "name": "Light",
+    "tier": 2,
+    "color": "#f4e7a1",
+    "desc": "Radiance. Strong against undead, shadow and the hidden."
+  },
+  "transmutation": {
+    "name": "Transmutation",
+    "tier": 3,
+    "color": "#d79ad8",
+    "desc": "Changes what a thing is."
+  },
+  "vitality": {
+    "name": "Vitality",
+    "tier": 3,
+    "color": "#e07a7a",
+    "desc": "Life itself, given or taken."
+  },
+  "corrosion": {
+    "name": "Corrosion",
+    "tier": 3,
+    "color": "#8f9a4a",
+    "desc": "Decay that eats through anything."
+  }
+}

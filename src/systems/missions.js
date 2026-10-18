@@ -13,6 +13,7 @@
 import { D } from '../core/content.js';
 import { rand, weightedKey, stochRound } from '../core/rng.js';
 import * as C from './characters.js';
+import * as Mg from './magic.js';
 import {
   getBond,
   addBond,
@@ -28,7 +29,11 @@ const M = D.mission;
 export const OBJECTIVES = M.objectives;
 
 // ---------------- Combat Power ----------------
-export function combatPower(c, objective) {
+/**
+ * CP for an objective. A caster adds their Repertoire at Matchup 1 unless `opts.repertoire` is false
+ * (in a fight, what they actually cast is added instead).
+ */
+export function combatPower(c, objective, opts = {}) {
   const cl = D.classes[c.cls];
   const sum = C.statEff(c, cl.primary[0]) + C.statEff(c, cl.primary[1]);
   const gear = C.gearPower(c);
@@ -38,7 +43,9 @@ export function combatPower(c, objective) {
     C.sumEffect(c, M.objectives[objective].cpEffect) +
     D.talents.growth.proficiencyCp * (c.skills?.[objective] || 0);
   const arcane = C.arcanePower(c);
-  let cp = M.combatPower.perLevel * c.level + M.combatPower.perPrimaryStat * sum + gear + skill + arcane;
+  const rep = opts.repertoire === false ? 0 : Mg.repertoire(c);
+  let cp =
+    M.combatPower.perLevel * c.level + M.combatPower.perPrimaryStat * sum + gear + skill + arcane + rep;
   if (c.grief > 0) cp *= M.grief.cpMul;
   return cp;
 }
@@ -100,21 +107,17 @@ function pickEnemy(z) {
   return weightedKey(w);
 }
 
-export function matchupBonus(c, enemy) {
-  let b = 0;
-  for (const v of c.vectors) {
-    if (enemy.weakTo.indexOf(v) >= 0) b += M.matchup.weakTo;
-    if (enemy.resists.indexOf(v) >= 0) b += M.matchup.resists;
-  }
-  return b;
-}
-
-export function squadPower(s, members, objective, enemy, hurt) {
+/**
+ * Squad Power. `cast` (a Map of caster id -> Repertoire actually cast in this fight) replaces each
+ * caster's at-rest Repertoire; without it every equipped spell counts at Matchup 1 (the preview).
+ */
+export function squadPower(s, members, objective, enemy, hurt, cast = null) {
   const syn = synergy(s, members);
   let sum = 0;
   for (const c of members) {
-    let cp = combatPower(c, objective);
-    if (enemy) cp += matchupBonus(c, enemy);
+    let cp = cast
+      ? combatPower(c, objective, { repertoire: false }) + (cast.get(c.id) || 0)
+      : combatPower(c, objective);
     if (hurt && hurt.has(c.id)) cp *= M.woundedCpMul;
     sum += Math.max(M.combatPower.minPerMember, cp);
   }
@@ -212,10 +215,68 @@ export function validate(s, o) {
   return null;
 }
 
+// ---------------- casting ----------------
+/**
+ * The casters' spells for one fight. Each caster casts their loadout in order while FP lasts. A cast
+ * costing more than half their current FP is held back unless the squad is losing without it, and
+ * then needs a Stability Check. Spends `fp` (id -> current FP) and counts pair uses. Returns the
+ * Map of id -> Repertoire cast.
+ */
+function castSpells(s, members, objective, enemy, hurt, fp, events) {
+  const I = D.knowledgeTiers.magic.instability;
+  const tier = Mg.knowledgeTier(s);
+  const cast = new Map();
+  const risky = [];
+  const use = (c, sp) => {
+    const k = Mg.spellPair(sp.vector, sp.form);
+    c.knowledge.pairUses[k] = (c.knowledge.pairUses[k] || 0) + 1;
+  };
+  for (const c of members) {
+    if (!Mg.isCaster(c)) continue;
+    let v = 0;
+    for (const sp of c.loadout || []) {
+      const cost = Mg.spellCost(c, sp);
+      if (cost > fp[c.id]) continue;
+      if (cost > I.threshold * fp[c.id]) {
+        risky.push({ c, sp, cost });
+        continue;
+      }
+      fp[c.id] -= cost;
+      v += Mg.spellValue(c, sp) * Mg.matchup(sp.vector, enemy);
+      use(c, sp);
+    }
+    cast.set(c.id, v);
+  }
+  for (const { c, sp, cost } of risky) {
+    if (cost > fp[c.id]) continue;
+    const pw = squadPower(s, members, objective, enemy, hurt, cast);
+    if (winChance(pw.sp, enemy.etr) >= I.riskBelow) continue; // comfortably ahead: hold it back
+    const chk = Mg.stabilityCheck(c, cost, fp[c.id], tier);
+    fp[c.id] -= cost;
+    use(c, sp);
+    const name = `${D.vectors[sp.vector].name} ${D.forms[sp.form].name}`;
+    let v = Mg.spellValue(c, sp) * Mg.matchup(sp.vector, enemy) * chk.mul;
+    if (chk.result === 'success') events.push(`${c.name} risks a ${sp.magnitude} ${name}, and it holds.`);
+    else if (chk.result === 'reduced') events.push(`${c.name}'s ${name} wavers (reduced effect).`);
+    else if (chk.result === 'misfire') events.push(`${c.name}'s ${name} misfires.`);
+    else if (chk.result === 'backlash') {
+      hurt.add(c.id);
+      events.push(`${c.name}'s ${name} backlashes, and ${c.name} is wounded.`);
+    } else {
+      const surge = Mg.wildSurge(enemy);
+      v = surge.value;
+      events.push(`${c.name}'s ${name} tears loose into a wild surge of ${D.vectors[surge.vector].name}.`);
+    }
+    cast.set(c.id, cast.get(c.id) + v);
+  }
+  return cast;
+}
+
 // ---------------- one fight ----------------
-function fight(s, members, hurt, enemyKey, objective, z, events) {
+function fight(s, members, hurt, enemyKey, objective, z, events, fp) {
   const enemy = D.enemies[enemyKey];
-  const pw = squadPower(s, members, objective, enemy, hurt);
+  const cast = castSpells(s, members, objective, enemy, hurt, fp, events);
+  const pw = squadPower(s, members, objective, enemy, hurt, cast);
   const pWin = winChance(pw.sp, enemy.etr);
   const won = rand() < pWin;
   const close = closeness(pWin);
@@ -325,6 +386,7 @@ export function launch(s, o) {
   let xpPool = 0;
   let bossKilled = false;
   let maxClose = 0; // the mission's closeness, for bond growth
+  const fp = Object.fromEntries(squad.map((c) => [c.id, Mg.isCaster(c) ? Mg.fpMax(c) : 0])); // rested at the start
   const saves = [];
   const startSyn = synergy(s, squad);
 
@@ -355,7 +417,7 @@ export function launch(s, o) {
       rep.events.push('The squad tracks down ' + D.enemies[enemyKey].name + '.');
     }
     if (enemyKey) {
-      const f = fight(s, live, hurt, enemyKey, o.objective, z, rep.events);
+      const f = fight(s, live, hurt, enemyKey, o.objective, z, rep.events, fp);
       maxClose = Math.max(maxClose, f.close);
       saves.push(...f.saves);
       for (const c of f.dead) {

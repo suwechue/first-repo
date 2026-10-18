@@ -77,11 +77,12 @@
     },
     "arcane_affinity": {
       "name": "Arcane Affinity",
-      "desc": "+4 arcane power.",
+      "desc": "+4 arcane power, and +1 Focus Point per level for a caster.",
       "arcane": 4,
       "perRank": {
         "arcane": 2
-      }
+      },
+      "fpPerLevel": 1
     },
     "steady_hands": {
       "name": "Steady Hands",

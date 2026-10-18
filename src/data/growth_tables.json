@@ -1,0 +1,42 @@
+{
+  "note": "Caster growth: Primary rolls draw from the Vector table, Secondary rolls from the Form table. A class without its own table uses 'default'.",
+  "vectors": {
+    "default": {
+      "heat": 20,
+      "cold": 20,
+      "force": 15,
+      "motion": 15,
+      "binding": 15,
+      "light": 15,
+      "transmutation": 8,
+      "vitality": 8,
+      "corrosion": 8
+    },
+    "mage": {
+      "heat": 20,
+      "cold": 20,
+      "force": 15,
+      "motion": 15,
+      "binding": 15,
+      "light": 15,
+      "transmutation": 8,
+      "vitality": 8,
+      "corrosion": 8
+    }
+  },
+  "forms": {
+    "default": {
+      "bolt": 25,
+      "burst": 20,
+      "shield": 20,
+      "weapon_infusion": 15,
+      "line": 8,
+      "sphere": 8,
+      "projectile": 10,
+      "touch": 8,
+      "aura": 8,
+      "construct": 5,
+      "glyph": 5
+    }
+  }
+}

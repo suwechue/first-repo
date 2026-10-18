@@ -42,6 +42,32 @@ const MIGRATIONS = {
       out.bondMeta[k] = { since: d.day || 1, missions: 0, flags: [] };
     return out;
   },
+  // v3 -> v4: Axiom Magic (M10). A caster's Vectors become known at affinity 1 with the first Form,
+  // and they carry that spell at Minor; everyone gains an empty spellbook.
+  3(d) {
+    const form = D.knowledgeTiers.magic.startForm;
+    const upgrade = (c) => {
+      if (c.knowledge) return c;
+      const caster = !!D.classes[c.cls]?.caster;
+      const vectors = caster ? c.vectors || [] : [];
+      return {
+        ...c,
+        knowledge: {
+          vectors: Object.fromEntries(vectors.map((v) => [v, 1])),
+          forms: vectors.length ? { [form]: 1 } : {},
+          pairUses: {},
+          magnitudes: {},
+        },
+        loadout: vectors.length ? [{ vector: vectors[0], form, magnitude: 'minor' }] : [],
+        specialization: null,
+      };
+    };
+    const out = { ...d, v: 4 };
+    if (Array.isArray(out.roster)) out.roster = out.roster.map(upgrade);
+    if (out.recruitOffer && typeof out.recruitOffer === 'object')
+      out.recruitOffer = upgrade(out.recruitOffer);
+    return out;
+  },
 };
 
 /** Returns { data } at SAVE_VERSION, or { error } with a message for the player. */

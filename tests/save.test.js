@@ -83,7 +83,7 @@ describe('Save and load', () => {
   it('stores the seed and what changed, not the world', () => {
     const s = exploredState();
     const data = serialize(s);
-    expect(data.v).toBe(3);
+    expect(data.v).toBe(4);
     expect(data.seed).toBe(4321);
     expect(data.resources).toBeUndefined();
     expect(data.enemies).toBeUndefined();
@@ -136,7 +136,7 @@ describe('Save and load', () => {
     expect(t.buildings).toEqual([]);
     expect(t.nodes).toEqual({});
     expect(t.player.w).toBeUndefined();
-    expect(serialize(t).v).toBe(3);
+    expect(serialize(t).v).toBe(4);
     // and it plays on
     for (let i = 0; i < 60; i++) update(t, { up: false, down: true, left: false, right: false });
   });
