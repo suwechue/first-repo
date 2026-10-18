@@ -343,8 +343,10 @@ P_{injury} = Closeness \cdot 0.35 \cdot (1 - ConMod) \cdot (1 - ArmorMod)
 
 ### Characters
 
-- **Recruits:** tier is drawn 70 / 25 / 5 for Common, Uncommon and Rare. Stats start at 3 and receive 24, 32 or 42 points, capped at 14, weighted toward the class's primary stats and the background's nudge. Traits number 1, 2 or 3, and each is drawn from a pool that is 70% common, 27% uncommon and 3% notable regardless of tier, so rarity gives more stats and traits, not a better chance at the best ones. Clashing traits are rerolled.
-- **Cost and limits:** recruits cost 6, 12 or 24 food. The roster holds 8. One candidate is offered per day once the Nexus is awake.
+- **Recruits (M11):** tier is drawn by weight: Uncommon 25 + min(10, Renown / 20), Rare 5 + min(5, Renown / 40), and Common the rest, so Common never falls below 55 and stays the most frequent. With no Renown that is the beta's 70 / 25 / 5. Stats start at 3 and receive 24, 32 or 42 points, capped at 14, weighted toward the class's primary stats and the background's nudge. Traits number 1, 2 or 3, and each is drawn from a pool that is 70% common, 27% uncommon and 3% notable regardless of tier, so rarity gives more stats and traits, not a better chance at the best ones. Clashing traits are rerolled.
+- **Cost and limits (M11):** recruits cost 20, 40 or 80 Renown by tier. The roster holds 8. One candidate at a time waits at the Hall; the first arrives when the Nexus wakes, and at each dawn with no one waiting (and room on the roster) a new one arrives with chance min(0.9, 0.25 + Renown / 200). Dismiss sends the candidate away, and the next arrival rolls at the next dawn. Each recruit has an origin (only the Overworld Village for now) and a flavor line built from their background and their rarest trait.
+- **Blood Feud (M11):** a pair at Blood Feud (a bond of -86 or lower) refuses to deploy together: the Hall will not add one to a squad holding the other, and a launch with both fails. Commanders, who could override this, are out of scope.
+- **Saved squads (M11):** the Hall can save the current squad under a name and load it again later; members who have died drop out of it.
 - **Gear:** each character has a weapon and an armor slot. Crafted items go to a shared armory and are equipped from the Roster.
 
 ### Nexus and time
@@ -537,10 +539,10 @@ The Nexus is also how new people reach your settlement. Recruitment is the game'
 
 | Part | Beta (built) | Full design (to build in M11) |
 | --- | --- | --- |
-| Cost | 6, 12 or 24 food by tier | Renown. The design shows an Uncommon costing 40 Renown, so propose 20, 40 and 80 for Common, Uncommon and Rare |
-| Arrival | A new candidate each dawn, replaced if not recruited | One candidate waits at the Hall. Each dawn with none waiting, an arrival chance of min(0.9, 0.25 + Renown / 200) |
-| Dismiss | Not available | Dismiss sends them away, and the next arrival rolls on the next dawn |
-| Tier odds | Fixed 70 / 25 / 5 | Renown raises the Uncommon and Rare shares, never past a stated cap, so Common stays the most frequent |
+| Cost | 6, 12 or 24 food by tier | Renown: 20, 40 and 80 for Common, Uncommon and Rare (built) |
+| Arrival | A new candidate each dawn, replaced if not recruited | One candidate waits at the Hall. Each dawn with none waiting, an arrival chance of min(0.9, 0.25 + Renown / 200) (built) |
+| Dismiss | Not available | Dismiss sends them away, and the next arrival rolls on the next dawn (built) |
+| Tier odds | Fixed 70 / 25 / 5 | Renown raises the Uncommon and Rare shares, never past a stated cap, so Common stays the most frequent (built: caps +10 and +5) |
 | Origin and background | Four overworld backgrounds | Add origin to the record and the faction backgrounds once diplomacy exists |
 | Epithets | None | Earned later in play (first notable trait, first realm boss kill), never rolled at generation |
 
