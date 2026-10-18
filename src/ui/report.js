@@ -29,6 +29,13 @@ export function showReport(r) {
   if (r.dead.length) {
     h += `<p class="bad">Fallen: ${r.dead.map((d) => esc(d.name) + ' (' + D.classes[d.cls].name + ', Lv ' + d.level + ')').join(', ')}. They will not return.</p>`;
   }
+  if (r.lifeDebts?.length) {
+    h += `<p class="good">${r.lifeDebts.map((l) => `${esc(l.saver)} saved ${esc(l.saved)} from death. A life debt binds them.`).join(' ')}</p>`;
+  }
+  const bondChanges = Object.entries(r.bonds || {});
+  if (bondChanges.length) {
+    h += `<p class="small muted">Bonds: ${bondChanges.map(([pair, d]) => `${esc(pair)} ${d >= 0 ? '+' : ''}${d}`).join(' · ')}</p>`;
+  }
   if (r.levelups.length) {
     const labels = D.tiers.stats.labels;
     h +=
@@ -38,8 +45,17 @@ export function showReport(r) {
           const g = Object.entries(u.gains)
             .map(([k, v]) => `${labels[k]} +${v}`)
             .join(' ');
-          const t = u.talent ? D.talents.talents[u.talent] : null;
-          return `<li><b>${esc(u.name)}</b> reached level ${u.level} (${g})${t ? ` — learned <b>${t.name}</b>: ${esc(t.desc)}` : ''}</li>`;
+          const rolls = (u.rolls || []).map((x) => {
+            const t = D.talents.talents[x.talent];
+            if (x.kind === 'new') return `learned <b>${t.name}</b>: ${esc(t.desc)}`;
+            if (x.kind === 'rank') return `${t.name} rose to rank ${x.rank}`;
+            return `mastered ${t.name}: +1 ${D.mission.objectives[x.objective].label} proficiency`;
+          });
+          if (u.breakthrough)
+            rolls.push(
+              `<b>Breakthrough</b>: +1 ${D.mission.objectives[u.breakthrough.objective].label} proficiency`,
+            );
+          return `<li><b>${esc(u.name)}</b> reached level ${u.level} (${g})${rolls.length ? ' — ' + rolls.join('; ') : ''}</li>`;
         })
         .join('') +
       '</ul>';

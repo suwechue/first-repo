@@ -8,10 +8,20 @@
 //
 // A mission is a series of steps through one zone. Each step is quiet travel or an encounter.
 // Vigor drains as the squad fights; at the chosen retreat threshold the squad turns back.
+// M9 added composition synergy, Perception-scaled yields, the hunt locate check, Life Debt,
+// Witnessed Death and the closeness-based bond formula (see the Systems reference).
 import { D } from '../core/content.js';
 import { rand, weightedKey, stochRound } from '../core/rng.js';
 import * as C from './characters.js';
-import { getBond, addBond, bondTier, inPairs } from './bonds.js';
+import {
+  getBond,
+  addBond,
+  bondTier,
+  addFlag,
+  addHistory,
+  missionBondGain,
+  recordSharedMission,
+} from './bonds.js';
 
 const M = D.mission;
 
@@ -23,7 +33,10 @@ export function combatPower(c, objective) {
   const sum = C.statEff(c, cl.primary[0]) + C.statEff(c, cl.primary[1]);
   const gear = C.gearPower(c);
   const skill =
-    (cl.skill[objective] || 0) + C.sumEffect(c, 'cp') + C.sumEffect(c, M.objectives[objective].cpEffect);
+    (cl.skill[objective] || 0) +
+    C.sumEffect(c, 'cp') +
+    C.sumEffect(c, M.objectives[objective].cpEffect) +
+    D.talents.growth.proficiencyCp * (c.skills?.[objective] || 0);
   const arcane = C.arcanePower(c);
   let cp = M.combatPower.perLevel * c.level + M.combatPower.perPrimaryStat * sum + gear + skill + arcane;
   if (c.grief > 0) cp *= M.grief.cpMul;
@@ -35,43 +48,32 @@ function role(c) {
 }
 
 // ---------------- Synergy ----------------
+/** Team chemistry (bond tier modifiers over the number of pairs) plus composition. */
 export function synergy(s, squad) {
   const S = M.synergy;
+  const R = M.roles;
   const parts = [];
   let v = 0;
   const n = squad.length;
-  // Every pair contributes its bond tier modifier, divided by (n - 1)
-  // so a full squad is not six times stronger than a pair for the same relationships.
   let bondSum = 0;
+  let pairs = 0;
   for (let i = 0; i < n; i++)
-    for (let j = i + 1; j < n; j++) bondSum += bondTier(getBond(s, squad[i].id, squad[j].id)).mod;
-  const bondPart = n > 1 ? bondSum / (n - 1) : 0;
-  if (bondPart) parts.push(['Bonds', bondPart]);
-  v += bondPart;
-  let tr = 0;
-  for (let i = 0; i < n; i++)
-    for (let j = i + 1; j < n; j++)
-      for (const ta of squad[i].traits)
-        for (const tb of squad[j].traits) {
-          if (inPairs(D.traits.clash, ta, tb)) tr -= S.traitPair;
-          if (inPairs(D.traits.synergy, ta, tb)) tr += S.traitPair;
-        }
-  if (tr) {
-    parts.push(['Trait clashes/synergies', tr]);
-    v += tr;
-  }
-  if (squad.some((c) => role(c) === M.roles.front)) {
-    parts.push(['Front-liner', S.frontLiner]);
-    v += S.frontLiner;
-  }
-  if (squad.some((c) => role(c) === M.roles.support)) {
-    parts.push(['Support', S.support]);
-    v += S.support;
-  }
-  if (squad.some((c) => C.sumEffect(c, 'synergy') > 0)) {
-    parts.push(['Natural Leader', S.leader]);
-    v += S.leader;
-  }
+    for (let j = i + 1; j < n; j++) {
+      bondSum += bondTier(getBond(s, squad[i].id, squad[j].id)).mod;
+      pairs++;
+    }
+  const chemistry = pairs ? bondSum / pairs : 0;
+  if (chemistry) parts.push(['Team chemistry', chemistry]);
+  v += chemistry;
+  const has = (r) => squad.some((c) => role(c) === r);
+  const add = (label, x) => {
+    parts.push([label, x]);
+    v += x;
+  };
+  if (has(R.front) && R.backLine.some(has)) add('Front and back lines', S.frontBack);
+  if (has(R.support)) add('Support', S.support);
+  if (has(R.caster) && !has(R.front)) add('Casters without a front-liner', S.casterNoFront);
+  if (squad.some((c) => C.sumEffect(c, 'synergy') > 0)) add('Natural Leader', S.leader);
   v = Math.max(S.min, Math.min(S.max, v));
   return { value: v, parts };
 }
@@ -125,6 +127,22 @@ export function winChance(sp, etr) {
 
 export function closeness(pWin) {
   return Math.max(M.closenessMin, 1 - 2 * Math.abs(pWin - 0.5));
+}
+
+/** 1 + 0.04 x (average effective PER - 6), clamped: sharp eyes find more. */
+export function perceptionMod(members) {
+  const P = M.perception;
+  if (!members.length) return 1;
+  const avg = members.reduce((a, c) => a + C.statEff(c, 'per'), 0) / members.length;
+  return Math.max(P.min, Math.min(P.max, 1 + P.perPoint * (avg - P.pivot)));
+}
+
+/** Chance to find a Hunt's quarry on one attempt. */
+export function locateChance(members) {
+  const L = M.locate;
+  const per = Math.max(0, ...members.map((c) => C.statEff(c, 'per')));
+  const prof = Math.max(0, ...members.map((c) => c.skills?.hunt || 0));
+  return Math.min(L.max, L.base + L.perPer * per + L.perProficiency * prof);
 }
 
 export function conMod(c) {
@@ -203,6 +221,7 @@ function fight(s, members, hurt, enemyKey, objective, z, events) {
   const close = closeness(pWin);
   const supportAlive = members.some((c) => role(c) === M.roles.support);
   const medic = members.reduce((a, c) => a * C.prodEffect(c, 'squadDeathMul'), 1);
+  const saves = [];
 
   events.push(
     (won ? 'Victory against ' : 'Defeated by ') + enemy.name + ' (' + Math.round(pWin * 100) + '% odds).',
@@ -210,22 +229,41 @@ function fight(s, members, hurt, enemyKey, objective, z, events) {
   const dead = [];
   for (const c of members.slice()) {
     if (rand() >= injuryChance(c, close, won)) continue;
-    const pDeath = deathChance(c, {
+    const odds = {
       deathScale: z.deathScale,
       won,
       supportAlive,
       alreadyWounded: hurt.has(c.id),
       medic,
-    });
-    if (rand() < pDeath) {
+    };
+    const pDeath = deathChance(c, odds);
+    const r = rand();
+    if (r < pDeath) {
       dead.push(c);
       events.push(c.name + ' was killed.');
     } else {
       hurt.add(c.id);
       events.push(c.name + ' was wounded.');
+      // Life Debt: the roll would have killed them without another member's help.
+      const alone = deathChance(c, {
+        ...odds,
+        supportAlive: role(c) === M.roles.support,
+        medic: C.prodEffect(c, 'squadDeathMul'),
+      });
+      if (r < alone) {
+        const others = members.filter((o) => o !== c && !dead.includes(o));
+        // the strongest medic among the others, else a living support
+        const medics = others.filter((o) => C.prodEffect(o, 'squadDeathMul') < 1);
+        medics.sort((a, b) => C.prodEffect(a, 'squadDeathMul') - C.prodEffect(b, 'squadDeathMul'));
+        const saver = medics[0] || others.find((o) => role(o) === M.roles.support);
+        if (saver) {
+          saves.push({ saved: c, saver });
+          events.push(saver.name + ' pulled ' + c.name + " back from death's edge.");
+        }
+      }
     }
   }
-  return { won, pWin, enemy, dead };
+  return { won, pWin, close, enemy, dead, saves };
 }
 
 // ---------------- the mission ----------------
@@ -242,6 +280,10 @@ export function launch(s, o) {
   inv[M.supply.item] -= squad.length * M.supply.perMember;
 
   const retreat = o.retreat || M.defaultRetreat;
+  for (const c of squad) {
+    if (c.missions === 0) addHistory(s, c, 'first_expedition', { zone: z.name });
+    if (c.usage) c.usage[o.objective] = (c.usage[o.objective] || 0) + 1;
+  }
   const encMul = squad.reduce((a, c) => a * C.prodEffect(c, 'encounterMul'), 1);
   const yieldMul = squad.reduce((a, c) => a + C.sumEffect(c, 'yieldMul'), 0);
 
@@ -266,6 +308,8 @@ export function launch(s, o) {
     fragments: {},
     kills: [],
     xp: {},
+    lifeDebts: [],
+    bonds: {},
   };
   function gain(k, n) {
     if (n > 0) {
@@ -280,6 +324,8 @@ export function launch(s, o) {
   let vigor = M.vigor.start;
   let xpPool = 0;
   let bossKilled = false;
+  let maxClose = 0; // the mission's closeness, for bond growth
+  const saves = [];
   const startSyn = synergy(s, squad);
 
   for (let step = 1; step <= z.steps; step++) {
@@ -289,8 +335,29 @@ export function launch(s, o) {
     else if (rand() < z.encounterChance * encMul) enemyKey = pickEnemy(z);
 
     let lost = false;
+    if (finalFight) {
+      // The locate check: find the quarry first, or turn back without the fight.
+      const p = locateChance(live);
+      let found = false;
+      for (let t = 0; t < M.locate.tries && !found; t++) {
+        if (rand() < p) found = true;
+        else {
+          vigor -= M.locate.vigorCost;
+          rep.events.push('The squad searches for ' + D.enemies[enemyKey].name + ' but finds only tracks.');
+          if (vigor <= retreat) break;
+        }
+      }
+      if (!found) {
+        rep.outcome = 'retreat';
+        rep.events.push('The quarry eluded them, and the squad turned back.');
+        break;
+      }
+      rep.events.push('The squad tracks down ' + D.enemies[enemyKey].name + '.');
+    }
     if (enemyKey) {
       const f = fight(s, live, hurt, enemyKey, o.objective, z, rep.events);
+      maxClose = Math.max(maxClose, f.close);
+      saves.push(...f.saves);
       for (const c of f.dead) {
         live = live.filter((x) => x !== c);
         deadAll.push(c);
@@ -321,12 +388,17 @@ export function launch(s, o) {
     }
     rep.stepsDone = step;
 
-    // Resources found along the way.
+    // Resources found along the way; sharp eyes find more.
+    const perMod = perceptionMod(live);
     for (const r of z.resources) {
       gain(
         r.id,
         stochRound(
-          r.base * (M.resourceRoll.min + rand() * M.resourceRoll.range) * obj.resourceShare * (1 + yieldMul),
+          r.base *
+            (M.resourceRoll.min + rand() * M.resourceRoll.range) *
+            obj.resourceShare *
+            (1 + yieldMul) *
+            perMod,
         ),
       );
     }
@@ -349,6 +421,7 @@ export function launch(s, o) {
     }
   }
   rep.vigorEnd = Math.max(0, Math.round(vigor));
+  rep.closeness = maxClose;
   if (rep.outcome === 'success' && obj.finalFight && !rep.kills.length) rep.outcome = 'retreat';
 
   // ----- exploration, Arcane Knowledge, Renown -----
@@ -386,29 +459,53 @@ export function launch(s, o) {
       c.injuredUntil = s.day + (rep.outcome === 'success' ? M.injuredDays.success : M.injuredDays.otherwise);
       rep.injured.push(c.name);
     }
+  // Witnessed Death: every survivor grieves (unless Stoic), longer for someone they were close to.
   for (const d of deadAll) {
     rep.dead.push({ name: d.name, cls: d.cls, level: d.level });
     for (const sv of live) {
+      addHistory(s, sv, 'witnessed_death', { name: d.name });
       if (C.hasEffect(sv, 'stoic')) continue;
-      if (getBond(s, sv.id, d.id) >= M.grief.bondAtLeast) {
-        sv.grief = M.grief.missions;
-        rep.events.push(sv.name + ' is grieving ' + d.name + '.');
-      }
+      const close = getBond(s, sv.id, d.id) >= M.grief.bondAtLeast;
+      sv.grief = Math.max(sv.grief, close ? M.grief.closeMissions : M.grief.missions);
+      rep.events.push(sv.name + ' is grieving ' + d.name + '.');
     }
     C.die(s, d, 'fell in ' + z.name + ' (' + D.realms[o.realm].name + ')');
   }
-  // Bonds between survivors.
+  // Bonds between survivors: closeness, trait compatibility and outcome; a death draws them together.
+  const success = rep.outcome === 'success';
   for (let i = 0; i < live.length; i++)
     for (let j = i + 1; j < live.length; j++) {
-      addBond(s, live[i].id, live[j].id, rep.outcome === 'success' ? M.bondGain.success : M.bondGain.retreat);
+      const [a, b] = [live[i], live[j]];
+      let d = missionBondGain(a, b, maxClose, success);
+      if (deadAll.length) d += M.bondGain.witnessedDeath;
+      addBond(s, a.id, b.id, d);
+      rep.bonds[a.name + ' & ' + b.name] = d;
+      recordSharedMission(s, a, b);
     }
+  // Life Debts between survivors.
+  for (const { saved, saver } of saves) {
+    if (!live.includes(saved) || !live.includes(saver)) continue;
+    addBond(s, saved.id, saver.id, D.bonds.events.lifeDebt);
+    addFlag(s, saved.id, saver.id, 'life_debt');
+    saved.lean = 'protective';
+    addHistory(s, saved, 'life_debt', { with: saver.name, saved: true });
+    addHistory(s, saver, 'life_debt', { with: saved.name, saved: false });
+    rep.lifeDebts.push({ saved: saved.name, saver: saver.name });
+  }
   // XP.
   for (const c of live) {
     const amt = M.xp.base * frac + xpPool + (rep.outcome === 'success' ? M.xp.success : 0);
-    const r = C.addXp(c, amt);
+    const r = C.addXp(c, amt, s);
     rep.xp[c.name] = r.xp;
     for (const u of r.ups)
-      rep.levelups.push({ name: c.name, level: u.level, gains: u.gains, talent: u.talent });
+      rep.levelups.push({
+        name: c.name,
+        level: u.level,
+        gains: u.gains,
+        talent: u.talent,
+        rolls: u.rolls,
+        breakthrough: u.breakthrough,
+      });
     c.kills += rep.kills.length;
   }
 

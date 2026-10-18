@@ -1,4 +1,4 @@
-// Recruits, growth, the talent pity rule, bonds, gear and permadeath.
+// Recruits, XP and stat growth, bonds, gear and permadeath. Growth rolls: tests/growth.test.js.
 import { describe, it, expect, afterEach } from 'vitest';
 import { D } from '../src/core/content.js';
 import * as C from '../src/systems/characters.js';
@@ -150,44 +150,7 @@ describe('XP and growth', () => {
     expect(C.addXp(k, 10).xp).toBe(14);
   });
 
-  it('rolls a talent 55% of the time', () => {
-    const s = freshState(13);
-    let talents = 0;
-    let rolls = 0;
-    for (let i = 0; i < 3000; i++) {
-      const c = C.build(s, {
-        name: 'x',
-        cls: 'warrior',
-        stats: { str: 5, con: 5, dex: 5, int: 5, per: 5, wil: 5 },
-        traits: [],
-      });
-      const u = C.addXp(c, 20).ups[0];
-      rolls++;
-      if (u.talent) talents++;
-    }
-    expect(talents / rolls).toBeCloseTo(0.55, 1);
-  });
-
-  it('guarantees a talent after three dry levels (pity)', () => {
-    const s = freshState(14);
-    const k = starter(s, 'Kael');
-    constantRandom(0.99); // every ordinary roll misses
-    const ups = C.addXp(k, 20 + 40 + 60 + 80 + 100).ups;
-    expect(ups.map((u) => !!u.talent)).toEqual([false, false, false, true, false]);
-    expect(k.talents.length).toBe(1);
-    expect(k.pity).toBe(1);
-    expect(D.talents.tables.hunter[k.talents[0]]).toBeGreaterThan(0);
-  });
-
-  it('never rolls a talent the character already has, and pity grows when the table is empty', () => {
-    const s = freshState(15);
-    const k = starter(s, 'Kael');
-    k.talents = Object.keys(D.talents.tables.hunter);
-    constantRandom(0); // every roll "succeeds"
-    const ups = C.addXp(k, 20).ups;
-    expect(ups[0].talent).toBeNull();
-    expect(k.pity).toBe(1);
-  });
+  // Growth rolls, pity and talent ranks (M9) are in tests/growth.test.js.
 });
 
 describe('Bonds', () => {

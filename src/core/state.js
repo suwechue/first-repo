@@ -53,6 +53,7 @@ export function makeInitialState() {
     nexus: { dig: 0, awareness: 0, awake: false },
     roster: [], // living characters
     bonds: {}, // "idA|idB" -> -100..100
+    bondMeta: {}, // "idA|idB" -> { since, missions, flags, mentor? }: when they last shared a mission
     armory: {}, // itemKey -> count of unequipped gear
     memorial: [], // the fallen
     fragments: {}, // knowledge fragments, e.g. { gravitational: 17 }

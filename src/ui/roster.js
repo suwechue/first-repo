@@ -6,6 +6,7 @@ import { getBond, bondTier } from '../systems/bonds.js';
 import { recruit, recruitCost, rosterCap } from '../systems/recruiting.js';
 import { combatPower } from '../systems/missions.js';
 import { assets } from '../render/assets.js';
+import { openSheet } from './sheet.js';
 import { log, changed } from '../systems/log.js';
 
 const STAT_LABELS = D.tiers.stats.labels;
@@ -74,6 +75,7 @@ export function renderRoster(s) {
         <div class="chips">${traitChips(c)}</div>
         <div class="gear">${gearSelect(s, c, 'weapon')} ${gearSelect(s, c, 'armor')}</div>
         <div class="bondline">${bonds || 'No bonds yet.'}</div>
+        <button class="craft-btn" data-sheet-open="${c.id}">Character sheet</button>
       </div>`;
   }
   if (!s.roster.length) html = '<p class="muted">Your roster is empty.</p>';
@@ -100,6 +102,9 @@ export function renderRoster(s) {
       C.equip(s, C.byId(s, sel.getAttribute('data-equip')), sel.getAttribute('data-slot'), sel.value);
       renderRoster(s);
     }),
+  );
+  el.querySelectorAll('[data-sheet-open]').forEach((b) =>
+    b.addEventListener('click', () => openSheet(s, b.getAttribute('data-sheet-open'))),
   );
   const rb = $('btn-recruit');
   if (rb) {

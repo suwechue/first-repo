@@ -6,14 +6,27 @@
     "primaryWeight": 3,
     "otherWeight": 1,
     "statCap": 15,
-    "talentRollChance": 0.55,
-    "pityDryLevels": 3
+    "pityDryLevels": 3,
+    "secondaryEvery": 2,
+    "breakthroughEvery": 5,
+    "maxRank": 3,
+    "intPivot": 10,
+    "intPointsPerStep": 2,
+    "intWeightStep": 0.01,
+    "lifeDebtLean": 3,
+    "proficiencyCp": 2,
+    "historySize": 40,
+    "recentUps": 6,
+    "multipliers": ["deathMul", "squadDeathMul", "injuryMul", "renownMul", "xpMul", "encounterMul"]
   },
   "talents": {
     "battle_instinct": {
       "name": "Battle Instinct",
       "desc": "+3 Combat Power.",
-      "cp": 3
+      "cp": 3,
+      "perRank": {
+        "cp": 2
+      }
     },
     "iron_will": {
       "name": "Iron Will",
@@ -28,33 +41,65 @@
     "second_wind": {
       "name": "Second Wind",
       "desc": "30% less likely to die when hurt.",
-      "deathMul": 0.7
+      "deathMul": 0.7,
+      "perRank": {
+        "deathMul": 0.85
+      }
     },
     "keen_tracking": {
       "name": "Keen Tracking",
       "desc": "+3 Combat Power on hunts and exploration.",
       "huntCp": 3,
-      "exploreCp": 3
+      "exploreCp": 3,
+      "perRank": {
+        "huntCp": 2,
+        "exploreCp": 2
+      },
+      "objective": "hunt"
     },
     "efficient_gatherer": {
       "name": "Efficient Gatherer",
       "desc": "+12% gathered resources.",
-      "yieldMul": 0.12
+      "yieldMul": 0.12,
+      "perRank": {
+        "yieldMul": 0.06
+      },
+      "objective": "gather"
     },
     "field_medic": {
       "name": "Field Medic",
       "desc": "Squad deaths are 25% less likely while this person lives.",
-      "squadDeathMul": 0.75
+      "squadDeathMul": 0.75,
+      "perRank": {
+        "squadDeathMul": 0.9
+      },
+      "tags": ["protective"]
     },
     "arcane_affinity": {
       "name": "Arcane Affinity",
       "desc": "+4 arcane power.",
-      "arcane": 4
+      "arcane": 4,
+      "perRank": {
+        "arcane": 2
+      }
     },
     "steady_hands": {
       "name": "Steady Hands",
       "desc": "+2 Combat Power on gathering.",
-      "gatherCp": 2
+      "gatherCp": 2,
+      "perRank": {
+        "gatherCp": 2
+      },
+      "objective": "gather"
+    },
+    "guardian": {
+      "name": "Guardian",
+      "desc": "Shields squadmates: their deaths are 10% less likely.",
+      "squadDeathMul": 0.9,
+      "perRank": {
+        "squadDeathMul": 0.92
+      },
+      "tags": ["protective"]
     }
   },
   "tables": {
@@ -64,7 +109,8 @@
       "keen_tracking": 10,
       "battle_instinct": 10,
       "second_wind": 15,
-      "iron_will": 15
+      "iron_will": 15,
+      "guardian": 5
     },
     "hunter": {
       "keen_tracking": 30,
@@ -72,7 +118,8 @@
       "second_wind": 15,
       "iron_will": 10,
       "efficient_gatherer": 10,
-      "natural_leader": 5
+      "natural_leader": 5,
+      "guardian": 5
     },
     "toolmaker": {
       "steady_hands": 25,
@@ -80,21 +127,24 @@
       "battle_instinct": 10,
       "second_wind": 15,
       "iron_will": 15,
-      "natural_leader": 5
+      "natural_leader": 5,
+      "guardian": 5
     },
     "farmer": {
       "efficient_gatherer": 30,
       "steady_hands": 20,
       "second_wind": 20,
       "iron_will": 20,
-      "battle_instinct": 10
+      "battle_instinct": 10,
+      "guardian": 5
     },
     "warrior": {
       "battle_instinct": 30,
       "second_wind": 25,
       "iron_will": 20,
       "natural_leader": 15,
-      "steady_hands": 10
+      "steady_hands": 10,
+      "guardian": 10
     },
     "scout": {
       "keen_tracking": 35,
@@ -102,21 +152,24 @@
       "second_wind": 15,
       "iron_will": 10,
       "natural_leader": 10,
-      "efficient_gatherer": 15
+      "efficient_gatherer": 15,
+      "guardian": 5
     },
     "shaman": {
       "arcane_affinity": 25,
       "field_medic": 20,
       "iron_will": 25,
       "natural_leader": 15,
-      "second_wind": 15
+      "second_wind": 15,
+      "guardian": 5
     },
     "herbalist": {
       "field_medic": 35,
       "second_wind": 20,
       "iron_will": 20,
       "efficient_gatherer": 15,
-      "natural_leader": 10
+      "natural_leader": 10,
+      "guardian": 5
     },
     "mage": {
       "arcane_affinity": 40,
@@ -124,7 +177,8 @@
       "iron_will": 15,
       "battle_instinct": 10,
       "natural_leader": 10,
-      "field_medic": 10
+      "field_medic": 10,
+      "guardian": 5
     }
   }
 }

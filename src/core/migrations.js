@@ -20,6 +20,28 @@ const MIGRATIONS = {
     }
     return out;
   },
+  // v2 -> v3: character depth (M9). Characters gain talent ranks, proficiency, objective usage,
+  // a history and recent level-ups; each bonded pair gains a record whose clock starts on load.
+  2(d) {
+    const objectives = Object.keys(D.mission.objectives);
+    const zeros = () => Object.fromEntries(objectives.map((o) => [o, 0]));
+    const out = { ...d, v: 3, bondMeta: {} };
+    const upgrade = (c) => ({
+      talentRanks: Object.fromEntries((c.talents || []).map((t) => [t, 1])),
+      skills: zeros(),
+      usage: zeros(),
+      history: [{ day: 1, event: 'joined', how: 'before records were kept' }],
+      ups: [],
+      lean: null,
+      ...c,
+    });
+    if (Array.isArray(out.roster)) out.roster = out.roster.map(upgrade);
+    if (out.recruitOffer && typeof out.recruitOffer === 'object')
+      out.recruitOffer = upgrade(out.recruitOffer);
+    for (const k of Object.keys(out.bonds || {}))
+      out.bondMeta[k] = { since: d.day || 1, missions: 0, flags: [] };
+    return out;
+  },
 };
 
 /** Returns { data } at SAVE_VERSION, or { error } with a message for the player. */

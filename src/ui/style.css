@@ -664,3 +664,84 @@ h4 {
   z-index: 15;
   touch-action: none;
 }
+
+/* ---- Character sheet ---- */
+.sheet .portrait {
+  float: right;
+  width: 72px;
+  height: 72px;
+  image-rendering: pixelated;
+  border: 1px solid var(--bark);
+}
+.sheet-tabs {
+  display: flex;
+  gap: 4px;
+  margin: 8px 0;
+}
+.sheet-tab.active {
+  background: var(--ember);
+  color: #fff;
+}
+.sheet-body {
+  max-height: 52vh;
+  overflow-y: auto;
+}
+.sheet-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 4px;
+  margin-bottom: 6px;
+}
+.sstat {
+  background: var(--parchment-dark);
+  border-radius: 4px;
+  padding: 3px 6px;
+  font-size: 13px;
+}
+.sstat.primary {
+  outline: 1px solid var(--ember);
+}
+.sbar {
+  position: relative;
+  height: 16px;
+  background: #3a3226;
+  border-radius: 3px;
+  margin: 4px 0;
+  overflow: hidden;
+}
+.sbar > div {
+  height: 100%;
+  background: #7a9c4a;
+}
+.sbar.gold > div {
+  background: #c9a54a;
+}
+.sbar.dim > div {
+  background: #5a5040;
+}
+.sbar span {
+  position: absolute;
+  inset: 0;
+  font-size: 11px;
+  line-height: 16px;
+  padding-left: 6px;
+  color: #f0e6c8;
+}
+.growrow {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+table.bonds {
+  width: 100%;
+  font-size: 13px;
+  border-collapse: collapse;
+}
+table.bonds td,
+table.bonds th {
+  padding: 3px 6px;
+  border-bottom: 1px solid var(--parchment-dark);
+  text-align: left;
+}

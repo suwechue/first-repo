@@ -1,4 +1,5 @@
-// The v2 save format (seed plus what changed): round trips, v1 imports, prototype files, bad files.
+// The save format (v3: the seed plus what changed, and character depth): round trips, v1 imports,
+// prototype files, bad files.
 import { describe, it, expect, afterEach } from 'vitest';
 import { makeInitialState } from '../src/core/state.js';
 import { serialize, apply } from '../src/core/save.js';
@@ -82,7 +83,7 @@ describe('Save and load', () => {
   it('stores the seed and what changed, not the world', () => {
     const s = exploredState();
     const data = serialize(s);
-    expect(data.v).toBe(2);
+    expect(data.v).toBe(3);
     expect(data.seed).toBe(4321);
     expect(data.resources).toBeUndefined();
     expect(data.enemies).toBeUndefined();
@@ -135,7 +136,7 @@ describe('Save and load', () => {
     expect(t.buildings).toEqual([]);
     expect(t.nodes).toEqual({});
     expect(t.player.w).toBeUndefined();
-    expect(serialize(t).v).toBe(2);
+    expect(serialize(t).v).toBe(3);
     // and it plays on
     for (let i = 0; i < 60; i++) update(t, { up: false, down: true, left: false, right: false });
   });
@@ -238,7 +239,12 @@ describe.skipIf(!referenceAvailable())('Importing a beta prototype save (v1)', (
     expect(t.buildings).toEqual([]);
     expect(t.enemies).toEqual([]);
     expect(t.nexus.awake).toBe(true);
-    expect(plain(t.roster)).toEqual(plain(st.roster));
+    // the beta's fields come across unchanged; character depth fields are filled in by the migration
+    expect(
+      t.roster.map((c, i) => Object.fromEntries(Object.keys(st.roster[i]).map((k) => [k, plain(c)[k]]))),
+    ).toEqual(plain(st.roster));
+    expect(t.roster.every((c) => c.history.length && c.skills && c.talentRanks)).toBe(true);
+    expect(Object.keys(t.bondMeta).sort()).toEqual(Object.keys(t.bonds).sort());
     expect(t.bonds).toEqual(plain(st.bonds));
     expect(t.player.inventory).toEqual(plain(st.player.inventory));
     expect(t.armory).toEqual({ stone_spear: 2 });

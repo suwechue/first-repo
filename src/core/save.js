@@ -22,6 +22,7 @@ const FIELDS = [
   'nexus',
   'roster',
   'bonds',
+  'bondMeta',
   'armory',
   'memorial',
   'fragments',

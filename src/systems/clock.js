@@ -2,6 +2,7 @@
 import { D } from '../core/content.js';
 import { rand } from '../core/rng.js';
 import { refreshOffer } from './recruiting.js';
+import { decayBonds } from './bonds.js';
 import { spawnEnemy } from './combat.js';
 import { hungerTick, autoEat } from './player.js';
 import { log, changed, cue } from './log.js';
@@ -31,6 +32,7 @@ export function newDay(s) {
   s.day++;
   log(s, `Day ${s.day} begins.`);
   if (s.nexus.awake) refreshOffer(s);
+  decayBonds(s);
   cue('day');
   const W = D.game.dawnSpawn;
   if (s.day >= W.fromDay && rand() < W.chance && s.enemies.length < W.maxEnemies) {

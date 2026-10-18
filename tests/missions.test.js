@@ -2,7 +2,7 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import { D } from '../src/core/content.js';
 import * as Ms from '../src/systems/missions.js';
-import { setBond } from '../src/systems/bonds.js';
+import { setBond, baseGain } from '../src/systems/bonds.js';
 import { build } from '../src/systems/characters.js';
 import {
   freshState,
@@ -170,67 +170,121 @@ describe('Win chance, closeness, injury and death', () => {
   });
 });
 
-describe('Synergy', () => {
-  it('averages bond tier modifiers over (squad size - 1)', () => {
+describe('Synergy (M9: team chemistry plus composition)', () => {
+  it('team chemistry is the sum of bond tier modifiers over the number of pairs', () => {
     const s = freshState();
     const [k, b, l] = [starter(s, 'Kael'), starter(s, 'Boris'), starter(s, 'Elena')];
     k.traits = b.traits = l.traits = [];
-    b.cls = 'hunter'; // drop the front-liner bonus
-    l.cls = 'hunter'; // drop the support bonus
+    b.cls = 'hunter'; // all back-liners: no composition bonus
+    l.cls = 'hunter';
     setBond(s, k.id, b.id, 90); // Unbreakable 0.15
     setBond(s, k.id, l.id, 70); // Close 0.10
     setBond(s, b.id, l.id, -50); // Rivalry -0.10
-    expect(Ms.synergy(s, [k, b, l]).value).toBeCloseTo((0.15 + 0.1 - 0.1) / 2, 10);
+    expect(Ms.synergy(s, [k, b, l]).value).toBeCloseTo((0.15 + 0.1 - 0.1) / 3, 10);
     expect(Ms.synergy(s, [k, b]).value).toBeCloseTo(0.15, 10);
   });
 
-  it('adds 0.03 per synergy trait pair, subtracts 0.03 per clashing pair', () => {
+  it('trait pairs no longer add to synergy', () => {
     const s = freshState();
     const [k, b] = [starter(s, 'Kael'), starter(s, 'Elena')];
     k.cls = b.cls = 'hunter';
     setBond(s, k.id, b.id, 0);
     k.traits = ['brave'];
     b.traits = ['stoic'];
-    expect(Ms.synergy(s, [k, b]).value).toBeCloseTo(0.03, 10);
+    expect(Ms.synergy(s, [k, b]).value).toBe(0);
     b.traits = ['cautious'];
-    expect(Ms.synergy(s, [k, b]).value).toBeCloseTo(-0.03, 10);
-    k.traits = ['brave', 'quick_tempered'];
-    expect(Ms.synergy(s, [k, b]).value).toBeCloseTo(-0.06, 10);
+    expect(Ms.synergy(s, [k, b]).value).toBe(0);
   });
 
-  it('adds 0.03 for a front-liner, a support and a Natural Leader; a mage is not a support', () => {
+  it('front and back +0.10, support +0.08, Natural Leader +0.03, casters without a front-liner -0.15', () => {
     const s = freshState();
-    const [k, b, l] = [starter(s, 'Kael'), starter(s, 'Boris'), starter(s, 'Lin')];
+    const [k, b, l] = [starter(s, 'Kael'), starter(s, 'Boris'), starter(s, 'Lin')]; // hunter, warrior, shaman
     k.traits = b.traits = l.traits = [];
-    setBond(s, k.id, b.id, 0);
-    setBond(s, k.id, l.id, 0);
-    setBond(s, b.id, l.id, 0);
-    expect(Ms.synergy(s, [k, b]).value).toBeCloseTo(0.03, 10);
-    expect(Ms.synergy(s, [k, b, l]).value).toBeCloseTo(0.06, 10);
-    k.talents = ['natural_leader'];
-    expect(Ms.synergy(s, [k, b, l]).value).toBeCloseTo(0.09, 10);
     const m = mage(s, 'heat');
-    setBond(s, k.id, m.id, 0);
+    s.roster.push(m);
+    for (const x of [k, b, l, m]) for (const y of [k, b, l, m]) if (x !== y) setBond(s, x.id, y.id, 0);
+    expect(Ms.synergy(s, [k, b]).value).toBeCloseTo(0.1, 10);
+    expect(Ms.synergy(s, [k, b, l]).value).toBeCloseTo(0.18, 10);
+    k.talents = ['natural_leader'];
+    expect(Ms.synergy(s, [k, b, l]).value).toBeCloseTo(0.21, 10);
     k.talents = [];
-    expect(Ms.synergy(s, [k, m]).value).toBe(0);
+    expect(Ms.synergy(s, [k, l]).value).toBeCloseTo(0.08, 10); // a support without a front line
+    expect(Ms.synergy(s, [k, m]).value).toBeCloseTo(-0.15, 10); // a caster with no front-liner
+    expect(Ms.synergy(s, [b, m]).value).toBeCloseTo(0.1, 10); // a mage counts as back line, not support
+    expect(Ms.synergy(s, [k, b, m]).value).toBeCloseTo(0.1, 10);
   });
 
   it('clamps to -0.4 .. +0.6', () => {
     const s = freshState();
     const sq = s.roster;
-    for (let i = 0; i < 4; i++) for (let j = i + 1; j < 4; j++) setBond(s, sq[i].id, sq[j].id, -100);
     sq.forEach((c) => (c.traits = []));
+    for (let i = 0; i < 4; i++) for (let j = i + 1; j < 4; j++) setBond(s, sq[i].id, sq[j].id, -100);
+    sq.forEach((c) => (c.cls = 'mage')); // -0.3 chemistry, -0.15 casters without a front line
     expect(Ms.synergy(s, sq).value).toBe(-0.4);
-    for (let i = 0; i < 4; i++) for (let j = i + 1; j < 4; j++) setBond(s, sq[i].id, sq[j].id, 100);
-    sq.forEach((c) => (c.talents = ['natural_leader']));
-    // 6 x 0.15 / 3 = 0.3, +0.09 flags: under the cap, so stack trait synergies on top.
-    sq.forEach((c, i) => (c.traits = i % 2 ? ['brave'] : ['stoic', 'hardy']));
-    expect(Ms.synergy(s, sq).value).toBe(0.6);
+  });
+});
+
+describe('Perception and the hunt locate check (M9)', () => {
+  it('PerceptionMod = 1 + 0.04 x (average PER - 6), clamped to 0.8 .. 1.4', () => {
+    const s = freshState();
+    const [k, b] = [starter(s, 'Kael'), starter(s, 'Boris')];
+    k.traits = b.traits = [];
+    k.stats.per = 10;
+    b.stats.per = 6;
+    expect(Ms.perceptionMod([k, b])).toBeCloseTo(1.08, 10);
+    k.stats.per = b.stats.per = 1;
+    expect(Ms.perceptionMod([k, b])).toBe(0.8);
+    k.stats.per = b.stats.per = 30;
+    expect(Ms.perceptionMod([k, b])).toBe(1.4);
+    k.traits = ['keen_eyed']; // +2 effective PER
+    k.stats.per = b.stats.per = 6;
+    expect(Ms.perceptionMod([k, b])).toBeCloseTo(1.04, 10);
+  });
+
+  it('P_locate = min(0.95, 0.35 + 0.05 x best PER + 0.05 x best hunt proficiency)', () => {
+    const s = freshState();
+    const [k, b] = [starter(s, 'Kael'), starter(s, 'Boris')];
+    k.traits = b.traits = [];
+    k.stats.per = 8;
+    b.stats.per = 4;
+    expect(Ms.locateChance([k, b])).toBeCloseTo(0.75, 10);
+    b.skills.hunt = 2;
+    expect(Ms.locateChance([k, b])).toBeCloseTo(0.85, 10);
+    k.stats.per = 15;
+    expect(Ms.locateChance([k, b])).toBe(0.95);
+  });
+
+  it('a hunt that never finds its quarry ends as a retreat without the fight, costing 6 vigor a try', () => {
+    const s = readyForMissions(freshState());
+    const [k, b] = [starter(s, 'Kael'), starter(s, 'Boris')];
+    // 0.999: quiet steps, and every locate attempt fails (0.999 >= P_locate).
+    constantRandom(0.999);
+    const rep = Ms.launch(s, {
+      realm: R,
+      zone: 'fringe',
+      objective: 'hunt',
+      squad: [k.id, b.id],
+      retreat: 25,
+    }).report;
+    expect(rep.outcome).toBe('retreat');
+    expect(rep.kills).toEqual([]);
+    expect(rep.events.filter((e) => e.includes('finds only tracks')).length).toBe(3);
+    expect(rep.vigorEnd).toBe(100 - 3 * 4 - 6 * 3);
+    expect(rep.stepsDone).toBe(4);
+  });
+
+  it('Proficiency adds 2 Combat Power per point in that objective', () => {
+    const s = freshState();
+    const k = starter(s, 'Kael');
+    const before = Ms.combatPower(k, 'hunt');
+    k.skills.hunt = 3;
+    expect(Ms.combatPower(k, 'hunt')).toBe(before + 6);
+    expect(Ms.combatPower(k, 'gather')).toBe(Ms.combatPower(k, 'gather'));
   });
 });
 
 describe('A whole mission', () => {
-  it('a quiet Explore: vigor -3 per step, +40% explored, Arcane, Renown, XP, bonds +3, a quarter day', () => {
+  it('a quiet Explore: vigor -3 per step, +40% explored, Arcane, Renown, XP, bonds by the formula, a quarter day', () => {
     const s = readyForMissions(freshState());
     const [k, b] = [starter(s, 'Kael'), starter(s, 'Boris')];
     const bond = s.bonds[[k.id, b.id].sort().join('|')];
@@ -253,7 +307,8 @@ describe('A whole mission', () => {
     expect(rep.renown).toBe(3);
     expect(s.player.inventory.supplies).toBe(98);
     expect(s.dayTimer).toBe(900);
-    expect(s.bonds[[k.id, b.id].sort().join('|')]).toBe(bond + 3);
+    // No fight: closeness 0 -> BaseGain 3, x1.25 for brave and hardy, x1 for success = 3.75 -> 4.
+    expect(s.bonds[[k.id, b.id].sort().join('|')]).toBe(bond + 4);
     // XP = 14 x 1.0 + 0 fights + 10 success = 24: one level (20), 4 left over.
     expect(rep.xp[k.name]).toBe(24);
     expect(k.level).toBe(2);
@@ -262,19 +317,20 @@ describe('A whole mission', () => {
     expect(rep.gains.wildroot || 0).toBe(0);
   });
 
-  it('resources: base x (0.6..1.4) x share x (1 + yield bonus), rounded at random; Gather takes the full amount', () => {
+  it('resources: base x (0.6..1.4) x share x (1 + yield bonus) x PerceptionMod, rounded at random; Gather takes the full amount', () => {
     const s = readyForMissions(freshState());
     const [k, b] = [starter(s, 'Kael'), starter(s, 'Boris')];
     constantRandom(0.5); // multiplier exactly 1.0; stochastic rounding rounds 0.5+ fractions up
     let rep = Ms.launch(s, { realm: R, zone: 'fringe', objective: 'gather', squad: [k.id, b.id] }).report;
-    // 0.5 < encounterChance 0.4? no -> quiet steps. wildroot 2 x 1 x 1 = 2 per step; enchanted_wood 1 per step.
+    // 0.5 < encounterChance 0.4? no -> quiet steps. PerceptionMod for PER 10 and 6 is 1.08.
+    // wildroot 2 x 1 x 1 x 1.08 = 2.16 -> 2 per step; enchanted_wood 1.08 -> 1 per step.
     expect(rep.gains).toEqual({ wildroot: 10, enchanted_wood: 5 });
     k.talents = ['efficient_gatherer'];
     rep = Ms.launch(s, { realm: R, zone: 'fringe', objective: 'gather', squad: [k.id, b.id] }).report;
-    // 2 x 1.12 = 2.24 -> 2 (0.5 < 0.24 is false); 1.12 -> 1
+    // 2 x 1.12 x 1.08 = 2.42 -> 2 (0.5 < 0.42 is false); 1.21 -> 1
     expect(rep.gains).toEqual({ wildroot: 10, enchanted_wood: 5 });
     rep = Ms.launch(s, { realm: R, zone: 'fringe', objective: 'explore', squad: [k.id, b.id] }).report;
-    // 2 x 0.3 x 1.12 = 0.672 -> 1 (0.5 < 0.672); 0.336 -> 0
+    // 2 x 0.3 x 1.12 x 1.08 = 0.726 -> 1 (0.5 < 0.726); 0.363 -> 0
     expect(rep.gains).toEqual({ wildroot: 5 });
   });
 
@@ -299,18 +355,22 @@ describe('A whole mission', () => {
     expect(rep.renown).toBe(Math.round(3 * 0.8 * 0.5));
   });
 
-  it('a Hunt ends in a fight with the quarry; losing it is a retreat with bonds +1', () => {
+  it('a Hunt ends in a fight with the quarry; losing it is a retreat, and bonds grow by the formula', () => {
     const s = readyForMissions(freshState());
     const [k, b] = [starter(s, 'Kael'), starter(s, 'Boris')];
     const key = [k.id, b.id].sort().join('|');
     const bond = s.bonds[key];
     s.realms[R].warrens.explored = 60;
-    constantRandom(0.39);
+    const warden = D.enemies.grove_warden;
+    const pWin = Ms.winChance(Ms.squadPower(s, [k, b], 'hunt', warden, new Set()).sp, warden.etr);
+    constantRandom(0.39); // found on the first try (0.39 < P_locate), then lost
     const rep = Ms.launch(s, { realm: R, zone: 'old_grove', objective: 'hunt', squad: [k.id, b.id] }).report;
     expect(rep.events.some((e) => e.startsWith('Defeated by the Grove Warden'))).toBe(true);
     expect(rep.outcome).toBe('retreat');
     expect(rep.stepsDone).toBe(6);
-    expect(s.bonds[key]).toBe(bond + 1);
+    // The hardest fight sets the closeness; a retreat scales the gain by 0.6.
+    expect(rep.closeness).toBeGreaterThanOrEqual(Ms.closeness(pWin));
+    expect(s.bonds[key]).toBe(bond + Math.round(baseGain(rep.closeness) * 1.25 * 0.6));
     expect(s.realms[R].old_grove.bossDown).toBe(false);
   });
 
@@ -373,7 +433,7 @@ describe('A whole mission', () => {
     expect(Object.keys(s.bonds).some((key) => key.split('|').includes(k.id))).toBe(false);
   });
 
-  it('survivors with a bond of 41+ to the dead grieve for 2 missions unless Stoic; grief counts down first', () => {
+  it('Witnessed Death: survivors grieve 2 missions, 3 if close to the dead, unless Stoic; grief counts down first', () => {
     const s = readyForMissions(freshState());
     const [k, b, l] = [starter(s, 'Kael'), starter(s, 'Boris'), starter(s, 'Lin')];
     setBond(s, k.id, b.id, 41);
@@ -389,12 +449,13 @@ describe('A whole mission', () => {
       squad: [k.id, b.id, l.id],
     }).report;
     expect(rep.dead.map((d) => d.name)).toEqual([b.name]);
-    expect(k.grief).toBe(2);
-    expect(l.grief).toBe(0);
+    expect(k.grief).toBe(3); // close to Boris (41+)
+    expect(l.grief).toBe(0); // Stoic
+    expect(k.history.some((h) => h.event === 'witnessed_death' && h.name === b.name)).toBe(true);
     // A quiet mission counts the grief down.
     constantRandom(0.999);
     Ms.launch(s, { realm: R, zone: 'fringe', objective: 'explore', squad: [k.id, l.id] });
-    expect(k.grief).toBe(1);
+    expect(k.grief).toBe(2);
   });
 
   it('opens a zone when the previous zone is 60% explored', () => {

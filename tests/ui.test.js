@@ -70,7 +70,7 @@ describe('The page', () => {
     click('sys-save');
     expect(document.getElementById('sys-msg').textContent).toBe('Saved.');
     const saved = JSON.parse(localStorage.getItem('primitive_age_save_v1'));
-    expect(saved.v).toBe(2);
+    expect(saved.v).toBe(3);
     expect(saved.roster.length).toBe(4);
   });
 
@@ -103,6 +103,26 @@ describe('The page', () => {
     expect(document.querySelectorAll('#hall-body .log-row').length).toBe(1);
     runFrames(10);
     expect(errors).toEqual([]);
+  });
+
+  it('the character sheet shows real data on all four tabs', () => {
+    click('btn-roster');
+    document.querySelector('#roster-list [data-sheet-open]').click();
+    expect(document.getElementById('modal').classList.contains('open')).toBe(true);
+    const body = () => document.getElementById('sheet-body');
+    const tab = (k) => document.querySelector(`[data-sheet-tab="${k}"]`).click();
+    expect(body().querySelectorAll('.sstat').length).toBe(6);
+    expect(body().textContent).toMatch(/Combat Power/);
+    tab('growth');
+    expect(body().querySelectorAll('.sbar').length).toBeGreaterThan(5);
+    expect(body().textContent).toMatch(/Next Breakthrough at level/);
+    tab('bonds');
+    expect(body().querySelectorAll('table.bonds tr').length).toBe(1 + 3); // header + three squadmates
+    expect(body().textContent).toMatch(/●|○/);
+    tab('history');
+    expect(body().textContent).toMatch(/One of the first four|Joined|expedition/);
+    click('modal-close');
+    click('btn-roster');
   });
 
   it('keeps settings across a reload, apart from the save', () => {

@@ -1,7 +1,8 @@
 // The roster: character records, trait and talent effects, gear, XP and growth, permadeath.
 import { D } from '../core/content.js';
-import { rand, weightedKey, pick } from '../core/rng.js';
-import { seedBond, deleteBondsOf } from './bonds.js';
+import { weightedKey, pick } from '../core/rng.js';
+import { seedBond, deleteBondsOf, addHistory, mentorTalents } from './bonds.js';
+import { levelRolls } from './growth.js';
 
 const G = D.talents.growth;
 
@@ -18,12 +19,32 @@ export function isAvailable(s, c) {
   return !isInjured(s, c);
 }
 
-/** Every trait and talent definition a character has, traits first. */
+const MULTIPLIERS = new Set(G.multipliers);
+const rankedCache = new Map(); // "talent:rank" -> definition with the rank applied
+
+/** A talent's definition at a rank: `perRank` effects are added (bonuses) or multiplied (multipliers) r - 1 times. */
+export function talentAtRank(key, rank = 1) {
+  const id = key + ':' + rank;
+  let def = rankedCache.get(id);
+  if (!def) {
+    const base = D.talents.talents[key];
+    def = { ...base };
+    for (const [k, v] of Object.entries(base.perRank || {})) {
+      for (let r = 1; r < rank; r++) def[k] = MULTIPLIERS.has(k) ? (def[k] ?? 1) * v : (def[k] || 0) + v;
+    }
+    rankedCache.set(id, def);
+  }
+  return def;
+}
+
+/** Every trait and talent definition a character has, traits first, talents at their rank. */
 export function traitDefs(c) {
   return c.traits
     .map((t) => D.traits.traits[t])
     .filter(Boolean)
-    .concat(c.talents.map((t) => D.talents.talents[t]).filter(Boolean));
+    .concat(
+      c.talents.filter((t) => D.talents.talents[t]).map((t) => talentAtRank(t, c.talentRanks?.[t] || 1)),
+    );
 }
 
 /** Sums a numeric effect across a character's traits and talents. */
@@ -59,6 +80,11 @@ export function xpToNext(level) {
   return G.xpPerLevel * level;
 }
 
+/** { explore: 0, gather: 0, hunt: 0 } for every objective. */
+export function emptyByObjective() {
+  return Object.fromEntries(Object.keys(D.mission.objectives).map((o) => [o, 0]));
+}
+
 // ---------------- creation ----------------
 export function build(s, spec) {
   const cl = D.classes[spec.cls];
@@ -80,6 +106,13 @@ export function build(s, spec) {
     grief: 0,
     missions: 0,
     kills: 0,
+    // M9 character depth
+    talentRanks: {},
+    skills: emptyByObjective(),
+    usage: emptyByObjective(),
+    history: [{ day: s.day, event: 'joined', how: spec.how || 'recruited' }],
+    ups: [],
+    lean: null,
   };
   if (cl.vectorPool) c.vectors = [pick(cl.vectorPool)];
   return c;
@@ -97,6 +130,7 @@ export function initStarters(s) {
         stats: sp.stats,
         traits: sp.traits,
         tier: D.tiers.recruit.starterTier,
+        how: 'starter',
       }),
     );
   }
@@ -129,15 +163,11 @@ export function armorMod(c) {
 }
 
 // ---------------- growth ----------------
-function rollTalent(c) {
-  const table = Object.assign({}, D.talents.tables[c.cls] || {});
-  c.talents.forEach((t) => delete table[t]);
-  if (!Object.keys(table).length) return null;
-  return weightedKey(table);
-}
-
-/** Adds XP, applies any level-ups, and returns what happened for the report. */
-export function addXp(c, amount) {
+/**
+ * Adds XP, applies any level-ups with their growth rolls, and returns what happened for the report.
+ * `s` (optional) supplies the day for history and the character's mentor, if any.
+ */
+export function addXp(c, amount, s = null) {
   amount = Math.round(amount * prodEffect(c, 'xpMul'));
   c.xp += amount;
   const ups = [];
@@ -157,16 +187,16 @@ export function addXp(c, amount) {
         gains[k] = (gains[k] || 0) + 1;
       }
     }
-    // The roll always happens; after pityDryLevels levels without a talent, it cannot miss.
-    let talent = null;
-    if (rand() < G.talentRollChance || c.pity >= G.pityDryLevels) {
-      talent = rollTalent(c);
-      if (talent) {
-        c.talents.push(talent);
-        c.pity = 0;
-      } else c.pity++;
-    } else c.pity++;
-    ups.push({ level: c.level, gains, talent });
+    const ctx = { lean: c.lean, mentorTalents: s ? mentorTalents(s, c) : null };
+    const { rolls, breakthrough } = levelRolls(c, c.level, ctx);
+    const talent = rolls.find((r) => r.kind === 'new')?.talent || null;
+    const up = { level: c.level, gains, talent, rolls, breakthrough };
+    ups.push(up);
+    if (Array.isArray(c.ups)) {
+      c.ups.push({ day: s ? s.day : null, ...up });
+      if (c.ups.length > G.recentUps) c.ups.shift();
+    }
+    if (s) addHistory(s, c, 'level', { level: c.level, talent });
   }
   if (c.level >= G.levelCap) c.xp = 0;
   return { xp: amount, ups };
