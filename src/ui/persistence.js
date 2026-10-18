@@ -1,6 +1,7 @@
 // Browser storage for saves: localStorage autosave and JSON file export and import.
 import { D } from '../core/content.js';
-import { serialize, apply } from '../core/save.js';
+import { serialize } from '../core/save.js';
+import { loadGame } from '../systems/game.js';
 
 const KEY = D.game.save.key;
 
@@ -18,7 +19,7 @@ export function loadStored(s) {
   try {
     const raw = localStorage.getItem(KEY);
     if (!raw) return false;
-    const err = apply(s, JSON.parse(raw));
+    const err = loadGame(s, JSON.parse(raw));
     if (err) {
       console.warn('Save not loaded:', err);
       return false;
@@ -55,7 +56,7 @@ export function importFile(s, file, done) {
   rd.onload = () => {
     let err;
     try {
-      err = apply(s, JSON.parse(rd.result));
+      err = loadGame(s, JSON.parse(rd.result));
     } catch {
       err = 'Could not read that file.';
     }

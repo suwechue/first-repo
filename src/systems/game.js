@@ -3,7 +3,8 @@ import { D } from '../core/content.js';
 import { resetState } from '../core/state.js';
 import { seedRng } from '../core/rng.js';
 import { initStarters } from './characters.js';
-import { scatterResources } from '../world/worldgen.js';
+import { apply } from '../core/save.js';
+import { getWorld } from '../world/world.js';
 import { nearestInRange, nearestNode, gatherNode, updateResources } from './gathering.js';
 import { attackEnemy, updateEnemies } from './combat.js';
 import { inNexusRange, interactNexus } from './nexus.js';
@@ -19,9 +20,23 @@ export function newGame(s, seed) {
   resetState(s);
   seedRng(seed);
   s.seed = seed;
-  scatterResources(s);
+  const { spawn } = getWorld(seed);
+  s.player.x = spawn.x;
+  s.player.y = spawn.y;
   initStarters(s);
   for (const m of D.game.messages.newGame) log(s, m);
+}
+
+/** Loads a save into `s`. Returns null on success, or an error message for the player. */
+export function loadGame(s, data) {
+  const err = apply(s, data);
+  if (err) return err;
+  if (!Number.isFinite(s.player.x) || !Number.isFinite(s.player.y)) {
+    const { spawn } = getWorld(s.seed);
+    s.player.x = spawn.x;
+    s.player.y = spawn.y;
+  }
+  return null;
 }
 
 export function nearestEnemy(s) {

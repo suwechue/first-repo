@@ -86,7 +86,44 @@ export function checkData(d) {
   need('game.dawnSpawn.enemy', d.game.dawnSpawn.enemy, d.enemies, 'enemy');
   need('game.interact.cook.recipe', d.game.interact.cook.recipe, d.recipes, 'recipe');
   d.game.hunger.foods.forEach((f) => need('game.hunger.foods', f.item, d.materials, 'material'));
-  ids(d.game.scatter.counts).forEach((r) => need('game.scatter.counts', r, d.resources, 'resource'));
+
+  // The world and its biomes.
+  const W = d.world;
+  const terrain = W.terrain;
+  for (const [k, b] of Object.entries(d.biomes)) {
+    need(`biomes.${k}.ground`, b.ground, terrain, 'terrain');
+    ids(b.density).forEach((r) => need(`biomes.${k}.density`, r, d.resources, 'resource'));
+    if (b.fill) {
+      need(`biomes.${k}.fill`, b.fill, d.resources, 'resource');
+      if (d.resources[b.fill] && !(d.resources[b.fill].blocks > 0))
+        errors.push(`biomes.${k}.fill: "${b.fill}" must block movement`);
+    }
+    (b.enemies || []).forEach((e) => {
+      need(`biomes.${k}.enemies`, e.id, d.enemies, 'enemy');
+      if (d.enemies[e.id] && !d.enemies[e.id].overworld)
+        errors.push(`biomes.${k}.enemies: "${e.id}" has no overworld stats`);
+    });
+    const total = Object.values(b.density).reduce((a, v) => a + v, 0);
+    if (total > 1) errors.push(`biomes.${k}.density: densities add up to more than 1`);
+  }
+  W.rings.forEach((r, i) => need(`world.rings[${i}].zone`, r.zone, d.biomes, 'zone'));
+  need('world.seal.zone', W.seal.zone, d.biomes, 'zone');
+  need('world.spawn.zone', W.spawn.zone, d.biomes, 'zone');
+  need('world.city.zone', W.city.zone, d.biomes, 'zone');
+  need('world.hills.zone', W.hills.zone, d.biomes, 'zone');
+  need('world.hills.within', W.hills.within, d.biomes, 'zone');
+  need('world.hills.ground', W.hills.ground, terrain, 'terrain');
+  need('world.hills.rock', W.hills.rock, terrain, 'terrain');
+  need('world.river.zone', W.river.zone, d.biomes, 'zone');
+  need('world.river.water', W.river.water, terrain, 'terrain');
+  need('world.river.ford', W.river.ford, terrain, 'terrain');
+  need('world.roads.terrain', W.roads.terrain, terrain, 'terrain');
+  need('world.meadows.terrain', W.meadows.terrain, terrain, 'terrain');
+  W.meadows.zones.forEach((z) => need('world.meadows.zones', z, d.biomes, 'zone'));
+  for (const [k, r] of Object.entries(d.resources)) {
+    if (typeof r.blocks !== 'number') errors.push(`resources.${k}.blocks: must be a number (0 for none)`);
+    if (r.blocks >= W.tileSize / 2) errors.push(`resources.${k}.blocks: must be under half a tile`);
+  }
 
   for (const [rk, realm] of Object.entries(d.realms)) {
     for (const [zk, z] of Object.entries(realm.zones)) {

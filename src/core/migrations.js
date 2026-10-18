@@ -1,10 +1,26 @@
 // Save migrations: MIGRATIONS[n] turns a version n save into version n + 1.
-// Version 1 is the beta prototype's format, so prototype exports load unchanged.
+// Version 1 is the beta prototype's format, so prototype exports load and migrate.
 import { D } from './content.js';
 
 export const SAVE_VERSION = D.game.save.version;
 
-const MIGRATIONS = {};
+const MIGRATIONS = {
+  // v1 -> v2: the single-screen map becomes a seeded open world. The old map cannot be converted, so
+  // a new world is generated: map positions, resource nodes, buildings and enemies are dropped, and the
+  // roster, bonds, tech, Knowledge, inventory, armory, Nexus progress and mission log are kept.
+  1(d) {
+    const out = { ...d, v: 2, nodes: {}, buildings: [] };
+    delete out.resources;
+    delete out.enemies;
+    if (!Number.isInteger(out.seed) || out.seed === 0)
+      out.seed = Math.floor(d.savedAt || 0) % 2147483647 || 1;
+    if (out.player && typeof out.player === 'object') {
+      out.player = { ...out.player };
+      for (const k of ['x', 'y', 'w', 'h']) delete out.player[k]; // placed at the new world's spawn
+    }
+    return out;
+  },
+};
 
 /** Returns { data } at SAVE_VERSION, or { error } with a message for the player. */
 export function migrate(data) {

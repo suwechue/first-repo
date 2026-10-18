@@ -26,10 +26,8 @@ export function makeInitialState() {
     tech, // techId -> unlocked
 
     player: {
-      x: D.game.canvas.w / 2,
-      y: D.game.canvas.h / 2,
-      w: P.size,
-      h: P.size,
+      x: null, // placed at the world's spawn by newGame, or by loadGame for a migrated save
+      y: null,
       hp: P.hp,
       maxHp: P.hp,
       hunger: P.hunger,
@@ -44,9 +42,9 @@ export function makeInitialState() {
     placingBuilding: null,
     gatherCooldown: 0,
 
-    resources: [],
+    nodes: {}, // nodeId -> { amount, respawnTimer }, only for nodes gathered from
     buildings: [],
-    enemies: [],
+    enemies: [], // runtime only: spawned near the player, never saved
 
     nexus: { dig: 0, awareness: 0, awake: false },
     roster: [], // living characters

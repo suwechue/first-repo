@@ -2,18 +2,23 @@
 // `placeholder` field in the data, so new content picks an existing shape with no code change.
 
 const SHAPES = {
-  tree(ctx, def) {
+  // Origin at the trunk's base, so trees sort by where they stand.
+  tree(ctx, def, obj) {
     ctx.fillStyle = def.trunk || '#5a3d24';
-    ctx.fillRect(-3, 4, 6, 12);
+    ctx.fillRect(-3, -12, 6, 12);
     ctx.fillStyle = def.color;
     ctx.beginPath();
-    ctx.arc(0, -6, 15, 0, Math.PI * 2);
+    ctx.arc(0, -28, 15, 0, Math.PI * 2);
     ctx.fill();
     ctx.beginPath();
-    ctx.arc(-8, 2, 10, 0, Math.PI * 2);
+    ctx.arc(-8, -20, 10, 0, Math.PI * 2);
     ctx.fill();
     ctx.beginPath();
-    ctx.arc(8, 2, 10, 0, Math.PI * 2);
+    ctx.arc(8, -20, 10, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.06)';
+    ctx.beginPath();
+    ctx.arc(-4 + Math.cos(obj.angle || 0) * 2, -32, 7, 0, Math.PI * 2);
     ctx.fill();
   },
   rock(ctx, def) {
@@ -106,7 +111,7 @@ const SHAPES = {
     ctx.fillRect(-3, -14, 6, 26);
   },
   beast(ctx, def, obj) {
-    ctx.fillStyle = obj.state === 'aggro' ? '#5a5a5a' : '#787878';
+    ctx.fillStyle = def.color || (obj.state === 'aggro' ? '#5a5a5a' : '#787878');
     ctx.beginPath();
     ctx.ellipse(0, 0, 11, 7, 0, 0, Math.PI * 2);
     ctx.fill();

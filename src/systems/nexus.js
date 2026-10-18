@@ -5,12 +5,13 @@ import { emit } from '../core/events.js';
 import { canAfford, spend, give, costText } from './inventory.js';
 import { isUnlocked } from './tech.js';
 import { refreshOffer } from './recruiting.js';
+import { worldOf } from '../world/world.js';
 import { log, changed } from './log.js';
 
 const N = D.nexus;
 
-export function nexusPos() {
-  return N.position;
+export function nexusPos(s) {
+  return worldOf(s).nexus;
 }
 
 export function nexusStage(s) {
@@ -20,7 +21,7 @@ export function nexusStage(s) {
 }
 
 export function inNexusRange(s) {
-  return dist(s.player, N.position) < N.interactRange;
+  return dist(s.player, nexusPos(s)) < N.interactRange;
 }
 
 export function interactNexus(s) {

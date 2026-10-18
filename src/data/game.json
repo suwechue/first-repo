@@ -1,33 +1,56 @@
 {
-  "canvas": { "w": 900, "h": 560 },
-  "playArea": { "minX": 16, "minY": 80, "marginRight": 16, "marginBottom": 16 },
-  "spawnArea": { "left": 40, "top": 90, "right": 40, "bottom": 70 },
   "player": {
     "speed": 2.6,
+    "radius": 8,
     "hp": 20,
     "hunger": 100,
-    "size": 20,
     "unarmedDmg": 1,
-    "attackSpread": { "min": 0.85, "range": 0.3 }
+    "attackSpread": {
+      "min": 0.85,
+      "range": 0.3
+    }
   },
   "interact": {
     "range": 42,
-    "cooldown": { "attack": 20, "gather": 18, "nexus": 25, "cook": 18 },
-    "cook": { "recipe": "cook_food", "range": 40 },
+    "cooldown": {
+      "attack": 20,
+      "gather": 18,
+      "nexus": 25,
+      "cook": 18
+    },
+    "cook": {
+      "recipe": "cook_food",
+      "range": 40
+    },
     "craftNearBuildingRange": 60
   },
-  "clock": { "dayLength": 3600, "knowledgeEvery": 90, "knowledgeAmount": 1 },
+  "clock": {
+    "dayLength": 3600,
+    "knowledgeEvery": 90,
+    "knowledgeAmount": 1
+  },
   "hunger": {
     "every": 200,
     "loss": 1,
     "starveDamage": 1,
     "eatBelow": 40,
     "foods": [
-      { "item": "cookedfood", "restore": 30, "log": "Ate cooked food. Hunger restored." },
-      { "item": "food", "restore": 15, "log": "Ate raw food. Hunger restored a little." }
+      {
+        "item": "cookedfood",
+        "restore": 30,
+        "log": "Ate cooked food. Hunger restored."
+      },
+      {
+        "item": "food",
+        "restore": 15,
+        "log": "Ate raw food. Hunger restored a little."
+      }
     ]
   },
-  "faint": { "hpFraction": 0.5, "minHunger": 50 },
+  "faint": {
+    "hpFraction": 0.5,
+    "minHunger": 50
+  },
   "dawnSpawn": {
     "enemy": "wolf",
     "fromDay": 2,
@@ -36,21 +59,24 @@
     "minDistance": 220,
     "tries": 100
   },
-  "scatter": {
-    "counts": { "tree": 16, "rock": 9, "bush": 7, "berrybush": 5 },
-    "minSpacing": 46,
-    "clearOfCenter": 70,
-    "clearOfNexus": 90,
-    "tries": 400
-  },
   "autosaveEvery": 900,
   "logSize": 6,
-  "save": { "key": "primitive_age_save_v1", "version": 1 },
+  "save": {
+    "key": "primitive_age_save_v1",
+    "version": 2
+  },
   "messages": {
     "newGame": [
-      "You wake at the edge of a clearing. Wood, stone, and berries are within reach.",
-      "Something large lies buried to the north-east..."
+      "You wake among the mossy ruins of Mossgate, on the south edge of an old city.",
+      "Something large lies buried somewhere in the city to the north..."
     ],
-    "resumed": "Save loaded — welcome back to day {day}."
+    "resumed": "Save loaded \u2014 welcome back to day {day}."
+  },
+  "enemies": {
+    "radius": 8,
+    "spawnRadius": 640,
+    "despawnRadius": 1600,
+    "wander": [48, 192],
+    "stuckFrames": 40
   }
 }

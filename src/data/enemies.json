@@ -19,6 +19,26 @@
       }
     }
   },
+  "boar": {
+    "name": "boar",
+    "short": "Boar",
+    "sprite": "boar",
+    "placeholder": "beast",
+    "color": "#7a5638",
+    "overworld": {
+      "hp": 14,
+      "dmg": 3,
+      "speed": 1.5,
+      "aggro": 90,
+      "attackRange": 22,
+      "attackCooldown": 60,
+      "wanderSpeed": 0.4,
+      "drops": {
+        "hide": 2,
+        "food": 2
+      }
+    }
+  },
   "wild_sprites": {
     "name": "a swarm of Wild Sprites",
     "short": "Wild Sprites",

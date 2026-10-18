@@ -1,5 +1,7 @@
 // The player avatar: movement, hunger and eating, and fainting.
 import { D } from '../core/content.js';
+import { worldOf } from '../world/world.js';
+import { moveCircle } from '../world/collision.js';
 import { log, changed } from './log.js';
 
 /** Moves the player from the held direction keys: { up, down, left, right }. */
@@ -14,11 +16,9 @@ export function updatePlayer(s, input) {
     const len = Math.hypot(dx, dy);
     dx /= len;
     dy /= len;
-    const A = D.game.playArea;
-    const speed = D.game.player.speed;
+    const P = D.game.player;
     s.player.facing = { x: dx, y: dy };
-    s.player.x = Math.max(A.minX, Math.min(D.game.canvas.w - A.marginRight, s.player.x + dx * speed));
-    s.player.y = Math.max(A.minY, Math.min(D.game.canvas.h - A.marginBottom, s.player.y + dy * speed));
+    moveCircle(worldOf(s), s.player, dx * P.speed, dy * P.speed, P.radius);
   }
   if (s.gatherCooldown > 0) s.gatherCooldown--;
 }
@@ -46,16 +46,17 @@ export function hungerTick(s) {
   changed('vitals');
 }
 
-/** At zero health the player wakes at camp at half health. Nothing is lost. */
+/** At zero health the player wakes at the center of the map at half health. Nothing is lost. */
 export function checkFaint(s) {
   const p = s.player;
   if (p.hp > 0) return;
   const F = D.game.faint;
   p.hp = Math.ceil(p.maxHp * F.hpFraction);
   p.hunger = Math.max(p.hunger, F.minHunger);
-  p.x = D.game.canvas.w / 2;
-  p.y = D.game.canvas.h / 2;
+  const { center } = worldOf(s);
+  p.x = center.x;
+  p.y = center.y;
   s.enemies = [];
-  log(s, 'You collapse and wake at camp, shaky but alive.');
+  log(s, 'You collapse and wake in the old plaza, shaky but alive.');
   changed('vitals');
 }

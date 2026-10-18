@@ -19,6 +19,8 @@ import starterRoster from '../data/starter_roster.json' with { type: 'json' };
 import enemies from '../data/enemies.json' with { type: 'json' };
 import mission from '../data/mission.json' with { type: 'json' };
 import verdantWilds from '../data/realms/verdant_wilds.json' with { type: 'json' };
+import world from '../data/world.json' with { type: 'json' };
+import biomes from '../data/biomes.json' with { type: 'json' };
 
 const REALM_FILES = { verdant_wilds: verdantWilds };
 
@@ -42,6 +44,8 @@ export const RAW = {
   enemies,
   mission,
   realms: REALM_FILES,
+  world,
+  biomes,
 };
 
 function deepFreeze(o) {

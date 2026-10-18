@@ -42,7 +42,9 @@ describe('The page', () => {
     runFrames(5);
     expect(document.getElementById('day-label').textContent).toBe('Day 1');
     expect(document.querySelectorAll('#resource-bar .res-chip').length).toBe(5);
-    expect(document.getElementById('status-log').textContent).toMatch(/You wake at the edge of a clearing/);
+    expect(document.getElementById('status-log').textContent).toMatch(
+      /You wake among the mossy ruins of Mossgate/,
+    );
     expect(errors).toEqual([]);
   });
 
@@ -64,7 +66,7 @@ describe('The page', () => {
     click('sys-save');
     expect(document.getElementById('sys-msg').textContent).toBe('Saved.');
     const saved = JSON.parse(localStorage.getItem('primitive_age_save_v1'));
-    expect(saved.v).toBe(1);
+    expect(saved.v).toBe(2);
     expect(saved.roster.length).toBe(4);
   });
 

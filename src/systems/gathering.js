@@ -1,6 +1,8 @@
-// Gathering from resource nodes, and node respawn.
+// Gathering from the world's resource nodes, and node respawn.
+// Nodes come from the world generator; GameState keeps only the ones that have been gathered from.
 import { D } from '../core/content.js';
 import { dist } from '../core/geometry.js';
+import { worldOf, nodesNear } from '../world/world.js';
 import { log, changed } from './log.js';
 
 export function nearestInRange(s, list, range) {
@@ -16,28 +18,38 @@ export function nearestInRange(s, list, range) {
   return best;
 }
 
+/** What is left on a node: its saved amount if it has been gathered from, else full. */
+export function nodeAmount(s, node) {
+  const st = s.nodes[node.id];
+  return st ? st.amount : D.resources[node.type].amount;
+}
+
 export function nearestNode(s) {
+  const range = D.game.interact.range;
+  const near = nodesNear(worldOf(s), s.player.x, s.player.y, range);
   return nearestInRange(
     s,
-    s.resources.filter((r) => r.amount > 0),
-    D.game.interact.range,
+    near.filter((n) => nodeAmount(s, n) > 0),
+    range,
   );
 }
 
 export function gatherNode(s, node) {
   const def = D.resources[node.type];
-  node.amount -= 1;
+  const st = s.nodes[node.id] || (s.nodes[node.id] = { amount: def.amount, respawnTimer: 0 });
+  st.amount -= 1;
   s.player.inventory[def.yields] += 1;
-  log(s, `Gathered 1 ${def.yields}. (${node.amount}/${node.maxAmount} left)`);
-  if (node.amount <= 0) node.respawnTimer = def.respawn;
+  log(s, `Gathered 1 ${def.yields}. (${st.amount}/${def.amount} left)`);
+  if (st.amount <= 0) st.respawnTimer = def.respawn;
   changed('inventory');
 }
 
+/** Depleted nodes count down and return to full, which removes them from the state. */
 export function updateResources(s) {
-  for (const node of s.resources) {
-    if (node.amount <= 0) {
-      node.respawnTimer--;
-      if (node.respawnTimer <= 0) node.amount = node.maxAmount;
-    }
+  for (const id in s.nodes) {
+    const st = s.nodes[id];
+    if (st.amount > 0) continue;
+    st.respawnTimer--;
+    if (st.respawnTimer <= 0) delete s.nodes[id];
   }
 }

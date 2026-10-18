@@ -3,43 +3,38 @@
 import { D } from '../core/content.js';
 import { rand } from '../core/rng.js';
 import { dist } from '../core/geometry.js';
+import { worldOf, randomReachableNear } from '../world/world.js';
+import { moveCircle } from '../world/collision.js';
 import { give } from './inventory.js';
 import { log, changed } from './log.js';
 
-function randomSpawnPoint() {
-  const A = D.game.spawnArea;
-  const W = D.game.canvas.w;
-  const H = D.game.canvas.h;
-  return {
-    x: A.left + rand() * (W - A.left - A.right),
-    y: A.top + rand() * (H - A.top - A.bottom),
-  };
-}
+const E = D.game.enemies;
 
-/** Spawns an overworld enemy at a random spot at least `minDistance` from the player. */
-export function spawnEnemy(s, type, minDistance, tries) {
+/** Adds an enemy of `type` at (x, y). */
+export function addEnemy(s, type, x, y, extra = {}) {
   const O = D.enemies[type].overworld;
-  let p;
-  let ok = false;
-  let t = 0;
-  while (!ok && t < tries) {
-    t++;
-    p = randomSpawnPoint();
-    if (dist(p, s.player) > minDistance) ok = true;
-  }
-  s.enemies.push({
+  const e = {
     id: type + '_' + Math.floor(rand() * 99999),
     type,
-    x: p.x,
-    y: p.y,
+    x,
+    y,
     hp: O.hp,
     maxHp: O.hp,
     dmg: O.dmg,
     speed: O.speed,
     state: 'wander',
-    wanderTarget: { x: p.x, y: p.y },
+    wanderTarget: { x, y },
     attackCooldown: 0,
-  });
+    ...extra,
+  };
+  s.enemies.push(e);
+  return e;
+}
+
+/** Spawns an enemy on a reachable tile between `minDistance` and the spawn radius from the player. */
+export function spawnEnemy(s, type, minDistance, tries) {
+  const p = randomReachableNear(worldOf(s), s.player.x, s.player.y, minDistance, E.spawnRadius, rand, tries);
+  return p ? addEnemy(s, type, p.x, p.y) : null;
 }
 
 function enemyName(e) {
@@ -65,19 +60,20 @@ export function attackEnemy(s, enemy) {
 }
 
 export function updateEnemies(s) {
+  const world = worldOf(s);
   for (const e of s.enemies) {
     const O = D.enemies[e.type].overworld;
     if (e.attackCooldown > 0) e.attackCooldown--;
     const dToPlayer = dist(e, s.player);
     if (dToPlayer < O.aggro) e.state = 'aggro';
+    else if (e.state === 'aggro' && O.leash && dToPlayer > O.leash) e.state = 'wander';
 
     if (e.state === 'aggro') {
       const dx = s.player.x - e.x;
       const dy = s.player.y - e.y;
       const len = Math.hypot(dx, dy) || 1;
       if (dToPlayer > O.attackRange) {
-        e.x += (dx / len) * e.speed;
-        e.y += (dy / len) * e.speed;
+        moveCircle(world, e, (dx / len) * e.speed, (dy / len) * e.speed, E.radius);
       } else if (e.attackCooldown <= 0) {
         s.player.hp = Math.max(0, s.player.hp - e.dmg);
         e.attackCooldown = O.attackCooldown;
@@ -88,11 +84,17 @@ export function updateEnemies(s) {
       const dx = e.wanderTarget.x - e.x;
       const dy = e.wanderTarget.y - e.y;
       const d = Math.hypot(dx, dy);
-      if (d < 4) {
-        e.wanderTarget = randomSpawnPoint();
+      if (d < 4 || e.stuck > E.stuckFrames) {
+        e.stuck = 0;
+        e.wanderTarget = randomReachableNear(world, e.x, e.y, E.wander[0], E.wander[1], rand, 10) || {
+          x: e.x,
+          y: e.y,
+        };
       } else {
-        e.x += (dx / d) * O.wanderSpeed;
-        e.y += (dy / d) * O.wanderSpeed;
+        const bx = e.x;
+        const by = e.y;
+        moveCircle(world, e, (dx / d) * O.wanderSpeed, (dy / d) * O.wanderSpeed, E.radius);
+        e.stuck = bx === e.x && by === e.y ? (e.stuck || 0) + 1 : 0;
       }
     }
   }

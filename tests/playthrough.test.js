@@ -8,6 +8,8 @@ import { tryCraft } from '../src/systems/crafting.js';
 import { enterPlacing, tryPlaceBuilding } from '../src/systems/building.js';
 import { nexusStage } from '../src/systems/nexus.js';
 import { launch } from '../src/systems/missions.js';
+import { nodeAmount } from '../src/systems/gathering.js';
+import { worldOf } from '../src/world/world.js';
 
 const idle = { up: false, down: false, left: false, right: false };
 
@@ -20,19 +22,24 @@ describe('Stage 1 playthrough', () => {
     const s = makeInitialState();
     newGame(s, 2026);
     expect(s.roster.length).toBe(4);
-    expect(s.resources.length).toBeGreaterThan(20);
+    const world = worldOf(s);
+    expect(world.nodes.length).toBeGreaterThan(1000);
+    expect([s.player.x, s.player.y]).toEqual([world.spawn.x, world.spawn.y]);
 
-    // Gather: stand on a tree and press E until it runs out.
-    const tree = s.resources.find((r) => r.type === 'tree');
-    Object.assign(s.player, { x: tree.x, y: tree.y });
-    for (let i = 0; i < tree.maxAmount; i++) {
+    // Gather: stand just below a tree and press E until it runs out.
+    const tree = world.nodes.find((n) => n.type === 'tree');
+    const full = D.resources.tree.amount;
+    Object.assign(s.player, { x: tree.x, y: tree.y + 20 });
+    s.enemies = [];
+    for (let i = 0; i < full; i++) {
       handleInteract(s);
       frames(s, D.game.interact.cooldown.gather);
     }
-    expect(s.player.inventory.wood).toBe(tree.maxAmount);
-    expect(tree.amount).toBe(0);
+    expect(s.player.inventory.wood).toBe(full);
+    expect(nodeAmount(s, tree)).toBe(0);
     frames(s, D.resources.tree.respawn);
-    expect(tree.amount).toBe(tree.maxAmount);
+    expect(nodeAmount(s, tree)).toBe(full);
+    expect(s.nodes[tree.id]).toBeUndefined(); // a full node is not stored
 
     // Passive Knowledge: +1 per 90 frames.
     const kp = s.kp;
@@ -61,10 +68,7 @@ describe('Stage 1 playthrough', () => {
     expect(s.player.inventory.supplies).toBe(2);
 
     // Dig out the Nexus: 3 digs of 4 stone and 2 wood.
-    Object.assign(s.player, { x: D.nexus.position.x, y: D.nexus.position.y });
-    s.resources = s.resources.filter(
-      (r) => Math.hypot(r.x - s.player.x, r.y - s.player.y) > D.game.interact.range,
-    );
+    Object.assign(s.player, { x: world.nexus.x, y: world.nexus.y + 40 });
     s.enemies = [];
     const stone = s.player.inventory.stone;
     for (let i = 0; i < D.nexus.digSteps; i++) {
@@ -113,14 +117,14 @@ describe('Stage 1 playthrough', () => {
     s.player.hp = 0;
     frames(s, 1);
     expect(s.player.hp).toBe(10);
-    expect([s.player.x, s.player.y]).toEqual([D.game.canvas.w / 2, D.game.canvas.h / 2]);
+    const { center } = worldOf(s);
+    expect([s.player.x, s.player.y]).toEqual([center.x, center.y]);
   });
 
   it('wolves bite, and die to the player for fiber, food and hide', () => {
     const s = makeInitialState();
     newGame(s, 8);
     s.enemies = [];
-    s.resources = [];
     s.enemies.push({
       id: 'w',
       type: 'wolf',

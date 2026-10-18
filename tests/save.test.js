@@ -3,7 +3,8 @@ import { describe, it, expect, afterEach } from 'vitest';
 import { makeInitialState } from '../src/core/state.js';
 import { serialize, apply } from '../src/core/save.js';
 import { rand, createRng, useRandomSource } from '../src/core/rng.js';
-import { newGame, update } from '../src/systems/game.js';
+import { newGame, update, loadGame } from '../src/systems/game.js';
+import { getWorld } from '../src/world/world.js';
 import { launch } from '../src/systems/missions.js';
 import { loadReference, referenceAvailable } from '../tools/reference.js';
 
@@ -60,14 +61,15 @@ describe('Save and load', () => {
     expect(apply(t, { hello: 1 })).toMatch(/no version/);
     expect(apply(t, { v: 99, player: {}, roster: [] })).toMatch(/newer version/);
     expect(apply(t, { v: 0, player: {}, roster: [] })).toMatch(/Unsupported/);
+    expect(apply(t, { v: 2, roster: [] })).toMatch(/incomplete/);
+    expect(apply(t, { v: 2, player: {}, roster: 'no' })).toMatch(/incomplete/);
     expect(apply(t, { v: 1, roster: [] })).toMatch(/incomplete/);
-    expect(apply(t, { v: 1, player: {}, roster: 'no' })).toMatch(/incomplete/);
   });
 
   it('fills fields a save lacks from a fresh state, including zones added later', () => {
     const t = makeInitialState();
     const err = apply(t, {
-      v: 1,
+      v: 2,
       player: { inventory: { wood: 5 } },
       roster: [],
       realms: { verdant_wilds: {} },
@@ -114,8 +116,15 @@ describe.skipIf(!referenceAvailable())('Importing a beta prototype save (v1)', (
     const file = JSON.parse(JSON.stringify(ref.save.serialize()));
 
     const t = makeInitialState();
-    expect(apply(t, file)).toBeNull();
+    expect(loadGame(t, file)).toBeNull();
     const plain = (o) => JSON.parse(JSON.stringify(o));
+    // A new world: the old map, its nodes, buildings and enemies are gone; the player stands at the spawn.
+    const world = getWorld(t.seed);
+    expect([t.player.x, t.player.y]).toEqual([world.spawn.x, world.spawn.y]);
+    expect(t.nodes).toEqual({});
+    expect(t.buildings).toEqual([]);
+    expect(t.enemies).toEqual([]);
+    expect(t.nexus.awake).toBe(true);
     expect(plain(t.roster)).toEqual(plain(st.roster));
     expect(t.bonds).toEqual(plain(st.bonds));
     expect(t.player.inventory).toEqual(plain(st.player.inventory));
@@ -125,7 +134,6 @@ describe.skipIf(!referenceAvailable())('Importing a beta prototype save (v1)', (
     expect(t.tech.cooking).toBe(false);
     expect(t.missionLog.length).toBe(1);
     expect(t.realms).toEqual(plain(st.realms));
-    expect(t.enemies[0].type).toBe('wolf');
     // and it plays on
     const input = { up: false, down: false, left: false, right: false };
     for (let i = 0; i < 100; i++) update(t, input);

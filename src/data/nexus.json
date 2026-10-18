@@ -1,8 +1,4 @@
 {
-  "position": {
-    "x": 790,
-    "y": 170
-  },
   "radius": 34,
   "interactRange": 70,
   "digSteps": 3,
@@ -23,5 +19,6 @@
     "buried": "nexus_buried",
     "excavated": "nexus_excavated",
     "awake": "nexus_awake"
-  }
+  },
+  "blocks": 26
 }

@@ -7,7 +7,8 @@
     "trunk": "#5a3d24",
     "amount": 5,
     "respawn": 900,
-    "radius": 16
+    "radius": 16,
+    "blocks": 10
   },
   "rock": {
     "sprite": "rock",
@@ -16,7 +17,8 @@
     "color": "#7a7568",
     "amount": 4,
     "respawn": 1400,
-    "radius": 14
+    "radius": 14,
+    "blocks": 11
   },
   "bush": {
     "sprite": "bush",
@@ -26,7 +28,8 @@
     "berry": "#b23a3a",
     "amount": 3,
     "respawn": 700,
-    "radius": 10
+    "radius": 10,
+    "blocks": 0
   },
   "berrybush": {
     "sprite": "berrybush",
@@ -36,6 +39,7 @@
     "berry": "#c94f4f",
     "amount": 3,
     "respawn": 1100,
-    "radius": 10
+    "radius": 10,
+    "blocks": 0
   }
 }

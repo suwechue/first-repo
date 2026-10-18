@@ -1,11 +1,11 @@
 // Versioned save format: serialize GameState to plain JSON and apply it back.
 // Pure: localStorage and files are handled in src/ui/persistence.js.
-import { D } from './content.js';
+// The world is regenerated from `seed`, so a save holds only what changed: depleted nodes,
+// buildings, the player and the settlement. Enemies are not saved.
 import { makeInitialState } from './state.js';
 import { migrate, SAVE_VERSION } from './migrations.js';
 import { getRngState, setRngState } from './rng.js';
 
-// The prototype's v1 fields, plus seed, rngState and frame, which prototype files simply lack.
 const FIELDS = [
   'day',
   'dayTimer',
@@ -13,9 +13,8 @@ const FIELDS = [
   'renown',
   'arcane',
   'player',
-  'resources',
+  'nodes',
   'buildings',
-  'enemies',
   'nexus',
   'roster',
   'bonds',
@@ -41,7 +40,11 @@ export function serialize(state, savedAt = 0) {
   return JSON.parse(JSON.stringify(o));
 }
 
-/** Loads `data` into `state` in place. Returns null on success, or an error message. */
+/**
+ * Loads `data` into `state` in place. Returns null on success, or an error message.
+ * A save without a player position (a migrated v1 file) leaves player.x and y null; loadGame in
+ * systems/game.js then puts the player at the world's spawn.
+ */
 export function apply(state, data) {
   const m = migrate(data);
   if (m.error) return m.error;
@@ -57,6 +60,7 @@ export function apply(state, data) {
   state.player.inventory = Object.assign({}, fresh.player.inventory, data.player.inventory || {});
   state.nexus = Object.assign({}, fresh.nexus, data.nexus || {});
   state.stats = Object.assign({}, fresh.stats, data.stats || {});
+  state.nodes = data.nodes && typeof data.nodes === 'object' ? structuredClone(data.nodes) : {};
   // Merge realm progress so zones added in newer content still exist.
   const saved = data.realms || {};
   state.realms = {};
@@ -64,8 +68,6 @@ export function apply(state, data) {
   for (const k in fresh.tech) {
     state.tech[k] = data.tech && data.tech[k] !== undefined ? !!data.tech[k] : fresh.tech[k];
   }
-  // Prototype saves store overworld enemies without a type; they were always the dawn spawn.
-  for (const e of state.enemies) if (!e.type) e.type = D.game.dawnSpawn.enemy;
   if (data.rngState !== undefined) setRngState(data.rngState);
   return null;
 }

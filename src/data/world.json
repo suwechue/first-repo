@@ -1,0 +1,135 @@
+{
+  "tileSize": 32,
+  "size": {
+    "w": 160,
+    "h": 112
+  },
+  "chunk": 32,
+  "spawn": {
+    "zone": "mossgate"
+  },
+  "city": {
+    "prefab": "old_city",
+    "zone": "old_city",
+    "center": [80, 56],
+    "size": [48, 36],
+    "mossgate": [20, 6],
+    "points": {
+      "spawn": [0, 15],
+      "center": [0, 3],
+      "nexus": [0, 0]
+    }
+  },
+  "rings": [
+    {
+      "zone": "outskirts",
+      "to": 0.6
+    },
+    {
+      "zone": "deep_forest",
+      "to": 0.97
+    }
+  ],
+  "seal": {
+    "from": 0.97,
+    "zone": "seal"
+  },
+  "ringNoise": {
+    "scale": 14,
+    "amount": 0.035
+  },
+  "terrain": {
+    "forest_floor": {
+      "tileset": "forest_floor",
+      "color": "#3c5a30"
+    },
+    "meadow": {
+      "tileset": "meadow",
+      "color": "#5f7d3c"
+    },
+    "city_stone": {
+      "tileset": "city_stone",
+      "color": "#77736a"
+    },
+    "dirt_road": {
+      "tileset": "dirt_road",
+      "color": "#86704e"
+    },
+    "water": {
+      "tileset": "water",
+      "color": "#2f5d7c",
+      "blocks": true
+    },
+    "hills_rock": {
+      "tileset": "hills_rock",
+      "color": "#615c55",
+      "blocks": true
+    },
+    "stony_ground": {
+      "tileset": "stony_ground",
+      "color": "#77745e"
+    },
+    "marsh": {
+      "tileset": "marsh",
+      "color": "#4b5f40"
+    },
+    "ford": {
+      "tileset": "ford",
+      "color": "#4f7f88"
+    },
+    "seal": {
+      "tileset": "seal",
+      "color": "#3b3458",
+      "blocks": true
+    }
+  },
+  "meadows": {
+    "zones": ["outskirts"],
+    "scale": 9,
+    "threshold": 0.64,
+    "terrain": "meadow"
+  },
+  "hills": {
+    "zone": "hills",
+    "within": "deep_forest",
+    "count": [2, 4],
+    "dist": [0.68, 0.86],
+    "radius": [5, 8],
+    "core": 0.45,
+    "ground": "stony_ground",
+    "rock": "hills_rock",
+    "firstAngle": -45
+  },
+  "river": {
+    "zone": "marsh",
+    "from": [95, 112],
+    "to": [176, 194],
+    "depth": [0.24, 0.32],
+    "width": 1.3,
+    "marsh": 2.9,
+    "fords": [0.22, 0.5, 0.78],
+    "fordRadius": 1.9,
+    "water": "water",
+    "ford": "ford"
+  },
+  "roads": {
+    "terrain": "dirt_road",
+    "to": 0.64,
+    "gates": ["south", "east", "west"]
+  },
+  "trails": {
+    "count": 14,
+    "from": 0.52,
+    "to": 0.95
+  },
+  "clear": {
+    "spawnRadius": 3,
+    "centerRadius": 4
+  },
+  "camera": {
+    "zoom": 2,
+    "minZoom": 1,
+    "maxZoom": 3,
+    "smoothing": 0.12
+  }
+}
