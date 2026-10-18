@@ -3,19 +3,21 @@ import './ui/style.css';
 import { D } from './core/content.js';
 import { makeInitialState } from './core/state.js';
 import { createLoop } from './core/loop.js';
-import { newGame, update, handleInteract, nearestEnemy } from './systems/game.js';
-import { nearestNode, nodeAmount } from './systems/gathering.js';
+import { newGame, update, handleInteract, interactTarget } from './systems/game.js';
 import { nexusStage, nexusPrompt } from './systems/nexus.js';
 import { exitPlacing, tryPlaceBuilding } from './systems/building.js';
 import { log } from './systems/log.js';
 import { createRenderer } from './render/renderer.js';
 import { assets } from './render/assets.js';
+import { createMinimap } from './render/minimap.js';
+import { worldOf } from './world/world.js';
 import { createUI } from './ui/panels.js';
 import { store, loadStored } from './ui/persistence.js';
 
 const state = makeInitialState();
 const canvas = document.getElementById('game');
 const renderer = createRenderer(canvas, assets);
+const minimap = createMinimap(document.getElementById('minimap'));
 assets.load(); // art appears as it arrives; placeholders draw until then
 
 function fit() {
@@ -116,20 +118,18 @@ const loop = createLoop({
     }
   },
   render() {
-    const enemy = state.mode === 'EXPLORE' ? nearestEnemy(state) : null;
-    const node = !enemy && state.mode === 'EXPLORE' ? nearestNode(state) : null;
+    const t = interactTarget(state);
     const view = {
       nexusStage: nexusStage(state),
       nexusPrompt: nexusPrompt(state),
-      target: enemy || node,
-      enemy: !!enemy,
-      targetLabel: enemy
-        ? 'E: attack ' + D.enemies[enemy.type].short
-        : node
-          ? `E: ${D.resources[node.type].verb || 'gather'} ${D.resources[node.type].name} (${nodeAmount(state, node)})`
-          : null,
+      target: t && t.kind !== 'nexus' ? t : null,
+      enemy: t?.kind === 'enemy',
+      targetLabel: t && t.kind !== 'nexus' ? t.label : null,
     };
-    renderer.draw(state, view, mouse, performance.now());
+    const now = performance.now();
+    renderer.draw(state, view, mouse, now);
+    const world = worldOf(state);
+    minimap.draw(state, world, world.landmarks, now);
   },
   schedule: (fn) => requestAnimationFrame(fn),
   now: () => performance.now(),

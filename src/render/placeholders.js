@@ -191,6 +191,128 @@ const SHAPES = {
       ctx.fillRect(-1, -12, 3, 3);
     }
   },
+  // Landmarks. `obj.used` is set by the renderer for an opened cache or camp and a cleared den.
+  watchtower(ctx, def) {
+    ctx.fillStyle = shade(def.color, -30);
+    ctx.fillRect(-12, -4, 4, 8);
+    ctx.fillRect(8, -4, 4, 8);
+    ctx.fillStyle = def.color;
+    ctx.fillRect(-11, -58, 3, 58);
+    ctx.fillRect(8, -58, 3, 58);
+    ctx.strokeStyle = shade(def.color, -25);
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(-9, -8);
+    ctx.lineTo(9, -30);
+    ctx.moveTo(9, -8);
+    ctx.lineTo(-9, -30);
+    ctx.stroke();
+    ctx.fillStyle = shade(def.color, 10);
+    ctx.fillRect(-16, -66, 32, 10);
+    ctx.fillStyle = shade(def.color, -35);
+    ctx.beginPath();
+    ctx.moveTo(-18, -66);
+    ctx.lineTo(0, -80);
+    ctx.lineTo(18, -66);
+    ctx.closePath();
+    ctx.fill();
+  },
+  stones(ctx, def) {
+    for (const [x, h] of [
+      [-20, 26],
+      [0, 34],
+      [20, 24],
+    ]) {
+      ctx.fillStyle = shade(def.color, -25);
+      ctx.fillRect(x - 6, -2, 12, 4);
+      ctx.fillStyle = def.color;
+      ctx.beginPath();
+      ctx.moveTo(x - 6, 0);
+      ctx.lineTo(x - 5, -h + 4);
+      ctx.lineTo(x, -h);
+      ctx.lineTo(x + 5, -h + 4);
+      ctx.lineTo(x + 6, 0);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = 'rgba(185,166,255,0.35)';
+      ctx.fillRect(x - 1, -h + 8, 2, 6);
+    }
+  },
+  den(ctx, def, obj) {
+    ctx.fillStyle = obj.used ? shade(def.color, 25) : def.color;
+    ctx.beginPath();
+    ctx.ellipse(0, -6, 26, 16, 0, Math.PI, 0);
+    ctx.lineTo(26, 4);
+    ctx.lineTo(-26, 4);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = obj.used ? 'rgba(20,15,10,0.4)' : '#140f0a';
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 10, 8, 0, Math.PI, 0);
+    ctx.fill();
+    ctx.fillStyle = '#d8cbb0';
+    ctx.fillRect(-18, 2, 6, 2);
+    ctx.fillRect(14, 0, 5, 2);
+  },
+  cache(ctx, def, obj) {
+    ctx.fillStyle = shade(def.color, -25);
+    ctx.fillRect(-11, -8, 22, 12);
+    ctx.fillStyle = def.color;
+    if (obj.used) ctx.fillRect(-11, -18, 22, 4);
+    else ctx.fillRect(-12, -13, 24, 6);
+    ctx.fillStyle = '#c9a54a';
+    ctx.fillRect(-2, -8, 4, 4);
+  },
+  spring(ctx, def, obj) {
+    ctx.fillStyle = '#5a6a55';
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 24, 13, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = def.color;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 19, 9, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.35)';
+    const a = obj.angle || 0;
+    ctx.fillRect(-8 + Math.cos(a) * 3, -3, 6, 1);
+    ctx.fillRect(4, 2 + Math.sin(a) * 2, 5, 1);
+  },
+  camp(ctx, def, obj) {
+    ctx.fillStyle = '#3a2a1a';
+    ctx.beginPath();
+    ctx.ellipse(14, 4, 7, 3, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = def.color;
+    ctx.beginPath();
+    if (obj.used) {
+      ctx.moveTo(-22, 4);
+      ctx.lineTo(-8, -6);
+      ctx.lineTo(6, 4);
+    } else {
+      ctx.moveTo(-20, 4);
+      ctx.lineTo(-6, -20);
+      ctx.lineTo(8, 4);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+    ctx.fillRect(-7, -4, 3, 8);
+  },
+  sign(ctx, def) {
+    ctx.fillStyle = shade(def.color, -20);
+    ctx.fillRect(-2, -26, 4, 28);
+    ctx.fillStyle = def.color;
+    ctx.beginPath();
+    ctx.moveTo(-14, -26);
+    ctx.lineTo(10, -26);
+    ctx.lineTo(16, -21);
+    ctx.lineTo(10, -16);
+    ctx.lineTo(-14, -16);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+    ctx.fillRect(-10, -22, 16, 1);
+  },
   beast(ctx, def, obj) {
     ctx.fillStyle = def.color || (obj.state === 'aggro' ? '#5a5a5a' : '#787878');
     ctx.beginPath();

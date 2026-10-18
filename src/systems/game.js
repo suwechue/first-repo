@@ -5,9 +5,10 @@ import { seedRng } from '../core/rng.js';
 import { initStarters } from './characters.js';
 import { apply } from '../core/save.js';
 import { getWorld } from '../world/world.js';
-import { nearestInRange, nearestNode, gatherNode, updateResources } from './gathering.js';
+import { nearestInRange, nearestNode, gatherNode, updateResources, nodeAmount } from './gathering.js';
 import { attackEnemy, updateEnemies } from './combat.js';
-import { inNexusRange, interactNexus } from './nexus.js';
+import { inNexusRange, interactNexus, nexusPrompt } from './nexus.js';
+import { updateExploration, landmarkInReach, landmarkPrompt, interactLandmark } from './exploration.js';
 import { nearBuilding, tryCraft } from './crafting.js';
 import { reqsMet } from './tech.js';
 import { updateBuildings } from './building.js';
@@ -43,33 +44,64 @@ export function nearestEnemy(s) {
   return nearestInRange(s, s.enemies, D.game.interact.range);
 }
 
-/** The E key: attack, else gather, else the Nexus, else cook at a fire. */
-export function handleInteract(s) {
-  if (s.mode !== 'EXPLORE') return;
-  if (s.gatherCooldown > 0) return;
+function canCook(s) {
   const I = D.game.interact;
+  const r = D.recipes[I.cook.recipe];
+  const item = Object.keys(r.costs)[0];
+  return (
+    nearBuilding(s, r.nearBuilding, I.cook.range) && reqsMet(s, r.requires) && s.player.inventory[item] > 0
+  );
+}
 
+/**
+ * What the E key would do right now, in priority order: attack an enemy, act on a landmark, gather
+ * a node, use the Nexus, cook at a fire. Returns { kind, obj, label, x, y } or null. The renderer
+ * shows the label as the interaction prompt.
+ */
+export function interactTarget(s) {
+  if (s.mode !== 'EXPLORE') return null;
   const enemy = nearestEnemy(s);
-  if (enemy) {
-    attackEnemy(s, enemy);
-    s.gatherCooldown = I.cooldown.attack;
-    return;
-  }
+  if (enemy)
+    return {
+      kind: 'enemy',
+      obj: enemy,
+      x: enemy.x,
+      y: enemy.y,
+      label: 'E: attack ' + D.enemies[enemy.type].short,
+    };
+  const lm = landmarkInReach(s);
+  if (lm) return { kind: 'landmark', obj: lm, x: lm.x, y: lm.y, label: landmarkPrompt(s, lm) };
   const node = nearestNode(s);
   if (node) {
-    gatherNode(s, node);
-    s.gatherCooldown = I.cooldown.gather;
-    return;
+    const def = D.resources[node.type];
+    const label = `E: ${def.verb || 'gather'} ${def.name} (${nodeAmount(s, node)})`;
+    return { kind: 'node', obj: node, x: node.x, y: node.y, label };
   }
-  if (inNexusRange(s)) {
+  if (inNexusRange(s)) return { kind: 'nexus', obj: null, label: nexusPrompt(s) };
+  if (canCook(s)) return { kind: 'cook', obj: null, x: s.player.x, y: s.player.y, label: 'E: cook food' };
+  return null;
+}
+
+/** The E key. */
+export function handleInteract(s) {
+  if (s.gatherCooldown > 0) return;
+  const t = interactTarget(s);
+  if (!t) return;
+  const C = D.game.interact.cooldown;
+  if (t.kind === 'enemy') {
+    attackEnemy(s, t.obj);
+    s.gatherCooldown = C.attack;
+  } else if (t.kind === 'landmark') {
+    interactLandmark(s, t.obj);
+    s.gatherCooldown = C.attack;
+  } else if (t.kind === 'node') {
+    gatherNode(s, t.obj);
+    s.gatherCooldown = C.gather;
+  } else if (t.kind === 'nexus') {
     interactNexus(s);
-    s.gatherCooldown = I.cooldown.nexus;
-    return;
-  }
-  const r = D.recipes[I.cook.recipe];
-  if (nearBuilding(s, r.nearBuilding, I.cook.range) && reqsMet(s, r.requires)) {
-    const item = Object.keys(r.costs)[0];
-    if (s.player.inventory[item] > 0 && tryCraft(s, I.cook.recipe)) s.gatherCooldown = I.cooldown.cook;
+    s.gatherCooldown = C.nexus;
+  } else if (t.kind === 'cook' && tryCraft(s, D.game.interact.cook.recipe)) {
+    s.gatherCooldown = C.cook;
   }
 }
 
@@ -79,6 +111,7 @@ export function update(s, input) {
   updateResources(s);
   updateBuildings(s);
   updateEnemies(s);
+  updateExploration(s);
   updateClock(s);
   checkFaint(s);
 }

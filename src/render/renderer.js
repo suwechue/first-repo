@@ -5,13 +5,16 @@
 // `view` carries derived facts the caller computes from the systems: nexusStage, nexusPrompt, target.
 import { D } from '../core/content.js';
 import { worldOf } from '../world/world.js';
+import { fogGrid, isCellRevealed } from '../world/fog.js';
 import { drawPlaceholder } from './placeholders.js';
 import { drawSprite, dirIndex } from './sprites.js';
 import { createTilemap } from './tilemap.js';
 import { createCamera, resizeCamera, setZoom, followCamera, snapCamera, screenToWorld } from './camera.js';
 
-export function createRenderer(canvas, assets) {
+export function createRenderer(canvas, assets, makeCanvas = () => document.createElement('canvas')) {
   const ctx = canvas.getContext('2d');
+  const fogCanvas = makeCanvas();
+  let fogKey = null;
   const cam = createCamera(D.world.camera);
   const tiles = createTilemap(assets);
   const lastPos = new Map(); // id -> {x, y}, to tell walking from standing
@@ -132,6 +135,42 @@ export function createRenderer(canvas, assets) {
     drawPlaceholder(ctx, def, p, p.x, p.y);
   }
 
+  function drawLandmark(s, lm) {
+    const def = D.landmarks[lm.type];
+    const st = s.landmarks[lm.id] || {};
+    const used = !!(st.used || st.cleared);
+    if (drawSprite(ctx, assets, def.sprite, lm.x, lm.y + 8, { time: now, anim: used ? 'depleted' : 'full' }))
+      return;
+    shadow(lm.x, lm.y + 3, 16);
+    drawPlaceholder(ctx, def, { ...lm, used, angle: now / 700 }, lm.x, lm.y);
+  }
+
+  /**
+   * Unexplored land is dark. The fog is a tiny image, one pixel per cell, stretched over the map with
+   * smoothing on, so the edge of what you have seen fades softly. Redrawn only when the fog changes.
+   */
+  function drawFog(s, world) {
+    const { cell, cw, ch } = fogGrid(world);
+    const key = (s.fogRev || 0) + ':' + s.seed + ':' + s.fog.length;
+    if (key !== fogKey) {
+      fogKey = key;
+      fogCanvas.width = cw + 2;
+      fogCanvas.height = ch + 2;
+      const g = fogCanvas.getContext('2d');
+      g.clearRect(0, 0, cw + 2, ch + 2);
+      g.fillStyle = 'rgb(13,11,18)';
+      for (let cy = -1; cy <= ch; cy++)
+        for (let cx = -1; cx <= cw; cx++)
+          if (!isCellRevealed(s.fog, world, cx, cy)) g.fillRect(cx + 1, cy + 1, 1, 1);
+    }
+    const px = cell * world.ts;
+    ctx.imageSmoothingEnabled = true;
+    ctx.globalAlpha = 0.96;
+    ctx.drawImage(fogCanvas, -px, -px, (cw + 2) * px, (ch + 2) * px); // pixel k is centered on cell k - 1
+    ctx.globalAlpha = 1;
+    ctx.imageSmoothingEnabled = false;
+  }
+
   function drawBuilding(b) {
     const def = D.buildings[b.type];
     drawThing(def.sprite, def, b);
@@ -230,6 +269,9 @@ export function createRenderer(canvas, assets) {
       }
     }
     if (inView(world.nexus)) list.push({ y: world.nexus.y, draw: () => drawNexus(s, view) });
+    for (const lm of world.landmarks)
+      if (D.landmarks[lm.type].placeholder && inView(lm))
+        list.push({ y: lm.y, draw: () => drawLandmark(s, lm) });
     for (const b of s.buildings) if (inView(b)) list.push({ y: b.y, draw: () => drawBuilding(b) });
     for (const e of s.enemies) if (inView(e)) list.push({ y: e.y, draw: () => drawEnemy(e, s.player) });
     list.push({ y: s.player.y, draw: () => drawPlayer(s, view) });
@@ -286,6 +328,7 @@ export function createRenderer(canvas, assets) {
 
       tiles.draw(ctx, world, cam);
       drawObjects(s, view, world);
+      drawFog(s, world);
       drawTargetHint(s, view);
       if (view.nexusPrompt) label(view.nexusPrompt, world.nexus.x, world.nexus.y - 52);
       drawPlacingGhost(s, mouse && screenToWorld(cam, mouse.x, mouse.y));

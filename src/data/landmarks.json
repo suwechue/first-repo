@@ -1,0 +1,109 @@
+{
+  "sunken_hall": {
+    "name": "The Sunken Hall",
+    "at": "nexus",
+    "count": 1,
+    "discoverRadius": 4,
+    "discover": { "kp": 10 },
+    "minimap": "#9fd8ff"
+  },
+  "watchtower": {
+    "name": "Watchtower",
+    "sprite": "lm_watchtower",
+    "placeholder": "watchtower",
+    "color": "#8a7a5c",
+    "count": 3,
+    "zones": ["outskirts", "deep_forest"],
+    "minSpacing": 30,
+    "discoverRadius": 3,
+    "discover": { "kp": 6, "reveal": 30 },
+    "minimap": "#e6c86a"
+  },
+  "standing_stones": {
+    "name": "Standing Stones",
+    "sprite": "lm_standing_stones",
+    "placeholder": "stones",
+    "color": "#8d8a80",
+    "count": 3,
+    "zones": ["outskirts", "deep_forest"],
+    "minSpacing": 30,
+    "discoverRadius": 3,
+    "discover": { "kp": 6 },
+    "effect": { "shrineAwarenessMul": 2, "radius": 6 },
+    "minimap": "#b9a6ff"
+  },
+  "wolf_den": {
+    "name": "Wolf Den",
+    "sprite": "lm_den",
+    "placeholder": "den",
+    "color": "#4a3b2c",
+    "count": 6,
+    "zones": ["deep_forest"],
+    "minSpacing": 18,
+    "discoverRadius": 4,
+    "discover": {},
+    "den": {
+      "enemy": "wolf",
+      "hp": 30,
+      "alive": 2,
+      "every": 1200,
+      "activeWithin": 2048,
+      "spawnRadius": [64, 128],
+      "clearReward": { "hide": 3, "fiber": 4 }
+    },
+    "minimap": "#c94f4f"
+  },
+  "ancient_cache": {
+    "name": "Ancient Cache",
+    "sprite": "lm_cache",
+    "placeholder": "cache",
+    "color": "#7a6a4a",
+    "count": 5,
+    "zones": ["outskirts", "deep_forest", "hills", "marsh"],
+    "minSpacing": 20,
+    "discoverRadius": 3,
+    "discover": { "kp": 4 },
+    "open": { "verb": "open", "items": { "stone": 6, "fiber": 4 }, "relicKp": 3 },
+    "minimap": "#e8ddc4"
+  },
+  "spring": {
+    "name": "Spring",
+    "sprite": "lm_spring",
+    "placeholder": "spring",
+    "color": "#5f9fb8",
+    "count": 3,
+    "zones": ["outskirts", "deep_forest", "marsh"],
+    "minSpacing": 25,
+    "discoverRadius": 3,
+    "discover": {},
+    "heal": { "radius": 30, "every": 30, "amount": 1 },
+    "minimap": "#6fc3e0"
+  },
+  "abandoned_camp": {
+    "name": "Abandoned Camp",
+    "sprite": "lm_camp",
+    "placeholder": "camp",
+    "color": "#8a5a34",
+    "count": 4,
+    "zones": ["outskirts", "deep_forest"],
+    "minSpacing": 20,
+    "discoverRadius": 3,
+    "discover": { "kp": 3 },
+    "open": { "verb": "search", "oneOf": [{ "supplies": 1 }, { "food": 5 }] },
+    "minimap": "#e6934a"
+  },
+  "old_road_sign": {
+    "name": "Old Road Sign",
+    "sprite": "lm_old_road_sign",
+    "placeholder": "sign",
+    "color": "#7a5a3a",
+    "count": 6,
+    "zones": ["outskirts"],
+    "nearTerrain": "dirt_road",
+    "minSpacing": 10,
+    "discoverRadius": 2,
+    "discover": {},
+    "sign": true,
+    "minimap": "#c9a97a"
+  }
+}

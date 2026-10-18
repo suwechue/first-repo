@@ -22,7 +22,8 @@
       "recipe": "cook_food",
       "range": 40
     },
-    "craftNearBuildingRange": 60
+    "craftNearBuildingRange": 60,
+    "landmarkRange": 48
   },
   "clock": {
     "dayLength": 3600,
@@ -78,5 +79,17 @@
     "despawnRadius": 1600,
     "wander": [48, 192],
     "stuckFrames": 40
+  },
+  "fog": {
+    "cell": 4,
+    "revealRadius": 10,
+    "every": 6
+  },
+  "ambient": {
+    "every": 240,
+    "spawnDistance": [384, 768],
+    "countWithin": 1024,
+    "despawnDistance": 1600,
+    "packSpread": 48
   }
 }

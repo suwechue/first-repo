@@ -15,6 +15,8 @@ const FIELDS = [
   'player',
   'nodes',
   'relics',
+  'fog',
+  'landmarks',
   'buildings',
   'nexus',
   'roster',

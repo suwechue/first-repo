@@ -22,6 +22,7 @@ import verdantWilds from '../data/realms/verdant_wilds.json' with { type: 'json'
 import world from '../data/world.json' with { type: 'json' };
 import biomes from '../data/biomes.json' with { type: 'json' };
 import props from '../data/props.json' with { type: 'json' };
+import landmarks from '../data/landmarks.json' with { type: 'json' };
 import oldCity from '../data/prefabs/old_city.json' with { type: 'json' };
 
 const REALM_FILES = { verdant_wilds: verdantWilds };
@@ -50,6 +51,7 @@ export const RAW = {
   world,
   biomes,
   props,
+  landmarks,
   prefabs: PREFAB_FILES,
 };
 

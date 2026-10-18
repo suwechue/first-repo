@@ -126,6 +126,28 @@ export function checkData(d) {
     if (r.blocks >= W.tileSize / 2) errors.push(`resources.${k}.blocks: must be under half a tile`);
   }
 
+  // Landmarks.
+  for (const [k, l] of Object.entries(d.landmarks)) {
+    const at = `landmarks.${k}`;
+    if (!Number.isInteger(l.count) || l.count < 1)
+      errors.push(`${at}.count: must be a whole number of 1 or more`);
+    if (typeof l.discoverRadius !== 'number') errors.push(`${at}.discoverRadius: must be a number of tiles`);
+    if (l.at && l.at !== 'nexus') errors.push(`${at}.at: only "nexus" is supported`);
+    if (!l.at) (l.zones || []).forEach((z) => need(`${at}.zones`, z, d.biomes, 'zone'));
+    if (!l.at && !(l.zones || []).length) errors.push(`${at}.zones: needs at least one zone`);
+    if (l.nearTerrain) need(`${at}.nearTerrain`, l.nearTerrain, terrain, 'terrain');
+    if (l.den) {
+      need(`${at}.den.enemy`, l.den.enemy, d.enemies, 'enemy');
+      ids(l.den.clearReward).forEach((m) => need(`${at}.den.clearReward`, m, d.materials, 'material'));
+    }
+    if (l.open) {
+      ids(l.open.items).forEach((m) => need(`${at}.open.items`, m, d.materials, 'material'));
+      (l.open.oneOf || []).forEach((o) =>
+        ids(o).forEach((m) => need(`${at}.open.oneOf`, m, d.materials, 'material')),
+      );
+    }
+  }
+
   // City prefabs and their props.
   need('world.city.prefab', W.city.prefab, d.prefabs, 'prefab');
   for (const [k, pf] of Object.entries(d.prefabs)) {

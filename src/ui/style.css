@@ -568,3 +568,44 @@ h4 {
   image-rendering: pixelated;
   margin-bottom: 8px;
 }
+
+/* ---- Minimap and discovery banner ---- */
+#minimap {
+  position: absolute;
+  inset: auto;
+  top: 72px;
+  right: 14px;
+  width: 200px;
+  height: 140px;
+  z-index: 10;
+  border: 2px solid var(--bark);
+  border-radius: 4px;
+  background: #0d0b12;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.3);
+  image-rendering: pixelated;
+  cursor: default;
+}
+#banner {
+  position: absolute;
+  top: 22%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  color: #f0e6c8;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+}
+#banner.show {
+  opacity: 1;
+}
+#banner .b-title {
+  font-size: 30px;
+  letter-spacing: 1px;
+}
+#banner .b-text {
+  font-size: 15px;
+  margin-top: 4px;
+}

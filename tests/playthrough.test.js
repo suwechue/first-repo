@@ -173,7 +173,7 @@ describe('Stage 1 playthrough', () => {
     const s = makeInitialState();
     newGame(s, 8);
     s.enemies = [];
-    s.enemies.push({
+    const wolf = {
       id: 'w',
       type: 'wolf',
       x: s.player.x + 10,
@@ -185,12 +185,14 @@ describe('Stage 1 playthrough', () => {
       state: 'wander',
       wanderTarget: { x: 0, y: 0 },
       attackCooldown: 0,
-    });
+    };
+    s.enemies.push(wolf);
+    s.frame = 1; // not an ambient spawn frame
     update(s, idle);
     expect(s.player.hp).toBe(18);
     s.player.weaponDmg = 100;
     handleInteract(s);
-    expect(s.enemies.length).toBe(0);
+    expect(s.enemies.includes(wolf)).toBe(false);
     expect(s.player.inventory.hide).toBe(1);
   });
 });

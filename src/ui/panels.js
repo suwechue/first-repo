@@ -78,6 +78,7 @@ export function createUI(s, actions) {
   };
 
   on('log', () => hud.renderLog(s));
+  on('banner', hud.showBanner);
   on('changed', (topic) => (ON_CHANGE[topic] || refreshAll)());
   on('panel:open', openPanel);
   on('mission:report', (r) => {

@@ -44,6 +44,9 @@ export function makeInitialState() {
 
     nodes: {}, // nodeId -> { amount, respawnTimer }, only for nodes gathered from
     relics: {}, // relics already found, so each pays its Knowledge once
+    fog: [], // explored cells, one bit per 4 by 4 tiles (see world/fog.js); sized on first use
+    landmarks: {}, // landmarkId -> { found, used, cleared, hp, timer }
+    fogRev: 0, // runtime only: bumps when fog or discoveries change, so the map redraws
     buildings: [],
     enemies: [], // runtime only: spawned near the player, never saved
 

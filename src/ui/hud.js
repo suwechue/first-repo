@@ -38,6 +38,17 @@ export function renderLog(s) {
   $('status-log').innerHTML = s.logMessages.map((m) => `<div>${esc(m)}</div>`).join('');
 }
 
+let bannerTimer = null;
+/** A large line of text in the middle of the screen that fades after a few seconds. */
+export function showBanner({ title, text }) {
+  const el = $('banner');
+  el.querySelector('.b-title').textContent = title;
+  el.querySelector('.b-text').textContent = text || '';
+  el.classList.add('show');
+  clearTimeout(bannerTimer);
+  bannerTimer = setTimeout(() => el.classList.remove('show'), 3500);
+}
+
 export function updateHallButton(s) {
   $('btn-hall').style.display = s.nexus.awake ? '' : 'none';
 }

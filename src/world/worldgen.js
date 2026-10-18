@@ -5,6 +5,7 @@
 import { D } from '../core/content.js';
 import { createRng } from '../core/rng.js';
 import { createNoise } from './noise.js';
+import { placeLandmarks } from './landmarks.js';
 
 const DIRS = {
   south: [0, 1],
@@ -333,6 +334,25 @@ export function generateWorld(seed) {
   }
   reach = flood(spawnIndex, w, h, blocked);
 
+  // 12. Landmarks on reachable ground, each in a small clearing.
+  const landmarks = placeLandmarks({
+    rng,
+    w,
+    h,
+    ts,
+    zoneIds,
+    zone,
+    terrainIds,
+    terrain,
+    reach,
+    nodeAt,
+    nodes,
+    inCity,
+    spawnTile,
+    nexusTile,
+  });
+  reach = flood(spawnIndex, w, h, blocked);
+
   const center = (t) => ({ x: (t[0] + 0.5) * ts, y: (t[1] + 0.5) * ts });
   return {
     seed,
@@ -349,6 +369,7 @@ export function generateWorld(seed) {
     nodeAt,
     props,
     propAt,
+    landmarks,
     reach,
     city,
     spawn: center(spawnTile),
