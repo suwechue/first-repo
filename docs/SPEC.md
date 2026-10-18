@@ -305,8 +305,8 @@ Closeness = \max\left(0.1,\ 1 - 2\,\lvert P_{win} - 0.5\rvert\right)
 P_{injury} = Closeness \cdot 0.35 \cdot (1 - ConMod) \cdot (1 - ArmorMod)
 ```
 
-- **Combat Power inputs:** Stat 1 and 2 are the class's two primary stats, with trait bonuses added to CON and PER. Skill is the class skill for the objective plus the `cp` effect of all traits and talents plus the objective's own effect (`exploreCp`, `huntCp`, `gatherCp`), plus 2 per point of proficiency the character has in that objective (M9). A talent's effects scale with its rank (see XP and growth). Arcane is the class base, plus trait and talent arcane, plus floor((INT + WIL) / 3) for mage classes. Grief multiplies Combat Power by 0.85.
-- **Matchups:** for each Vector a character carries, +4 Combat Power against an enemy weak to it and -3 against one that resists it. A character wounded earlier in the same mission fights at 0.8.
+- **Combat Power inputs:** Stat 1 and 2 are the class's two primary stats, with trait bonuses added to CON and PER. Skill is the class skill for the objective plus the `cp` effect of all traits and talents plus the objective's own effect (`exploreCp`, `huntCp`, `gatherCp`), plus 2 per point of proficiency the character has in that objective (M9). A talent's effects scale with its rank (see XP and growth). Arcane is the class base plus trait and talent arcane. A caster (M10) adds its Repertoire instead of the beta's floor((INT + WIL) / 3); see Axiom Magic below. Grief multiplies Combat Power by 0.85.
+- **Matchups (M10):** a caster's spells are worth more against an enemy weak to their Vector and less against one that resists it (the Repertoire's matchup multiplier). The beta's flat +4 and -3 per Vector are gone. A character wounded earlier in the same mission fights at 0.8.
 - **Squad Power floor:** after matchups and the wounded multiplier, each member contributes at least 1 Combat Power to the sum.
 - **Synergy (M9):** team chemistry plus composition. Team chemistry is the sum of every pair's bond tier modifier divided by the number of pairs. Composition adds +0.10 when the squad has a front-liner (`front`) and a back-liner (`back` or `caster`), +0.08 when it has a support (`support`), -0.15 when it has a caster (`caster`) but no front-liner, and +0.03 for a Natural Leader (one per squad counts). Clamped to -0.4 through +0.6. Trait pairs no longer add to synergy; they shape how bonds grow. Only the `support` role counts as a support; a mage is a caster.
 - **Injury:** ConMod is min(0.3, max(0, (CON - 5) x 0.03)). Trait injury multipliers apply. A lost fight multiplies by 1.6. Capped at 0.9.
@@ -314,6 +314,16 @@ P_{injury} = Closeness \cdot 0.35 \cdot (1 - ConMod) \cdot (1 - ArmorMod)
 - **Vigor:** starts at 100. A won fight costs 8, a lost fight 25, a quiet step 3. When vigor is at or below the chosen threshold (25, 35, 50 or 70) before the last step, the squad retreats. A Hunt mission's last step is a fight with the zone's quarry, and losing it ends the mission as a retreat. The quarry is the first enemy in the zone's `hunt` list, and the Hall's preview uses the same one.
 - **Hunt locate check (M9):** before the quarry fight, the squad must find it. P_locate = min(0.95, 0.35 + 0.05 x the highest effective PER in the squad + 0.05 x the best hunt proficiency). The squad gets 3 attempts; each failed attempt costs 6 vigor. If every attempt fails, or vigor falls to the threshold while searching, the mission ends as a retreat without the fight.
 - **Encounters:** each non-final step is an encounter with probability `encounterChance` times every member's `encounterMul`, with the enemy drawn by weight from the zone.
+
+### Axiom Magic (M10)
+
+- **Spells:** a spell is a Vector, a Form and a Magnitude: Minor 5, Standard 10, Major 20, Grand 35. A caster knows Vectors and Forms (each with affinity points) and equips a loadout of up to 3 spells. Only Vectors and Forms at or below the settlement's Knowledge Tier can be learned, and a spell's Magnitude is capped by both its pair's unlocked Magnitude (Minor until a Breakthrough raises it) and the Knowledge Tier's cap: Tier 1 Standard, Tier 2 Major, Tier 3 and up Grand.
+- **Knowledge Tier:** the settlement's era. Tier 1 Runic Literacy from the start; Tier 2 Vector Dynamics and Tier 3 Conservation Axioms are researched (`knowledge_tiers.json` names the tech).
+- **Repertoire:** CP for a caster = 4 x Level + 1.5 x (Stat 1 + Stat 2) + Gear + Skill + Arcane + Repertoire, where Repertoire is the sum over the cast spells of SpellValue x Matchup. SpellValue = Magnitude + floor((Vector affinity + Form affinity) / 2). Matchup is 1.5 against an enemy weak to the Vector (`weakTo`), 0.6 against one that resists it (`resists`), else 1. Outside a fight (the Hall preview), every equipped spell counts at Matchup 1.
+- **Focus Points:** FP max = 5 + 2 x Level + WIL + INT, plus 1 per level with Arcane Affinity. A caster starts every mission at full FP. In each fight the caster casts their loadout in order; each cast costs its Magnitude (less any flat reduction), and a spell they cannot afford is not cast.
+- **Instability:** a cast costing more than 50% of the caster's current FP needs a Stability Check. The caster risks it only when the squad's win chance without that spell is under 0.5; otherwise they hold it back. StabilityRoll = d20 + INTmod + 2 x KnowledgeTier, with INTmod = floor((INT - 10) / 2). DC = 10 + round((FPspent% - 50) / 2) - WILmod, with WILmod = max(0, floor((WIL - 10) / 2)) and FPspent% the cost as a percent of current FP. Failing by 1 to 3 is Reduced Effect (the spell counts at 0.7), by 4 to 6 a Misfire (no effect, FP spent), by 7 to 9 Backlash (no effect, FP spent, and the caster is wounded), and by 10 or more a Wild Surge (a random Vector at Minor, which adds or subtracts 5 x Matchup with even odds). The result folds into that fight's Squad Power.
+- **Caster growth:** a caster's Primary roll (every level) is on their Vector table: an unknown Vector is learned, a known one gains 1 affinity. Their Secondary roll (even levels) is on their Form table the same way. A Breakthrough (every 5th level) raises the Magnitude unlocked for the pair they have cast most (`pairUses`), or their highest-affinity pair if they have not cast yet. Pity and the INT weight work as for talents; Mana Sensitive adds 10% weight to unknown Vectors. Casters do not roll talents.
+- **Specializations:** at Knowledge Tier 2 and level 8, a character of the listed class may specialize once. It adds its roll modifiers to the Vector table (then renormalized), makes the character a caster if they were not, and applies its effects (`specializations.json`).
 
 ### Rewards and aftermath
 
@@ -352,8 +362,8 @@ The Systems reference above is what the beta does. This section is the full desi
 
 | Area | Beta (built) | Full design (to build) | Milestone |
 | --- | --- | --- | --- |
-| Spells | A mage has one fixed Vector and gets +4 or -3 Combat Power against weak or resistant enemies | Spells are Vector + Form + Magnitude, and Combat Power adds a repertoire bonus | M10 |
-| Casting cost | None | Focus Points, with an Instability check on big casts | M10 |
+| Spells | A mage has one fixed Vector and gets +4 or -3 Combat Power against weak or resistant enemies | Spells are Vector + Form + Magnitude, and Combat Power adds a repertoire bonus | M10 (built) |
+| Casting cost | None | Focus Points, with an Instability check on big casts | M10 (built) |
 | Level-up | 2 stat points, then a 55% talent roll with pity after 3 dry levels | Primary roll every level, Secondary on even levels, Breakthrough on every 5th, pity after 3 dry levels | M9 (built) |
 | Squad synergy | Bond average plus 0.03 flags, trait pairs add or subtract 0.03 | Bond average plus composition rules (front and back +10%, support +8%, casters without a front-liner -15%) | M9 (built) |
 | Bond gain | +3 after a success, +1 after a retreat | Scaled by how close the fight was, trait compatibility and outcome, with decay and special events | M9 (built) |
@@ -504,6 +514,11 @@ These are not specified anywhere yet. Claude Code should put them in data files 
 | Talent ranks (M9, chosen) | Up to 3. Each talent's `perRank` in `talents.json` says what a rank adds |
 | Perception and locate (M9, chosen) | PerceptionMod 1 + 0.04 x (average PER - 6), clamped 0.8 to 1.4. P_locate 0.35 + 0.05 x best PER + 0.05 x hunt proficiency, at most 0.95, 3 tries at 6 vigor each |
 | Grief length (M9, chosen) | 2 missions, or 3 if the bond with the dead was 41 or more |
+| Spell value (M10, chosen) | Magnitude + floor((Vector affinity + Form affinity) / 2) |
+| Risking a big cast (M10, chosen) | Only when the squad's win chance without the spell is under 0.5 |
+| WIL and Instability (M10, chosen) | WILmod = max(0, floor((WIL - 10) / 2)) comes off the DC |
+| Backlash and Wild Surge (M10, chosen) | Backlash wounds the caster. A Wild Surge is a random Vector at Minor, plus or minus with even odds |
+| Specialization (M10, chosen) | Knowledge Tier 2 and level 8; once per character; makes them a caster |
 | Protective talent (M9, added) | Guardian: squadmates' deaths 10% less likely. Life Debt leans the saved character's next roll toward it |
 
 ## Recruitment and the Expedition Hall
