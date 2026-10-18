@@ -1,0 +1,273 @@
+:root{
+  --parchment:#e8ddc4;
+  --parchment-dark:#d4c49f;
+  --ink:#2b2318;
+  --bark:#5a3d24;
+  --ember:#c9702e;
+  --ember-bright:#e6934a;
+  --moss:#4b5d3a;
+  --stone-grey:#6d6a63;
+  --danger:#8c2f2f;
+  --locked:#9a8f78;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  font-family:'Georgia', 'Iowan Old Style', serif;
+  background:#181410;
+  color:var(--ink);
+  overflow:hidden;
+}
+#game-root{
+  position:relative;
+  width:100vw;
+  height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+canvas{
+  background:#3c5a30;
+  display:block;
+  box-shadow:0 0 60px rgba(0,0,0,0.6);
+  cursor:crosshair;
+}
+
+/* ---- Top resource bar ---- */
+#resource-bar{
+  position:absolute;
+  top:14px;
+  left:50%;
+  transform:translateX(-50%);
+  display:flex;
+  gap:2px;
+  background:var(--parchment);
+  border:2px solid var(--bark);
+  border-radius:6px;
+  padding:6px 10px;
+  box-shadow:0 3px 0 rgba(0,0,0,0.3);
+  z-index:10;
+}
+.res-chip{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding:2px 12px;
+  border-right:1px solid var(--parchment-dark);
+  font-size:14px;
+  letter-spacing:0.3px;
+}
+.res-chip:last-child{border-right:none;}
+.res-icon{font-size:15px; display:inline-flex; align-items:center;}
+.res-icon img{width:16px; height:16px; image-rendering:pixelated;}
+.res-val{font-weight:700; min-width:20px; display:inline-block; text-align:right;}
+
+/* ---- Status / log ---- */
+#status-log{
+  position:absolute;
+  top:112px;
+  left:14px;
+  width:260px;
+  max-height:140px;
+  overflow:hidden;
+  font-size:12px;
+  color:#f0e6c8;
+  text-shadow:0 1px 2px #000;
+  pointer-events:none;
+  z-index:10;
+}
+#status-log div{
+  background:rgba(20,16,10,0.55);
+  padding:3px 8px;
+  margin-bottom:2px;
+  border-radius:3px;
+  border-left:2px solid var(--ember);
+}
+
+/* ---- Vitals (HP / Hunger) ---- */
+#vitals{
+  position:absolute;
+  top:14px;
+  left:14px;
+  z-index:10;
+  background:var(--parchment);
+  border:2px solid var(--bark);
+  border-radius:6px;
+  padding:8px 12px;
+  width:150px;
+}
+.vital-row{margin-bottom:6px;}
+.vital-label{font-size:11px; text-transform:uppercase; letter-spacing:1px; margin-bottom:2px; color:#4a3d28;}
+.vital-track{height:10px; background:#00000022; border-radius:5px; overflow:hidden; border:1px solid var(--bark);}
+.vital-fill{height:100%; transition:width 0.25s;}
+#hp-fill{background:var(--danger);}
+#hunger-fill{background:var(--moss);}
+
+/* ---- Bottom action bar ---- */
+#action-bar{
+  position:absolute;
+  bottom:16px;
+  left:50%;
+  transform:translateX(-50%);
+  display:flex;
+  gap:10px;
+  z-index:10;
+}
+.tab-btn{
+  background:var(--bark);
+  color:var(--parchment);
+  border:2px solid #3a2716;
+  border-radius:6px;
+  padding:10px 18px;
+  font-family:inherit;
+  font-size:13px;
+  letter-spacing:0.5px;
+  cursor:pointer;
+  box-shadow:0 3px 0 #2a1c10;
+  transition:transform .08s;
+}
+.tab-btn:hover{background:#6e4a2c;}
+.tab-btn:active{transform:translateY(2px); box-shadow:0 1px 0 #2a1c10;}
+.tab-btn.active{background:var(--ember); border-color:#7a3f14;}
+
+/* ---- Panels (Crafting / Build / Tech) ---- */
+.panel{
+  position:absolute;
+  bottom:74px;
+  left:50%;
+  transform:translateX(-50%);
+  width:560px;
+  max-height:360px;
+  overflow-y:auto;
+  background:var(--parchment);
+  border:3px solid var(--bark);
+  border-radius:8px;
+  padding:16px 18px;
+  display:none;
+  z-index:20;
+  box-shadow:0 8px 24px rgba(0,0,0,0.5);
+}
+.panel.open{display:block;}
+.panel h3{
+  margin:0 0 10px;
+  font-size:16px;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  border-bottom:2px solid var(--parchment-dark);
+  padding-bottom:8px;
+}
+.item-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:8px 10px;
+  margin-bottom:6px;
+  background:rgba(255,255,255,0.35);
+  border-radius:5px;
+  border:1px solid var(--parchment-dark);
+}
+.item-row.locked{opacity:0.55;}
+.item-name{font-weight:700; font-size:13px;}
+.item-desc{font-size:11px; color:#5a4c33; margin-top:2px;}
+.item-cost{font-size:11px; color:#4a3d28; margin-top:3px;}
+.item-cost .met{color:#2f6b2f;}
+.item-cost .unmet{color:#8c2f2f;}
+.craft-btn{
+  background:var(--moss);
+  color:#fff;
+  border:none;
+  border-radius:4px;
+  padding:7px 14px;
+  font-size:12px;
+  cursor:pointer;
+  font-family:inherit;
+}
+.craft-btn:disabled{background:var(--locked); cursor:not-allowed;}
+.tech-node{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:10px;
+  margin-bottom:6px;
+  border-radius:5px;
+  border:1px solid var(--parchment-dark);
+}
+.tech-node.unlocked{background:#dcefd0; border-color:#7fa568;}
+.tech-node.locked{background:rgba(0,0,0,0.05);}
+
+#hint{
+  position:absolute;
+  bottom:16px;
+  right:16px;
+  background:rgba(20,16,10,0.6);
+  color:#f0e6c8;
+  padding:8px 12px;
+  border-radius:6px;
+  font-size:11px;
+  max-width:220px;
+  z-index:10;
+  line-height:1.5;
+}
+
+#title-banner{
+  position:absolute;
+  top:14px;
+  right:14px;
+  background:var(--parchment);
+  border:2px solid var(--bark);
+  border-radius:6px;
+  padding:8px 14px;
+  font-size:13px;
+  z-index:10;
+  text-align:right;
+}
+#title-banner .day{font-weight:700; display:block; font-size:15px;}
+
+/* ---- Beta additions: roster, hall, report modal ---- */
+.panel.wide{width:760px; max-height:440px;}
+.tab-btn{padding:10px 14px;}
+.muted{color:#6b5d42;}
+.small{font-size:11px;}
+.good{color:#2f6b2f;} .bad{color:#8c2f2f;}
+h4{margin:12px 0 6px; font-size:12px; text-transform:uppercase; letter-spacing:1px; color:#4a3d28;}
+.char-card{background:rgba(255,255,255,0.4); border:1px solid var(--parchment-dark); border-radius:6px; padding:8px 10px; margin-bottom:8px; font-size:12px;}
+.char-card.hurt{border-color:#b86b6b; background:rgba(200,120,120,0.15);}
+.char-card.offer{border-style:dashed;}
+.char-head{display:flex; gap:8px; align-items:baseline; flex-wrap:wrap;}
+.char-head .status{margin-left:auto; font-size:11px;}
+.xpbar{height:4px; background:#00000022; border-radius:2px; margin:5px 0;}
+.xpbar div{height:100%; background:var(--ember); border-radius:2px;}
+.stats{display:flex; gap:8px; flex-wrap:wrap; margin:4px 0;}
+.stat{font-size:11px; padding:1px 6px; border-radius:3px; background:#0000000d;}
+.stat.primary{background:#c9702e33; font-weight:700;}
+.stat.cpval{margin-left:auto; background:#4b5d3a33; font-weight:700;}
+.chips{display:flex; gap:4px; flex-wrap:wrap; margin:4px 0;}
+.chip{font-size:10px; padding:1px 7px; border-radius:9px; background:#d4c49f; cursor:help;}
+.chip.trait-uncommon{background:#b9d3e8;} .chip.trait-notable{background:#e8c96b;} .chip.talent{background:#cfe8b9;}
+.gear{display:flex; gap:14px; font-size:11px; margin:4px 0;}
+.gear select{font-family:inherit; font-size:11px;}
+.bondline{font-size:10px; color:#6b5d42;}
+.realm-name{font-size:15px; font-weight:700;}
+.zones{display:flex; gap:6px; margin:8px 0;}
+.zone-btn{flex:1; font-family:inherit; font-size:12px; padding:6px; border:2px solid var(--bark); background:rgba(255,255,255,0.4); border-radius:5px; cursor:pointer;}
+.zone-btn.active{background:var(--ember-bright); color:#fff;}
+.zone-btn:disabled{opacity:0.45; cursor:not-allowed;}
+.row{display:flex; align-items:center; gap:10px; margin:8px 0; flex-wrap:wrap; font-size:12px;}
+.squad-pick{display:grid; grid-template-columns:1fr 1fr; gap:4px;}
+.pick{font-size:12px; padding:4px 8px; border:1px solid var(--parchment-dark); border-radius:4px; background:rgba(255,255,255,0.35);}
+.pick.locked{opacity:0.5;}
+.preview{margin:8px 0; padding:8px 10px; background:#fff6; border-left:3px solid var(--moss); font-size:12px;}
+.craft-btn.big{padding:9px 20px; font-size:13px;}
+.craft-btn.danger{background:var(--danger);}
+.log-row{font-size:11px; padding:3px 6px; cursor:pointer; border-bottom:1px solid var(--parchment-dark);}
+.log-row:hover{background:#fff5;}
+.out-success{color:#2f6b2f;} .out-retreat{color:#a06a1a;} .out-wipe{color:#8c2f2f;}
+#modal{position:absolute; inset:0; background:rgba(0,0,0,0.55); display:none; align-items:center; justify-content:center; z-index:50;}
+#modal.open{display:flex;}
+#modal-card{background:var(--parchment); border:3px solid var(--bark); border-radius:8px; width:560px; max-height:80vh; overflow-y:auto; padding:18px 22px;}
+#modal-card h3{margin:0 0 8px;}
+.out-banner{font-size:15px; font-weight:700; margin-bottom:4px;}
+.events{margin:4px 0; padding-left:18px; font-size:12px;}
+.fragment{background:#e8c96b55; padding:6px 10px; border-radius:4px;}
+
+#modal-body p{font-size:13px; margin:6px 0;}
