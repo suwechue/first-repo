@@ -1,6 +1,7 @@
 // Always-visible HUD: resource bar, Knowledge and day, vitals, message log.
 import { D } from '../core/content.js';
 import { $, esc, label } from './dom.js';
+import { assets } from '../render/assets.js';
 
 export function updateResourceBar(s) {
   const bar = $('resource-bar');
@@ -11,7 +12,9 @@ export function updateResourceBar(s) {
     const chip = document.createElement('div');
     chip.className = 'res-chip';
     chip.title = label(k);
-    chip.innerHTML = `<span class="res-icon">${D.materials[k]?.icon || ''}</span><span class="res-val">${v}</span>`;
+    const url = assets.iconUrl(k);
+    const icon = url ? `<img src="${esc(url)}" alt="">` : D.materials[k]?.icon || '';
+    chip.innerHTML = `<span class="res-icon">${icon}</span><span class="res-val">${v}</span>`;
     bar.appendChild(chip);
   }
 }

@@ -5,6 +5,7 @@ import * as C from '../systems/characters.js';
 import { getBond, bondTier } from '../systems/bonds.js';
 import { recruit, recruitCost, rosterCap } from '../systems/recruiting.js';
 import { combatPower } from '../systems/missions.js';
+import { assets } from '../render/assets.js';
 import { log, changed } from '../systems/log.js';
 
 const STAT_LABELS = D.tiers.stats.labels;
@@ -62,8 +63,10 @@ export function renderRoster(s) {
       })
       .join(' · ');
     const vec = c.vectors.length ? ` · Vector: ${c.vectors.join(', ')}` : '';
+    const portrait = assets.spriteUrl('portrait_' + c.id) || assets.spriteUrl('portrait_' + c.cls);
     html += `
       <div class="char-card ${C.isInjured(s, c) ? 'hurt' : ''}">
+        ${portrait ? `<img class="portrait" src="${esc(portrait)}" alt="">` : ''}
         <div class="char-head"><b>${esc(c.name)}</b> <span class="muted">${cl.name} · Lv ${c.level} · ${D.tiers.tiers[c.tier].label}${vec}</span>
           <span class="status">${statusText(s, c)}</span></div>
         <div class="xpbar"><div style="width:${pct}%"></div></div>

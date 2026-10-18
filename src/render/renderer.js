@@ -1,13 +1,30 @@
 // Canvas drawing for the single-screen world. Reads state; never changes it.
-// M1 draws placeholder shapes only; the manifest-driven art pipeline arrives in M2.
+// Every object tries its manifest sprite first and falls back to a placeholder shape.
 // `view` carries derived facts the caller computes from the systems: nexusStage, nexusPrompt, target.
 import { D } from '../core/content.js';
 import { drawPlaceholder } from './placeholders.js';
+import { drawSprite, dirIndex } from './sprites.js';
 
-export function createRenderer(canvas) {
+export function createRenderer(canvas, assets) {
   const ctx = canvas.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
   const W = D.game.canvas.w;
   const H = D.game.canvas.h;
+  const lastPos = new Map(); // id -> {x, y}, to tell walking from standing
+  let now = 0;
+
+  /** True if `obj` moved since the last frame drawn. */
+  function moved(id, obj) {
+    const p = lastPos.get(id);
+    lastPos.set(id, { x: obj.x, y: obj.y });
+    return !!p && (Math.abs(p.x - obj.x) > 0.01 || Math.abs(p.y - obj.y) > 0.01);
+  }
+
+  /** The sprite if its art is loaded, else the placeholder shape. */
+  function drawThing(key, def, obj, opts) {
+    if (!drawSprite(ctx, assets, key, obj.x, obj.y, { time: now, ...opts }))
+      drawPlaceholder(ctx, def, obj, obj.x, obj.y);
+  }
 
   function drawGround() {
     ctx.fillStyle = '#3c5a30';
@@ -17,8 +34,13 @@ export function createRenderer(canvas) {
   }
 
   function drawResource(node) {
-    if (node.amount <= 0) return; // depleted, hidden until respawn
-    drawPlaceholder(ctx, D.resources[node.type], node, node.x, node.y);
+    const def = D.resources[node.type];
+    if (node.amount <= 0) {
+      // Depleted: the sprite's second frame if there is art, otherwise hidden until respawn.
+      drawSprite(ctx, assets, def.sprite, node.x, node.y, { anim: 'depleted' });
+      return;
+    }
+    drawThing(def.sprite, def, node, { anim: 'full' });
     ctx.save();
     ctx.fillStyle = 'rgba(255,255,255,0.85)';
     ctx.font = '9px Georgia';
@@ -31,9 +53,12 @@ export function createRenderer(canvas) {
     const N = D.nexus;
     const { x, y } = N.position;
     const stage = view.nexusStage;
+    const art = drawSprite(ctx, assets, N.sprites[stage], x, y, { time: now });
     ctx.save();
     ctx.translate(x, y);
-    if (stage === 'buried') {
+    if (art) {
+      // drawn from the manifest
+    } else if (stage === 'buried') {
       ctx.fillStyle = '#5b4a35';
       ctx.beginPath();
       ctx.ellipse(0, 8, 40, 20, 0, 0, Math.PI * 2);
@@ -94,18 +119,38 @@ export function createRenderer(canvas) {
   }
 
   function drawBuilding(b) {
-    drawPlaceholder(ctx, D.buildings[b.type], b, b.x, b.y);
+    const def = D.buildings[b.type];
+    drawThing(def.sprite, def, b);
   }
 
   function drawEnemy(e) {
-    drawPlaceholder(ctx, D.enemies[e.type], e, e.x, e.y);
+    const def = D.enemies[e.type];
+    const O = def.overworld;
+    const toPlayer = { x: lastPlayer.x - e.x, y: lastPlayer.y - e.y };
+    const attacking = e.attackCooldown > O.attackCooldown - 15;
+    const walking = moved(e.id, e);
+    drawThing(def.sprite, def, e, {
+      anim: attacking ? 'attack' : walking ? 'walk' : 'idle',
+      dir: dirIndex(
+        e.state === 'aggro'
+          ? toPlayer
+          : e.wanderTarget && { x: e.wanderTarget.x - e.x, y: e.wanderTarget.y - e.y },
+      ),
+    });
     ctx.fillStyle = '#222';
     ctx.fillRect(e.x - 12, e.y - 20, 24, 4);
     ctx.fillStyle = '#c94f4f';
     ctx.fillRect(e.x - 12, e.y - 20, 24 * (e.hp / e.maxHp), 4);
   }
 
-  function drawPlayer(p) {
+  let lastPlayer = { x: 0, y: 0 };
+
+  function drawPlayer(p, s, view) {
+    const walking = moved('player', p);
+    const attacking = s.gatherCooldown > 0 && view.enemy;
+    const anim = attacking ? 'attack' : walking ? 'walk' : 'idle';
+    if (drawSprite(ctx, assets, 'player', p.x, p.y + 10, { anim, dir: dirIndex(p.facing), time: now }))
+      return;
     ctx.save();
     ctx.translate(p.x, p.y);
     ctx.fillStyle = '#c9702e';
@@ -148,14 +193,16 @@ export function createRenderer(canvas) {
   }
 
   return {
-    draw(s, view, mouse, now) {
+    draw(s, view, mouse, time) {
+      now = time;
+      lastPlayer = s.player;
       drawGround();
       drawNexus(s, view, now);
       for (const b of s.buildings) drawBuilding(b);
       for (const r of s.resources) drawResource(r);
       for (const e of s.enemies) drawEnemy(e);
       drawTargetHint(s, view);
-      drawPlayer(s.player);
+      drawPlayer(s.player, s, view);
       drawPlacingGhost(s, mouse);
     },
   };

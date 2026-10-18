@@ -1,9 +1,12 @@
 // The expedition report modal.
 import { D } from '../core/content.js';
 import { $, esc, label } from './dom.js';
+import { assets } from '../render/assets.js';
 
 export function showReport(r) {
-  const zn = D.realms[r.realm].zones[r.zone].name;
+  const zone = D.realms[r.realm].zones[r.zone];
+  const zn = zone.name;
+  const art = assets.spriteUrl(zone.banner);
   const fmt = (o) =>
     Object.entries(o)
       .map(([k, v]) => `${v} ${esc(label(k))}`)
@@ -14,7 +17,7 @@ export function showReport(r) {
       : r.outcome === 'retreat'
         ? 'The squad retreated'
         : 'The squad was lost';
-  let h = `<h3>${esc(zn)} — ${D.mission.objectives[r.objective].label}</h3>
+  let h = `${art ? `<img class="realm-banner" src="${esc(art)}" alt="">` : ''}<h3>${esc(zn)} — ${D.mission.objectives[r.objective].label}</h3>
     <div class="out-banner out-${r.outcome}">${banner}</div>
     <div class="muted small">Squad: ${r.squad.map(esc).join(', ')} · ${r.stepsDone}/${r.steps} steps · vigor ${r.vigorEnd}% · synergy ${r.synergy >= 0 ? '+' : ''}${Math.round(r.synergy * 100)}% · retreat at ${r.retreat}%</div>
     <h4>Account</h4><ul class="events">${r.events.map((e) => `<li>${esc(e)}</li>`).join('')}</ul>

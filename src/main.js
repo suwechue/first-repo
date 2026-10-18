@@ -9,12 +9,14 @@ import { nexusStage, nexusPrompt } from './systems/nexus.js';
 import { exitPlacing, tryPlaceBuilding } from './systems/building.js';
 import { log } from './systems/log.js';
 import { createRenderer } from './render/renderer.js';
+import { assets } from './render/assets.js';
 import { createUI } from './ui/panels.js';
 import { store, loadStored } from './ui/persistence.js';
 
 const state = makeInitialState();
 const canvas = document.getElementById('game');
-const renderer = createRenderer(canvas);
+const renderer = createRenderer(canvas, assets);
+assets.load(); // art appears as it arrives; placeholders draw until then
 
 // ---- Input ----
 const keys = {};
@@ -68,6 +70,10 @@ const ui = createUI(state, {
     ui.refreshAll();
     log(state, 'Save imported.');
   },
+});
+
+assets.onLoad((group) => {
+  if (group === 'icon') ui.refreshAll();
 });
 
 const resumed = loadStored(state);

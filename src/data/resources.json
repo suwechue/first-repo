@@ -1,6 +1,6 @@
 {
   "tree": {
-    "sprite": "tree",
+    "sprite": "tree_pine",
     "placeholder": "tree",
     "yields": "wood",
     "color": "#2f4a22",
