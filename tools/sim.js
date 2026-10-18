@@ -12,7 +12,7 @@ import { D } from '../src/core/content.js';
 import { makeInitialState } from '../src/core/state.js';
 import { createRng, useRandomSource } from '../src/core/rng.js';
 import { initStarters, isInjured, equip, build } from '../src/systems/characters.js';
-import { recruit, refreshOffer } from '../src/systems/recruiting.js';
+import { recruit, refreshOffer, dawnArrival } from '../src/systems/recruiting.js';
 import { launch, zoneUnlocked, combatPower } from '../src/systems/missions.js';
 import { loadReference, referenceAvailable } from './reference.js';
 
@@ -44,6 +44,7 @@ function portEngine(seed) {
     launch: (o) => launch(s, o),
     recruit: () => recruit(s),
     refreshOffer: () => refreshOffer(s),
+    dawn: () => dawnArrival(s), // M11: arrivals by chance, paid for in Renown
     equip: (c, slot, item) => equip(s, c, slot, item),
     cp: (c, obj) => combatPower(c, obj),
     injured: (c) => isInjured(s, c),
@@ -64,6 +65,7 @@ function refEngine(seed) {
     launch: (o) => G.missions.launch(o),
     recruit: () => G.characters.recruit(),
     refreshOffer: () => G.characters.refreshOffer(),
+    dawn: () => G.characters.refreshOffer(), // the beta: a new candidate every dawn, paid in food
     equip: (c, slot, item) => G.characters.equip(c, slot, item),
     cp: (c, obj) => G.missions.combatPower(c, obj),
     injured: (c) => G.characters.isInjured(c),
@@ -100,7 +102,7 @@ function missionRates(engine, realm, zone, objective) {
 
 // ---------------------------------------------------------------------------
 // Part 2: a greedy player, from the Nexus waking to the first boss kill.
-// Policy: supplies, food and Overworld materials are plentiful. Everyone gets the best gear the
+// Policy: supplies, food and Overworld materials are plentiful; Renown is earned (since M11 it pays for recruits). Everyone gets the best gear the
 // armory can make. Recruit whenever the roster is under 6. Explore the newest open zone until the
 // next one opens; once the boss zone is open, hunt its boss. Send the 4 strongest healthy members.
 // When fewer than 2 are healthy, wait a day.
@@ -168,7 +170,7 @@ function advanceDay(engine) {
   const s = engine.s;
   s.day++;
   s.dayTimer = 0;
-  engine.refreshOffer();
+  engine.dawn();
 }
 
 function campaign(engine) {

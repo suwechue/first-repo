@@ -745,3 +745,31 @@ table.bonds th {
   border-bottom: 1px solid var(--parchment-dark);
   text-align: left;
 }
+
+/* ---- Recruitment card and Hall v2 ---- */
+.recruit-card .flavor {
+  font-style: italic;
+  margin: 4px 0;
+}
+.recruit-card .tier-badge {
+  font-size: 11px;
+  padding: 1px 6px;
+  border-radius: 8px;
+  background: var(--parchment-dark);
+}
+.recruit-card.tier-uncommon .tier-badge {
+  background: #9fc3e6;
+}
+.recruit-card.tier-rare .tier-badge {
+  background: #e6c86a;
+}
+.chemistry {
+  margin: 6px 0;
+}
+.chemistry .feud {
+  font-weight: 700;
+  text-decoration: underline;
+}
+.saved-squads .chip a {
+  color: inherit;
+}

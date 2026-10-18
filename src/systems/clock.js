@@ -1,7 +1,7 @@
 // The day clock: passive Knowledge, hunger, and what happens at each dawn.
 import { D } from '../core/content.js';
 import { rand } from '../core/rng.js';
-import { refreshOffer } from './recruiting.js';
+import { dawnArrival } from './recruiting.js';
 import { decayBonds } from './bonds.js';
 import { spawnEnemy } from './combat.js';
 import { hungerTick, autoEat } from './player.js';
@@ -31,7 +31,7 @@ export function newDay(s) {
   s.dayTimer = 0;
   s.day++;
   log(s, `Day ${s.day} begins.`);
-  if (s.nexus.awake) refreshOffer(s);
+  if (s.nexus.awake) dawnArrival(s);
   decayBonds(s);
   cue('day');
   const W = D.game.dawnSpawn;

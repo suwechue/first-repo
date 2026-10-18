@@ -8,7 +8,8 @@
     },
     "nudge": {
       "con": 1.4
-    }
+    },
+    "flavor": ["A farmer's child from the river fields, {trait}.", "Raised among barley and goats, {trait}."]
   },
   "hunter": {
     "name": "Hunter",
@@ -20,7 +21,11 @@
     "nudge": {
       "dex": 1.3,
       "per": 1.3
-    }
+    },
+    "flavor": [
+      "A trapper from the far tree line, {trait}.",
+      "Grew up tracking deer in the outskirts, {trait}."
+    ]
   },
   "laborer": {
     "name": "Laborer",
@@ -32,7 +37,8 @@
     },
     "nudge": {
       "str": 1.4
-    }
+    },
+    "flavor": ["A quarry hand with scarred knuckles, {trait}.", "Hauled stone for the old walls, {trait}."]
   },
   "apprentice": {
     "name": "Apprentice",
@@ -45,6 +51,10 @@
     },
     "nudge": {
       "int": 1.4
-    }
+    },
+    "flavor": [
+      "Once apprenticed to a village wise-woman, {trait}.",
+      "Left a half-finished apprenticeship behind, {trait}."
+    ]
   }
 }

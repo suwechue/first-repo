@@ -60,6 +60,7 @@ export function makeInitialState() {
     realms, // per-zone exploration progress
     missionLog: [], // most recent reports, newest first
     recruitOffer: null,
+    squads: [], // saved squads: { name, members: [ids] }
     nextCharId: 1,
     stats: { missions: 0, deaths: 0 },
 

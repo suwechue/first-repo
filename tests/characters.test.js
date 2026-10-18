@@ -78,16 +78,16 @@ describe('Recruits', () => {
     expect(mages).toBeGreaterThan(0);
   });
 
-  it('cost 6, 12 or 24 food; the roster holds 8; recruiting rolls bonds with everyone', () => {
+  it('cost 20, 40 or 80 Renown; the roster holds 8; recruiting rolls bonds with everyone', () => {
     const s = freshState(9);
     s.nexus.awake = true;
     refreshOffer(s);
     const o = s.recruitOffer;
-    expect(recruitCost(o)).toBe({ common: 6, uncommon: 12, rare: 24 }[o.tier]);
-    expect(recruit(s).ok).toBe(false); // no food
-    s.player.inventory.food = 1000;
+    expect(recruitCost(o)).toBe({ common: 20, uncommon: 40, rare: 80 }[o.tier]);
+    expect(recruit(s).ok).toBe(false); // no Renown
+    s.renown = 1000;
     expect(recruit(s).ok).toBe(true);
-    expect(s.player.inventory.food).toBe(1000 - recruitCost(o));
+    expect(s.renown).toBe(1000 - recruitCost(o));
     for (const other of s.roster)
       if (other !== o) expect(s.bonds[[o.id, other.id].sort().join('|')]).toBeDefined();
     while (s.roster.length < 8) {

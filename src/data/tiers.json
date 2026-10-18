@@ -1,8 +1,23 @@
 {
   "recruit": {
     "rosterCap": 8,
-    "costItem": "food",
-    "starterTier": "common"
+    "starterTier": "common",
+    "origin": "overworld_village",
+    "arrival": {
+      "base": 0.25,
+      "perRenown": 0.005,
+      "max": 0.9
+    },
+    "odds": {
+      "uncommon": {
+        "perRenown": 0.05,
+        "maxBonus": 10
+      },
+      "rare": {
+        "perRenown": 0.025,
+        "maxBonus": 5
+      }
+    }
   },
   "stats": {
     "labels": {
@@ -30,21 +45,26 @@
       "weight": 70,
       "budget": 24,
       "traits": 1,
-      "cost": 6
+      "renown": 20
     },
     "uncommon": {
       "label": "Uncommon",
       "weight": 25,
       "budget": 32,
       "traits": 2,
-      "cost": 12
+      "renown": 40
     },
     "rare": {
       "label": "Rare",
       "weight": 5,
       "budget": 42,
       "traits": 3,
-      "cost": 24
+      "renown": 80
+    }
+  },
+  "origins": {
+    "overworld_village": {
+      "name": "Overworld Village"
     }
   }
 }

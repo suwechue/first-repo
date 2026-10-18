@@ -68,6 +68,15 @@ const MIGRATIONS = {
       out.recruitOffer = upgrade(out.recruitOffer);
     return out;
   },
+  // v4 -> v5: Hall v2 (M11). Saved squads, and every character's origin.
+  4(d) {
+    const origin = D.tiers.recruit.origin;
+    const withOrigin = (c) => (c && typeof c === 'object' && !c.origin ? { ...c, origin } : c);
+    const out = { ...d, v: 5, squads: [] };
+    if (Array.isArray(out.roster)) out.roster = out.roster.map(withOrigin);
+    out.recruitOffer = withOrigin(out.recruitOffer);
+    return out;
+  },
 };
 
 /** Returns { data } at SAVE_VERSION, or { error } with a message for the player. */

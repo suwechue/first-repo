@@ -149,5 +149,6 @@
     "max": 0.95,
     "tries": 3,
     "vigorCost": 6
-  }
+  },
+  "savedSquads": 8
 }

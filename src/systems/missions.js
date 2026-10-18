@@ -195,6 +195,33 @@ export function preview(s, ids, realm, zone, objective) {
   };
 }
 
+/** The first pair in a squad at Blood Feud, or null. */
+export function bloodFeud(s, ids) {
+  for (let i = 0; i < ids.length; i++)
+    for (let j = i + 1; j < ids.length; j++) {
+      if (getBond(s, ids[i], ids[j]) <= M.bloodFeud) return [C.byId(s, ids[i]), C.byId(s, ids[j])];
+    }
+  return null;
+}
+
+/** Every pair in a squad with its bond and tier, and the team chemistry they add up to. */
+export function chemistry(s, ids) {
+  const pairs = [];
+  for (let i = 0; i < ids.length; i++)
+    for (let j = i + 1; j < ids.length; j++) {
+      const v = getBond(s, ids[i], ids[j]);
+      pairs.push({
+        a: C.byId(s, ids[i]),
+        b: C.byId(s, ids[j]),
+        value: v,
+        tier: bondTier(v),
+        feud: v <= M.bloodFeud,
+      });
+    }
+  const value = pairs.length ? pairs.reduce((a, p) => a + p.tier.mod, 0) / pairs.length : 0;
+  return { pairs, value };
+}
+
 export function validate(s, o) {
   if (!s.nexus.awake) return 'The Nexus is not awake.';
   if (!D.realms[o.realm] || !zoneDef(o.realm, o.zone)) return 'Unknown destination.';
@@ -210,6 +237,8 @@ export function validate(s, o) {
     if (!c) return 'Unknown squad member.';
     if (C.isInjured(s, c)) return c.name + ' is recovering from an injury.';
   }
+  const feud = bloodFeud(s, ids);
+  if (feud) return `${feud[0].name} and ${feud[1].name} are in a Blood Feud and refuse to deploy together.`;
   const need = ids.length * M.supply.perMember;
   if (s.player.inventory[M.supply.item] < need) return 'You need ' + need + ' Expedition Supplies.';
   return null;

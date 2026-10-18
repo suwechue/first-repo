@@ -3,7 +3,7 @@ import { D } from '../core/content.js';
 import { $, esc } from './dom.js';
 import * as C from '../systems/characters.js';
 import { getBond, bondTier } from '../systems/bonds.js';
-import { recruit, recruitCost, rosterCap } from '../systems/recruiting.js';
+import { recruit, recruitCost, rosterCap, dismiss, arrivalChance } from '../systems/recruiting.js';
 import { combatPower } from '../systems/missions.js';
 import { assets } from '../render/assets.js';
 import { openSheet } from './sheet.js';
@@ -88,12 +88,26 @@ export function renderRoster(s) {
       const st = Object.keys(STAT_LABELS)
         .map((k) => `${STAT_LABELS[k]} ${o.stats[k]}`)
         .join(' ');
-      rec = `<div class="char-card offer"><div class="char-head"><b>${esc(o.name)}</b> <span class="muted">${cl.name} · ${D.tiers.tiers[o.tier].label}</span></div>
+      const skills = Object.entries(cl.skill || {})
+        .filter(([, v]) => v > 0)
+        .map(([k, v]) => `${D.mission.objectives[k].label} +${v}`)
+        .join(' · ');
+      const origin = D.tiers.origins[o.origin]?.name || '';
+      const cost = recruitCost(o);
+      rec = `<div class="char-card offer recruit-card tier-${o.tier}">
+        <div class="char-head"><span class="tier-badge">${D.tiers.tiers[o.tier].label}</span> <b>${esc(o.name)}</b>
+          <span class="muted">${cl.name}${origin ? ' · ' + esc(origin) : ''}${o.bg ? ' · ' + esc(D.backgrounds[o.bg].name) : ''}</span></div>
+        ${o.flavor ? `<div class="flavor">“${esc(o.flavor)}”</div>` : ''}
         <div class="stats muted">${st}</div><div class="chips">${traitChips(o)}</div>
-        <button class="craft-btn" id="btn-recruit">Recruit (${recruitCost(o)} ${D.tiers.recruit.costItem})</button></div>`;
+        ${skills ? `<div class="small muted">Skills: ${skills}</div>` : ''}
+        <div class="row"><button class="craft-btn" id="btn-recruit" ${s.renown >= cost ? '' : 'disabled'}>Recruit (${cost} Renown)</button>
+          <button class="craft-btn" id="btn-dismiss">Dismiss</button>
+          <span class="small muted">You have ${s.renown} Renown.</span></div></div>`;
     } else if (s.roster.length >= rosterCap()) {
       rec = `<p class="muted">Roster full (${rosterCap()}).</p>`;
-    } else rec = '<p class="muted">No one new today. Check back tomorrow.</p>';
+    } else {
+      rec = `<p class="muted">No one is waiting at the Hall. At each dawn someone may arrive (${Math.round(arrivalChance(s) * 100)}% with your Renown).</p>`;
+    }
     html += `<h4>Newcomers</h4>` + rec;
   }
   el.innerHTML = html;
@@ -111,7 +125,14 @@ export function renderRoster(s) {
     rb.addEventListener('click', () => {
       const r = recruit(s);
       log(s, r.msg);
-      changed('inventory');
+      changed('kp');
+      renderRoster(s);
+    });
+  }
+  const db = $('btn-dismiss');
+  if (db) {
+    db.addEventListener('click', () => {
+      log(s, dismiss(s).msg);
       renderRoster(s);
     });
   }

@@ -4,82 +4,95 @@
       "name": "Brave",
       "rarity": "common",
       "desc": "+2 Combat Power.",
-      "cp": 2
+      "cp": 2,
+      "flavor": "who never steps back from a fight"
     },
     "cautious": {
       "name": "Cautious",
       "rarity": "common",
       "desc": "10% less likely to be hurt.",
-      "injuryMul": 0.9
+      "injuryMul": 0.9,
+      "flavor": "who checks every path twice"
     },
     "hardy": {
       "name": "Hardy",
       "rarity": "common",
       "desc": "Counts as +2 CON when taking hits.",
-      "conBonus": 2
+      "conBonus": 2,
+      "flavor": "who shrugs off cold and hunger alike"
     },
     "curious": {
       "name": "Curious",
       "rarity": "common",
       "desc": "+3 Combat Power while exploring.",
-      "exploreCp": 3
+      "exploreCp": 3,
+      "flavor": "who cannot leave a ruin unexplored"
     },
     "quick_tempered": {
       "name": "Quick-Tempered",
       "rarity": "common",
       "desc": "+1 Combat Power, clashes with cautious people.",
-      "cp": 1
+      "cp": 1,
+      "flavor": "with a temper as quick as their hands"
     },
     "keen_eyed": {
       "name": "Keen-Eyed",
       "rarity": "uncommon",
       "desc": "Counts as +2 PER.",
-      "perBonus": 2
+      "perBonus": 2,
+      "flavor": "whose eyes miss nothing"
     },
     "stoic": {
       "name": "Stoic",
       "rarity": "uncommon",
       "desc": "Not shaken by deaths in the squad.",
-      "stoic": true
+      "stoic": true,
+      "flavor": "who has buried friends before and kept walking"
     },
     "silver_tongued": {
       "name": "Silver-Tongued",
       "rarity": "uncommon",
       "desc": "+15% Renown from missions.",
-      "renownMul": 1.15
+      "renownMul": 1.15,
+      "flavor": "who can talk a wolf out of its supper"
     },
     "night_vision": {
       "name": "Night Vision",
       "rarity": "uncommon",
       "desc": "Squad meets fewer ambushes.",
-      "encounterMul": 0.93
+      "encounterMul": 0.93,
+      "flavor": "who walks easily in the dark"
     },
     "mana_sensitive": {
       "name": "Mana Sensitive",
       "rarity": "notable",
       "desc": "+4 arcane power; new Vectors come 10% more easily. Rare gift.",
       "arcane": 4,
-      "newVectorMul": 1.1
+      "newVectorMul": 1.1,
+      "flavor": "who hears the Nexus humming in their sleep"
     },
     "dragon_blood": {
       "name": "Dragon Blood",
       "rarity": "notable",
       "desc": "+6 Combat Power, 20% less likely to be hurt.",
       "cp": 6,
-      "injuryMul": 0.8
+      "injuryMul": 0.8,
+      "flavor": "with old fire in their blood"
     },
     "genius": {
       "name": "Genius",
       "rarity": "notable",
       "desc": "Learns 40% faster.",
-      "xpMul": 1.4
+      "xpMul": 1.4,
+      "flavor": "who learns anything once and never forgets"
     },
     "prodigy": {
       "name": "Prodigy",
       "rarity": "notable",
       "desc": "+3 Combat Power, learns 25% faster.",
       "cp": 3,
-      "xpMul": 1.25
+      "xpMul": 1.25,
+      "flavor": "marked for greatness by everyone who meets them"
     }
   },
   "clash": [

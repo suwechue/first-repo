@@ -120,6 +120,7 @@ export function build(s, spec) {
     lean: null,
     // M10 Axiom Magic
     knowledge: { vectors: {}, forms: {}, pairUses: {}, magnitudes: {} },
+    origin: spec.origin || D.tiers.recruit.origin,
     loadout: [],
     specialization: null,
   };

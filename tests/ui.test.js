@@ -70,7 +70,7 @@ describe('The page', () => {
     click('sys-save');
     expect(document.getElementById('sys-msg').textContent).toBe('Saved.');
     const saved = JSON.parse(localStorage.getItem('primitive_age_save_v1'));
-    expect(saved.v).toBe(4);
+    expect(saved.v).toBe(5);
     expect(saved.roster.length).toBe(4);
   });
 
@@ -103,6 +103,39 @@ describe('The page', () => {
     expect(document.querySelectorAll('#hall-body .log-row').length).toBe(1);
     runFrames(10);
     expect(errors).toEqual([]);
+  });
+
+  it('the Hall will not put a Blood Feud pair in one squad, and shows chemistry', async () => {
+    const saved = JSON.parse(localStorage.getItem('primitive_age_save_v1'));
+    const [a, b] = saved.roster.filter((c) => !c.injuredUntil || c.injuredUntil <= saved.day);
+    const key = [a.id, b.id].sort().join('|');
+    saved.bonds[key] = -95;
+    saved.player.inventory.supplies = 10;
+    click('btn-sys');
+    const file = new File([JSON.stringify(saved)], 'save.json', { type: 'application/json' });
+    const input = document.getElementById('sys-file');
+    Object.defineProperty(input, 'files', { value: [file], configurable: true });
+    input.dispatchEvent(new Event('change'));
+    // the import stores the save once it is applied
+    await vi.waitFor(() =>
+      expect(JSON.parse(localStorage.getItem('primitive_age_save_v1')).bonds[key]).toBe(-95),
+    );
+    click('btn-hall');
+    const pick = (id) => document.querySelector(`#hall-body [data-pick="${id}"]`);
+    pick(a.id).click();
+    expect(pick(b.id).disabled).toBe(true);
+    expect(pick(b.id).closest('label').textContent).toMatch(/Blood Feud/);
+    pick(a.id).click(); // untick: now b can be picked, and a is the one refused
+    pick(b.id).click();
+    expect(pick(a.id).disabled).toBe(true);
+    const others = saved.roster.filter(
+      (c) => c.id !== a.id && c.id !== b.id && !(c.injuredUntil > saved.day),
+    );
+    if (others.length) {
+      pick(others[0].id).click();
+      expect(document.querySelector('#hall-body .chemistry').textContent).toMatch(/team chemistry/);
+    }
+    click('btn-hall');
   });
 
   it('the character sheet shows real data on all four tabs', () => {

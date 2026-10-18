@@ -66,7 +66,10 @@ export function checkData(d) {
     ids(bg.nudge).forEach((st) => need(`backgrounds.${k}.nudge`, st, statKeys, 'stat'));
   }
   need('tiers.recruit.starterTier', d.tiers.recruit.starterTier, d.tiers.tiers, 'tier');
-  need('tiers.recruit.costItem', d.tiers.recruit.costItem, d.materials, 'material');
+  need('tiers.recruit.origin', d.tiers.recruit.origin, d.tiers.origins, 'origin');
+  ids(d.tiers.recruit.odds).forEach((t) => need('tiers.recruit.odds', t, d.tiers.tiers, 'tier'));
+  for (const [k, t] of Object.entries(d.tiers.tiers))
+    if (!(t.renown > 0)) errors.push(`tiers.tiers.${k}.renown: must be a positive Renown cost`);
   d.starterRoster.forEach((sp, i) => {
     need(`starter_roster[${i}].cls`, sp.cls, d.classes, 'class');
     sp.traits.forEach((t) => need(`starter_roster[${i}].traits`, t, traits, 'trait'));

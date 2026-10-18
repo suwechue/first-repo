@@ -29,6 +29,7 @@ const FIELDS = [
   'realms',
   'missionLog',
   'recruitOffer',
+  'squads',
   'nextCharId',
   'stats',
   'logMessages',

@@ -4,6 +4,8 @@ import { emit } from '../core/events.js';
 import { $, esc } from './dom.js';
 import * as C from '../systems/characters.js';
 import * as Ms from '../systems/missions.js';
+import { saveSquad, deleteSquad, squadMembers } from '../systems/squads.js';
+import { getBond } from '../systems/bonds.js';
 import { log, changed } from '../systems/log.js';
 
 const M = D.mission;
@@ -17,7 +19,14 @@ const sel = {
   objective: Object.keys(M.objectives)[0],
   retreat: M.defaultRetreat,
   squad: [],
+  note: '', // a message about the squad picker, such as a refused pick
 };
+
+/** A character at Blood Feud with someone already in the squad, or null. */
+function feudWith(s, id) {
+  for (const other of sel.squad) if (getBond(s, id, other) <= M.bloodFeud) return C.byId(s, other);
+  return null;
+}
 
 export function renderHall(s) {
   const el = $('hall-body');
@@ -62,10 +71,33 @@ export function renderHall(s) {
   html += `<div class="row"><b>Squad</b> <span class="muted">(${M.squad.min}-${M.squad.max}; ${M.supply.perMember} Supply each — you have ${supplies})</span></div><div class="squad-pick">`;
   for (const c of s.roster) {
     const hurt = C.isInjured(s, c);
-    html += `<label class="pick ${hurt ? 'locked' : ''}"><input type="checkbox" data-pick="${c.id}" ${sel.squad.indexOf(c.id) >= 0 ? 'checked' : ''} ${hurt ? 'disabled' : ''}>
-      ${esc(c.name)} <small>${D.classes[c.cls].name} L${c.level} · CP ${Math.round(Ms.combatPower(c, sel.objective))}${hurt ? ' · injured' : ''}${c.grief > 0 ? ' · grieving' : ''}</small></label>`;
+    const feud = sel.squad.includes(c.id) ? null : feudWith(s, c.id);
+    const off = hurt || !!feud;
+    html += `<label class="pick ${off ? 'locked' : ''}" title="${feud ? esc('Blood Feud with ' + feud.name) : ''}"><input type="checkbox" data-pick="${c.id}" ${sel.squad.indexOf(c.id) >= 0 ? 'checked' : ''} ${off ? 'disabled' : ''}>
+      ${esc(c.name)} <small>${D.classes[c.cls].name} L${c.level} · CP ${Math.round(Ms.combatPower(c, sel.objective))}${hurt ? ' · injured' : ''}${c.grief > 0 ? ' · grieving' : ''}${feud ? ' · Blood Feud with ' + esc(feud.name.split(' ')[0]) : ''}</small></label>`;
   }
   html += '</div>';
+  if (sel.note) html += `<div class="bad small">${esc(sel.note)}</div>`;
+
+  // Saved squads.
+  html += '<div class="row saved-squads"><b>Saved squads</b>';
+  for (const q of s.squads) {
+    html += `<span class="chip"><a href="#" data-load-squad="${esc(q.name)}">${esc(q.name)}</a> <a href="#" data-del-squad="${esc(q.name)}" title="Forget this squad">×</a></span>`;
+  }
+  html += `<input id="squad-name" placeholder="Name this squad" maxlength="30" size="14"><button class="craft-btn" id="btn-save-squad" ${sel.squad.length ? '' : 'disabled'}>Save</button></div>`;
+
+  // Chemistry preview: every pair's bond before launch.
+  if (sel.squad.length > 1) {
+    const ch = Ms.chemistry(s, sel.squad);
+    html += '<div class="chemistry small"><b>Chemistry</b> ';
+    html += ch.pairs
+      .map(
+        (p) =>
+          `<span class="${p.value >= 0 ? 'good' : 'bad'}${p.feud ? ' feud' : ''}">${esc(p.a.name.split(' ')[0])} & ${esc(p.b.name.split(' ')[0])}: ${p.tier.name} (${p.value >= 0 ? '+' : ''}${p.value})</span>`,
+      )
+      .join(' · ');
+    html += ` · team chemistry <b>${ch.value >= 0 ? '+' : ''}${Math.round(ch.value * 100)}%</b></div>`;
+  }
 
   const pv = sel.squad.length ? Ms.preview(s, sel.squad, sel.realm, sel.zone, sel.objective) : null;
   if (pv) {
@@ -106,16 +138,44 @@ export function renderHall(s) {
   el.querySelectorAll('[data-pick]').forEach((cb) =>
     cb.addEventListener('change', () => {
       const id = cb.getAttribute('data-pick');
+      sel.note = '';
       if (cb.checked) {
-        if (sel.squad.length >= M.squad.max) {
+        const feud = feudWith(s, id);
+        if (feud) {
           cb.checked = false;
-          return;
-        }
-        sel.squad.push(id);
+          sel.note = `${C.byId(s, id).name} and ${feud.name} are in a Blood Feud and will not deploy together.`;
+        } else if (sel.squad.length >= M.squad.max) cb.checked = false;
+        else sel.squad.push(id);
       } else sel.squad = sel.squad.filter((x) => x !== id);
       renderHall(s);
     }),
   );
+  el.querySelectorAll('[data-load-squad]').forEach((a) =>
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      const ids = squadMembers(s, a.getAttribute('data-load-squad')).filter(
+        (id) => !C.isInjured(s, C.byId(s, id)),
+      );
+      sel.squad = ids.slice(0, M.squad.max);
+      sel.note =
+        ids.length < squadMembers(s, a.getAttribute('data-load-squad')).length
+          ? 'Some of that squad are injured.'
+          : '';
+      renderHall(s);
+    }),
+  );
+  el.querySelectorAll('[data-del-squad]').forEach((a) =>
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      deleteSquad(s, a.getAttribute('data-del-squad'));
+      renderHall(s);
+    }),
+  );
+  $('btn-save-squad').addEventListener('click', () => {
+    const err = saveSquad(s, $('squad-name').value, sel.squad);
+    sel.note = err || '';
+    renderHall(s);
+  });
   $('btn-launch').addEventListener('click', () => {
     const res = Ms.launch(s, { ...order, squad: sel.squad.slice(), retreat: sel.retreat });
     if (!res.ok) {
