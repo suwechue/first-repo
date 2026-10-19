@@ -104,7 +104,7 @@ describe('What each slot does', () => {
     });
     s.frame = 1;
     constantRandom(0.1); // under the block chance
-    update(s, idle);
+    for (let i = 0; i <= D.enemies.wolf.overworld.windup; i++) update(s, idle); // wind-up, then the strike
     expect(s.player.hp).toBe(s.player.maxHp);
     expect(s.logMessages[0]).toMatch(/block/);
   });
@@ -171,7 +171,7 @@ describe('Save v8', () => {
       roster: [{ id: 'c1', cls: 'warrior', gear: { weapon: 'stone_spear', armor: 'hide_armor' } }],
     };
     const { data } = migrate(v7);
-    expect(data.v).toBe(8);
+    expect(data.v).toBe(9);
     expect(data.armory.map((it) => it.base)).toEqual(['stone_axe', 'stone_axe', 'hide_armor']);
     expect(data.roster[0].gear.weapon.base).toBe('stone_spear');
     expect(data.roster[0].gear.body.base).toBe('hide_armor');

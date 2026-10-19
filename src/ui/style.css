@@ -787,3 +787,7 @@ table.bonds th {
 .char-card.you {
   border-color: var(--ember);
 }
+
+.vital-fill.stamina {
+  background: #c9a54a;
+}

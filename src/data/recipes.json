@@ -21,6 +21,17 @@
     "type": "item",
     "item": "stone_spear"
   },
+  "sling": {
+    "name": "Sling",
+    "desc": "Weapon. Press R to fire stones far and hard; weak up close.",
+    "costs": {
+      "fiber": 4,
+      "hide": 1
+    },
+    "requires": ["tanning"],
+    "type": "item",
+    "item": "sling"
+  },
   "wooden_shield": {
     "name": "Wooden Shield",
     "desc": "Off-hand. Blocks some hits outright, and a little armor for a squad member.",

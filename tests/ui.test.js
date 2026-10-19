@@ -79,7 +79,7 @@ describe('The page', () => {
     click('sys-save');
     expect(document.getElementById('sys-msg').textContent).toBe('Saved.');
     const saved = JSON.parse(localStorage.getItem('primitive_age_save_v1'));
-    expect(saved.v).toBe(8);
+    expect(saved.v).toBe(9);
     expect(saved.roster.length).toBe(4);
   });
 

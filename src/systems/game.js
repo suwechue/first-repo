@@ -7,7 +7,7 @@ import { initStarters } from './characters.js';
 import { apply } from '../core/save.js';
 import { getWorld } from '../world/world.js';
 import { nearestInRange, nearestNode, gatherNode, updateResources, nodeAmount } from './gathering.js';
-import { attackEnemy, updateEnemies } from './combat.js';
+import { attackEnemy, updateEnemies, updatePlayerCombat } from './combat.js';
 import { inNexusRange, interactNexus, nexusPrompt } from './nexus.js';
 import { updateExploration, landmarkInReach, landmarkPrompt, interactLandmark } from './exploration.js';
 import { updateExpeditions } from './missions.js';
@@ -103,8 +103,7 @@ export function handleInteract(s) {
   if (!t) return;
   const C = D.game.interact.cooldown;
   if (t.kind === 'enemy') {
-    attackEnemy(s, t.obj);
-    s.gatherCooldown = C.attack;
+    attackEnemy(s, t.obj); // a light attack aimed at it; sets its own cooldown
   } else if (t.kind === 'landmark') {
     interactLandmark(s, t.obj);
     s.gatherCooldown = C.attack;
@@ -127,10 +126,11 @@ export function handleInteract(s) {
 /** One fixed 1/60 s frame. */
 export function update(s, input) {
   if (s.mode === 'STUDYING' && (input.up || input.down || input.left || input.right)) stopStudy(s);
-  if (s.mode === 'EXPLORE') updatePlayer(s, input);
+  if (s.mode === 'EXPLORE' && !s.player.dodge) updatePlayer(s, input);
   else if (s.gatherCooldown > 0) s.gatherCooldown--;
   updateResources(s);
   updateBuildings(s);
+  updatePlayerCombat(s);
   updateEnemies(s);
   updateExploration(s);
   updateResearch(s);

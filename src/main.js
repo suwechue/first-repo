@@ -9,6 +9,7 @@ import { newGame, update, handleInteract, interactTarget } from './systems/game.
 import { nexusStage, nexusPrompt } from './systems/nexus.js';
 import { exitPlacing, tryPlaceBuilding, placementCheck } from './systems/building.js';
 import { darkness, isNight } from './systems/clock.js';
+import { lightAttack, startCharge, releaseHeavy, fireRanged, dodge } from './systems/combat.js';
 import { log } from './systems/log.js';
 import { createRenderer } from './render/renderer.js';
 import { assets } from './render/assets.js';
@@ -67,12 +68,34 @@ window.addEventListener('keydown', (e) => {
     ui.closeModal();
   }
   if (k === 'e') handleInteract(state); // key repeat keeps gathering, limited by the cooldown
+  if (state.mode === 'EXPLORE' && !e.repeat) {
+    if (k === ' ') {
+      e.preventDefault();
+      dodge(state, heldDirection());
+    }
+    if (k === 'q') startCharge(state);
+    if (k === 'r') fireRanged(state);
+  }
   if (k === '=' || k === '+') zoomBy(1);
   if (k === '-' || k === '_') zoomBy(-1);
 });
 window.addEventListener('keyup', (e) => {
-  keys[e.key.toLowerCase()] = false;
+  const k = e.key.toLowerCase();
+  keys[k] = false;
+  if (k === 'q') releaseHeavy(state, aimPoint());
 });
+
+/** The direction the movement keys hold, or null. */
+function heldDirection() {
+  const x = (keys['d'] || keys['arrowright'] ? 1 : 0) - (keys['a'] || keys['arrowleft'] ? 1 : 0);
+  const y = (keys['s'] || keys['arrowdown'] ? 1 : 0) - (keys['w'] || keys['arrowup'] ? 1 : 0);
+  return x || y ? { x, y } : null;
+}
+
+/** Where the mouse points in the world, or null when it is off the canvas. */
+function aimPoint() {
+  return mouse ? renderer.toWorld(mouse) : null;
+}
 window.addEventListener('blur', () => {
   for (const k in keys) keys[k] = false;
 });
@@ -88,10 +111,9 @@ function canvasPoint(e) {
 canvas.addEventListener('mousemove', (e) => (mouse = canvasPoint(e)));
 canvas.addEventListener('mouseleave', () => (mouse = null));
 canvas.addEventListener('click', (e) => {
-  if (state.mode === 'PLACING') {
-    const p = renderer.toWorld(canvasPoint(e));
-    tryPlaceBuilding(state, p.x, p.y);
-  }
+  const p = renderer.toWorld(canvasPoint(e));
+  if (state.mode === 'PLACING') tryPlaceBuilding(state, p.x, p.y);
+  else if (state.mode === 'EXPLORE') lightAttack(state, p); // a click swings toward the mouse
 });
 canvas.addEventListener(
   'wheel',

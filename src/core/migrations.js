@@ -126,6 +126,13 @@ const MIGRATIONS = {
       nextItemId: next,
     };
   },
+  // v8 -> v9: overworld combat (M15). The player gains stamina, full.
+  8(d) {
+    const max = D.game.combat.stamina.max;
+    const player =
+      d.player && typeof d.player === 'object' ? { stamina: max, maxStamina: max, ...d.player } : d.player;
+    return { ...d, v: 9, player };
+  },
 };
 
 /** Returns { data } at SAVE_VERSION, or { error } with a message for the player. */

@@ -43,11 +43,16 @@ const FIELDS = [
   'frame',
 ];
 
+const PLAYER_RUNTIME = ['charge', 'dodge', 'dodgeCooldown', 'staminaRest', 'swing'];
+
 export function serialize(state, savedAt = 0) {
   state.rngState = getRngState();
   const o = { v: SAVE_VERSION, savedAt, tech: {} };
   for (const f of FIELDS) o[f] = state[f];
   for (const k in state.tech) o.tech[k] = !!state.tech[k];
+  // Combat state is runtime only: a held charge, a dodge or a swing never goes into a save.
+  o.player = { ...state.player };
+  for (const k of PLAYER_RUNTIME) delete o.player[k];
   return JSON.parse(JSON.stringify(o));
 }
 
@@ -70,6 +75,7 @@ export function apply(state, data) {
   state.player = Object.assign({}, fresh.player, data.player);
   state.player.inventory = Object.assign({}, fresh.player.inventory, data.player.inventory || {});
   state.player.gear = Object.assign({}, fresh.player.gear, data.player.gear || {});
+  for (const k of PLAYER_RUNTIME) state.player[k] = fresh.player[k];
   state.armory = Array.isArray(state.armory) ? state.armory.filter((it) => it && D.items[it.base]) : [];
   state.nexus = Object.assign({}, fresh.nexus, data.nexus || {});
   state.stats = Object.assign({}, fresh.stats, data.stats || {});

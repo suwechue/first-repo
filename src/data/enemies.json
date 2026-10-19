@@ -16,7 +16,8 @@
         "fiber": 1,
         "food": 1,
         "hide": 1
-      }
+      },
+      "windup": 24
     }
   },
   "boar": {
@@ -36,7 +37,8 @@
       "drops": {
         "hide": 2,
         "food": 2
-      }
+      },
+      "windup": 36
     }
   },
   "wild_sprites": {

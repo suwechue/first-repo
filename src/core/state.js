@@ -32,6 +32,14 @@ export function makeInitialState() {
       maxHp: P.hp,
       hunger: P.hunger,
       maxHunger: P.hunger,
+      stamina: D.game.combat.stamina.max,
+      maxStamina: D.game.combat.stamina.max,
+      // runtime combat state (reset on load): a held heavy attack, a dodge, the swing being drawn
+      charge: null,
+      dodge: null,
+      dodgeCooldown: 0,
+      staminaRest: 0,
+      swing: null,
       facing: { x: 0, y: 1 },
       gear: { weapon: null, offhand: null, head: null, body: null, hands: null, feet: null },
       inventory,
@@ -49,6 +57,7 @@ export function makeInitialState() {
     fogRev: 0, // runtime only: bumps when fog or discoveries change, so the map redraws
     buildings: [],
     enemies: [], // runtime only: spawned near the player, never saved
+    projectiles: [], // runtime only: stones in flight
 
     nexus: { dig: 0, awareness: 0, awake: false },
     roster: [], // living characters

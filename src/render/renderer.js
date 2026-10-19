@@ -234,10 +234,57 @@ export function createRenderer(canvas, assets, makeCanvas = () => document.creat
     ctx.fillRect(e.x - 12, e.y - 20, 24, 4);
     ctx.fillStyle = '#c94f4f';
     ctx.fillRect(e.x - 12, e.y - 20, 24 * (e.hp / e.maxHp), 4);
+    if (e.windup > 0) {
+      // the telegraph: a growing red ring and a "!" while the strike winds up
+      const f = 1 - e.windup / O.windup;
+      ctx.strokeStyle = `rgba(230,70,60,${0.4 + 0.6 * f})`;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(e.x, e.y, O.attackRange * (0.5 + 0.5 * f), 0, Math.PI * 2);
+      ctx.stroke();
+      label('!', e.x, e.y - 26, '#ff8a7a');
+    } else if (e.stun > 0) label('✦', e.x, e.y - 26, '#ffd27a');
+  }
+
+  /** The swing arc, a charging heavy attack, and stones in flight. */
+  function drawCombat(s) {
+    const p = s.player;
+    if (p.swing) {
+      const a0 = Math.atan2(p.swing.aim.y, p.swing.aim.x);
+      const half = ((p.swing.arc / 2) * Math.PI) / 180;
+      const f = p.swing.t / D.game.combat.swingFrames;
+      ctx.save();
+      ctx.globalAlpha = 0.55 * (1 - f);
+      ctx.fillStyle = p.swing.heavy ? '#ffd27a' : '#f0e6c8';
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y);
+      ctx.arc(p.x, p.y, p.swing.reach + 6, a0 - half, a0 + half);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+    if (p.charge !== null && p.charge !== undefined) {
+      const H = D.game.combat.heavy;
+      const f = Math.min(1, p.charge / H.chargeFrames);
+      ctx.save();
+      ctx.strokeStyle = f >= 1 ? '#ffd27a' : 'rgba(255,210,122,0.7)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 16, -Math.PI / 2, -Math.PI / 2 + f * Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    }
+    ctx.fillStyle = '#9a9384';
+    for (const pr of s.projectiles) {
+      ctx.beginPath();
+      ctx.arc(pr.x, pr.y, 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
   }
 
   function drawPlayer(s, view) {
     const p = s.player;
+    if (p.dodge) ctx.globalAlpha = 0.55;
     const walking = moved('player', p);
     const attacking = s.gatherCooldown > 0 && view.enemy;
     const anim = attacking ? 'attack' : walking ? 'walk' : 'idle';
@@ -246,6 +293,7 @@ export function createRenderer(canvas, assets, makeCanvas = () => document.creat
     shadow(p.x, p.y + 8, 9);
     ctx.save();
     ctx.translate(p.x, p.y);
+    ctx.globalAlpha = p.dodge ? 0.55 : 1;
     ctx.fillStyle = '#c9702e';
     ctx.beginPath();
     ctx.arc(0, 0, 10, 0, Math.PI * 2);
@@ -258,6 +306,7 @@ export function createRenderer(canvas, assets, makeCanvas = () => document.creat
     ctx.arc(p.facing.x * 9, p.facing.y * 9, 2.5, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
+    ctx.globalAlpha = 1;
   }
 
   function drawTargetHint(s, view) {
@@ -385,6 +434,7 @@ export function createRenderer(canvas, assets, makeCanvas = () => document.creat
 
       tiles.draw(ctx, world, cam);
       drawObjects(s, view, world);
+      drawCombat(s);
       drawFog(s, world);
       drawTargetHint(s, view);
       if (view.nexusPrompt) label(view.nexusPrompt, world.nexus.x, world.nexus.y - 52);

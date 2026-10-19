@@ -217,7 +217,9 @@ describe('Stage 1 playthrough', () => {
     };
     s.enemies.push(wolf);
     s.frame = 1; // not an ambient spawn frame
-    update(s, idle);
+    update(s, idle); // the wolf starts its wind-up (the telegraph)
+    expect(wolf.windup).toBe(D.enemies.wolf.overworld.windup);
+    for (let i = 0; i < D.enemies.wolf.overworld.windup; i++) update(s, idle);
     expect(s.player.hp).toBe(18);
     for (let i = 0; i < 20 && s.enemies.includes(wolf); i++) {
       s.gatherCooldown = 0;

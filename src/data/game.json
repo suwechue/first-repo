@@ -62,7 +62,7 @@
   "logSize": 6,
   "save": {
     "key": "primitive_age_save_v1",
-    "version": 8
+    "version": 9
   },
   "messages": {
     "newGame": [
@@ -122,5 +122,44 @@
       "base": 8,
       "perInt": 2
     }
+  },
+  "combat": {
+    "unarmedType": "fists",
+    "stamina": {
+      "max": 100,
+      "regen": 0.6,
+      "regenDelay": 30
+    },
+    "light": {
+      "stamina": 8
+    },
+    "heavy": {
+      "stamina": 25,
+      "minCharge": 12,
+      "chargeFrames": 45,
+      "mul": [1.6, 2.6],
+      "extraArc": 30,
+      "knockbackMul": 2,
+      "knockbackBase": 6,
+      "stun": 30,
+      "recovery": 8
+    },
+    "ranged": {
+      "stamina": 10,
+      "ammo": "stone",
+      "dmg": 2,
+      "range": 180,
+      "speed": 7,
+      "cooldown": 22
+    },
+    "dodge": {
+      "stamina": 22,
+      "frames": 14,
+      "distance": 72,
+      "iframes": 12,
+      "cooldown": 30
+    },
+    "reachSlack": 8,
+    "swingFrames": 9
   }
 }

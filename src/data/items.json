@@ -13,6 +13,13 @@
     "gear": 4,
     "dmg": 4
   },
+  "sling": {
+    "name": "Sling",
+    "slot": "weapon",
+    "weaponType": "sling",
+    "gear": 2,
+    "dmg": 5
+  },
   "wildwood_spear": {
     "name": "Wildwood Spear",
     "slot": "weapon",

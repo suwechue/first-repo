@@ -35,6 +35,8 @@ export function updateDayLabel(s) {
 export function updateVitals(s) {
   $('hp-fill').style.width = (s.player.hp / s.player.maxHp) * 100 + '%';
   $('hunger-fill').style.width = (s.player.hunger / s.player.maxHunger) * 100 + '%';
+  const st = $('stamina-fill');
+  if (st) st.style.width = (s.player.stamina / s.player.maxStamina) * 100 + '%';
 }
 
 export function renderLog(s) {

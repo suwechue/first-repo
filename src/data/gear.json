@@ -39,5 +39,38 @@
   },
   "defaultQuality": "standard",
   "armorModCap": 0.5,
-  "playerEffects": ["blockChance", "moveSpeed", "gatherSpeed"]
+  "playerEffects": ["blockChance", "moveSpeed", "gatherSpeed"],
+  "weaponTypes": {
+    "fists": {
+      "label": "Fists",
+      "reach": 32,
+      "arc": 100,
+      "cooldown": 18,
+      "knockback": 0
+    },
+    "axe": {
+      "label": "Axe",
+      "reach": 36,
+      "arc": 130,
+      "cooldown": 26,
+      "knockback": 10
+    },
+    "spear": {
+      "label": "Spear",
+      "reach": 56,
+      "arc": 40,
+      "cooldown": 20,
+      "knockback": 4
+    },
+    "sling": {
+      "label": "Sling",
+      "reach": 32,
+      "arc": 100,
+      "cooldown": 18,
+      "knockback": 0,
+      "ranged": {
+        "range": 300
+      }
+    }
+  }
 }
