@@ -305,6 +305,8 @@ Closeness = \max\left(0.1,\ 1 - 2\,\lvert P_{win} - 0.5\rvert\right)
 P_{injury} = Closeness \cdot 0.35 \cdot (1 - ConMod) \cdot (1 - ArmorMod)
 ```
 
+Gear (M14) is the sum of the `gear` value of every equipped piece, times its quality multiplier. ArmorMod is the sum of `armorMod` over every equipped piece (times quality), capped at 0.5. A piece's `effects` count exactly like a trait's.
+
 - **Combat Power inputs:** Stat 1 and 2 are the class's two primary stats, with trait bonuses added to CON and PER. Skill is the class skill for the objective plus the `cp` effect of all traits and talents plus the objective's own effect (`exploreCp`, `huntCp`, `gatherCp`), plus 2 per point of proficiency the character has in that objective (M9). A talent's effects scale with its rank (see XP and growth). Arcane is the class base plus trait and talent arcane. A caster (M10) adds its Repertoire instead of the beta's floor((INT + WIL) / 3); see Axiom Magic below. Grief multiplies Combat Power by 0.85.
 - **Matchups (M10):** a caster's spells are worth more against an enemy weak to their Vector and less against one that resists it (the Repertoire's matchup multiplier). The beta's flat +4 and -3 per Vector are gone. A character wounded earlier in the same mission fights at 0.8.
 - **Squad Power floor:** after matchups and the wounded multiplier, each member contributes at least 1 Combat Power to the sum.
@@ -347,7 +349,7 @@ P_{injury} = Closeness \cdot 0.35 \cdot (1 - ConMod) \cdot (1 - ArmorMod)
 - **Cost and limits (M11):** recruits cost 20, 40 or 80 Renown by tier. The roster holds 8. One candidate at a time waits at the Hall; the first arrives when the Nexus wakes, and at each dawn with no one waiting (and room on the roster) a new one arrives with chance min(0.9, 0.25 + Renown / 200). Dismiss sends the candidate away, and the next arrival rolls at the next dawn. Each recruit has an origin (only the Overworld Village for now) and a flavor line built from their background and their rarest trait.
 - **Blood Feud (M11):** a pair at Blood Feud (a bond of -86 or lower) refuses to deploy together: the Hall will not add one to a squad holding the other, and a launch with both fails. Commanders, who could override this, are out of scope.
 - **Saved squads (M11):** the Hall can save the current squad under a name and load it again later; members who have died drop out of it.
-- **Gear:** each character has a weapon and an armor slot. Crafted items go to a shared armory and are equipped from the Roster.
+- **Gear (M14):** the player and every character have six slots: weapon, off-hand, head, body, hands and feet. Each crafted piece is its own item with a base type, a quality (Crude x0.8, Standard x1, Fine x1.2, Masterwork x1.45 on its numbers) and, from M16, rolled properties. Pieces wait in a shared armory and are equipped from the Roster; a death returns a character's gear to the armory. A piece's numbers: `gear` (squad Combat Power), `armorMod` (squad injury), `dmg` (the player's weapon damage), `defense` (taken off each hit on the player, to a minimum of 1), and `effects`: the same effect keys traits use (for squads) plus player-only ones: `blockChance` (an off-hand blocks a hit outright), `moveSpeed` and `gatherSpeed` (each a fraction added to the base). A freshly crafted piece goes straight onto the player if that slot is empty.
 
 ### Nexus and time
 
