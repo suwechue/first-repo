@@ -12,7 +12,15 @@ import { generate } from '../src/systems/recruiting.js';
 
 const plain = (o) => JSON.parse(JSON.stringify(o));
 /** The port's character limited to the fields the beta's character has. */
-const asBeta = (c, ref) => Object.fromEntries(Object.keys(ref).map((k) => [k, plain(c)[k]]));
+const asBeta = (c, ref) =>
+  Object.fromEntries(
+    Object.keys(ref).map((k) => {
+      // M14's six empty slots stand for the beta's two empty ones.
+      if (k === 'gear')
+        return [k, Object.values(c.gear).every((v) => v === null) ? plain(ref.gear) : plain(c.gear)];
+      return [k, plain(c)[k]];
+    }),
+  );
 
 function pair(seed) {
   const ref = loadReference(createRng(seed));

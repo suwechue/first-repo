@@ -2,31 +2,94 @@
   "stone_axe": {
     "name": "Stone Axe",
     "slot": "weapon",
+    "weaponType": "axe",
     "gear": 3,
     "dmg": 3
   },
   "stone_spear": {
     "name": "Stone Spear",
     "slot": "weapon",
+    "weaponType": "spear",
     "gear": 4,
     "dmg": 4
-  },
-  "hide_armor": {
-    "name": "Hide Armor",
-    "slot": "armor",
-    "gear": 4,
-    "armorMod": 0.12
   },
   "wildwood_spear": {
     "name": "Wildwood Spear",
     "slot": "weapon",
+    "weaponType": "spear",
     "gear": 9,
     "dmg": 6
   },
+  "wooden_shield": {
+    "name": "Wooden Shield",
+    "slot": "offhand",
+    "gear": 1,
+    "defense": 1,
+    "armorMod": 0.04,
+    "effects": {
+      "blockChance": 0.15
+    }
+  },
+  "scout_hood": {
+    "name": "Scout's Hood",
+    "slot": "head",
+    "gear": 1,
+    "armorMod": 0.02,
+    "effects": {
+      "perBonus": 1
+    }
+  },
+  "hide_cap": {
+    "name": "Hide Cap",
+    "slot": "head",
+    "gear": 1,
+    "defense": 1,
+    "armorMod": 0.05
+  },
+  "hide_armor": {
+    "name": "Hide Armor",
+    "slot": "body",
+    "gear": 4,
+    "defense": 2,
+    "armorMod": 0.12
+  },
   "verdant_cloak": {
     "name": "Verdant Cloak",
-    "slot": "armor",
+    "slot": "body",
     "gear": 8,
-    "armorMod": 0.22
+    "defense": 2,
+    "armorMod": 0.18,
+    "effects": {
+      "encounterMul": 0.95
+    }
+  },
+  "hide_gloves": {
+    "name": "Hide Gloves",
+    "slot": "hands",
+    "gear": 1,
+    "armorMod": 0.02,
+    "effects": {
+      "gatherSpeed": 0.2,
+      "gatherCp": 1
+    }
+  },
+  "fiber_sandals": {
+    "name": "Fiber Sandals",
+    "slot": "feet",
+    "gear": 0,
+    "effects": {
+      "moveSpeed": 0.06
+    }
+  },
+  "hide_boots": {
+    "name": "Hide Boots",
+    "slot": "feet",
+    "gear": 1,
+    "defense": 1,
+    "armorMod": 0.03,
+    "effects": {
+      "moveSpeed": 0.1,
+      "exploreCp": 1
+    }
   }
 }

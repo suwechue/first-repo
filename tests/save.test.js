@@ -83,7 +83,7 @@ describe('Save and load', () => {
   it('stores the seed and what changed, not the world', () => {
     const s = exploredState();
     const data = serialize(s);
-    expect(data.v).toBe(7);
+    expect(data.v).toBe(8);
     expect(data.seed).toBe(4321);
     expect(data.resources).toBeUndefined();
     expect(data.enemies).toBeUndefined();
@@ -136,7 +136,7 @@ describe('Save and load', () => {
     expect(t.buildings).toEqual([]);
     expect(t.nodes).toEqual({});
     expect(t.player.w).toBeUndefined();
-    expect(serialize(t).v).toBe(7);
+    expect(serialize(t).v).toBe(8);
     // and it plays on
     for (let i = 0; i < 60; i++) update(t, { up: false, down: true, left: false, right: false });
   });
@@ -240,14 +240,21 @@ describe.skipIf(!referenceAvailable())('Importing a beta prototype save (v1)', (
     expect(t.enemies).toEqual([]);
     expect(t.nexus.awake).toBe(true);
     // the beta's fields come across unchanged; character depth fields are filled in by the migration
-    expect(
-      t.roster.map((c, i) => Object.fromEntries(Object.keys(st.roster[i]).map((k) => [k, plain(c)[k]]))),
-    ).toEqual(plain(st.roster));
+    // (gear is compared apart: the beta's two empty slots became six)
+    const betaFields = (c, ref) =>
+      Object.fromEntries(
+        Object.keys(ref)
+          .filter((k) => k !== 'gear')
+          .map((k) => [k, plain(c)[k]]),
+      );
+    const withoutGear = (c) => Object.fromEntries(Object.entries(plain(c)).filter(([k]) => k !== 'gear'));
+    expect(t.roster.map((c, i) => betaFields(c, st.roster[i]))).toEqual(st.roster.map(withoutGear));
+    expect(t.roster.every((c) => Object.keys(c.gear).length === 6)).toBe(true);
     expect(t.roster.every((c) => c.history.length && c.skills && c.talentRanks)).toBe(true);
     expect(Object.keys(t.bondMeta).sort()).toEqual(Object.keys(t.bonds).sort());
     expect(t.bonds).toEqual(plain(st.bonds));
     expect(t.player.inventory).toEqual(plain(st.player.inventory));
-    expect(t.armory).toEqual({ stone_spear: 2 });
+    expect(t.armory.map((it) => it.base)).toEqual(['stone_spear', 'stone_spear']); // counts became pieces
     expect(t.kp).toBe(17);
     expect(t.tech.woodworking).toBe(true);
     expect(t.tech.cooking).toBe(false);

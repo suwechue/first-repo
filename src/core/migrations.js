@@ -92,6 +92,40 @@ const MIGRATIONS = {
       recruitOffer: seat(d.recruitOffer),
     };
   },
+  // v7 -> v8: gear (M14). Armory counts become individual pieces, a character's weapon and armor
+  // move into the weapon and body slots, and the player's best weapon damage becomes a weapon worn.
+  7(d) {
+    let next = 1;
+    const make = (base) => ({ id: 'i' + next++, base, quality: 'standard', props: [] });
+    const slots = () => ({ weapon: null, offhand: null, head: null, body: null, hands: null, feet: null });
+    const armory = [];
+    for (const [base, n] of Object.entries(d.armory && !Array.isArray(d.armory) ? d.armory : {}))
+      if (D.items[base]) for (let k = 0; k < n; k++) armory.push(make(base));
+    const regear = (c) => {
+      if (!c || typeof c !== 'object' || !c.gear || 'feet' in c.gear) return c;
+      const g = slots();
+      if (c.gear.weapon && D.items[c.gear.weapon]) g.weapon = make(c.gear.weapon);
+      if (c.gear.armor && D.items[c.gear.armor]) g.body = make(c.gear.armor);
+      return { ...c, gear: g };
+    };
+    const player = d.player && typeof d.player === 'object' ? { ...d.player, gear: slots() } : d.player;
+    if (player && player.weaponDmg > 1) {
+      const best = Object.keys(D.items)
+        .filter((k) => D.items[k].slot === 'weapon' && D.items[k].dmg <= player.weaponDmg)
+        .sort((a, b) => D.items[b].dmg - D.items[a].dmg)[0];
+      if (best) player.gear.weapon = make(best);
+    }
+    if (player) delete player.weaponDmg;
+    return {
+      ...d,
+      v: 8,
+      player,
+      armory,
+      roster: Array.isArray(d.roster) ? d.roster.map(regear) : d.roster,
+      recruitOffer: regear(d.recruitOffer),
+      nextItemId: next,
+    };
+  },
 };
 
 /** Returns { data } at SAVE_VERSION, or { error } with a message for the player. */

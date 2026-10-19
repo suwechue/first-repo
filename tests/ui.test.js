@@ -67,7 +67,7 @@ describe('The page', () => {
       expect(document.getElementById('panel-' + k).classList.contains('open')).toBe(true);
     }
     click('btn-roster');
-    expect(document.querySelectorAll('#roster-list .char-card').length).toBe(4);
+    expect(document.querySelectorAll('#roster-list .char-card:not(.you)').length).toBe(4);
     click('btn-tech');
     expect(document.querySelectorAll('#tech-list .tech-node').length).toBe(12);
     click('btn-tech');
@@ -79,7 +79,7 @@ describe('The page', () => {
     click('sys-save');
     expect(document.getElementById('sys-msg').textContent).toBe('Saved.');
     const saved = JSON.parse(localStorage.getItem('primitive_age_save_v1'));
-    expect(saved.v).toBe(7);
+    expect(saved.v).toBe(8);
     expect(saved.roster.length).toBe(4);
   });
 
@@ -170,7 +170,7 @@ describe('The page', () => {
     expect(body().textContent).toMatch(/Next Breakthrough at level/);
     tab('bonds');
     expect(body().querySelectorAll('table.bonds tr').length).toBe(
-      document.querySelectorAll('#roster-list .char-card:not(.offer)').length,
+      document.querySelectorAll('#roster-list .char-card:not(.offer):not(.you)').length,
     ); // header + every squadmate
     expect(body().textContent).toMatch(/●|○/);
     tab('history');

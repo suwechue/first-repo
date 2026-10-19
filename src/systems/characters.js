@@ -4,6 +4,7 @@ import { weightedKey, pick } from '../core/rng.js';
 import { seedBond, deleteBondsOf, addHistory, mentorTalents } from './bonds.js';
 import { levelRolls } from './growth.js';
 import { knowledgeTier } from './magic.js';
+import * as Gear from './gear.js';
 
 const G = D.talents.growth;
 
@@ -51,6 +52,7 @@ export function traitDefs(c) {
     );
   const spec = c.specialization && D.specializations[c.specialization];
   if (spec) defs.push(spec.effects || {});
+  if (c.gear) defs.push(...Gear.gearEffectDefs(c));
   return defs;
 }
 
@@ -106,7 +108,7 @@ export function build(s, spec) {
     traits: spec.traits.slice(),
     talents: [],
     vectors: [],
-    gear: { weapon: null, armor: null },
+    gear: Gear.emptyGear(),
     injuredUntil: 0,
     grief: 0,
     missions: 0,
@@ -157,27 +159,17 @@ export function initStarters(s) {
 }
 
 // ---------------- gear ----------------
-export function equip(s, c, slot, itemKey) {
-  const cur = c.gear[slot];
-  if (cur === (itemKey || null)) return;
-  if (itemKey) {
-    if (!(s.armory[itemKey] > 0)) return;
-    if (D.items[itemKey].slot !== slot) return;
-    s.armory[itemKey]--;
-  }
-  if (cur) s.armory[cur] = (s.armory[cur] || 0) + 1;
-  c.gear[slot] = itemKey || null;
+/** Moves an armory piece (by id) into a character's slot. See gear.js. */
+export function equip(s, c, slot, id) {
+  return Gear.equip(s, c, slot, id || null);
 }
 
 export function gearPower(c) {
-  let g = 0;
-  for (const sl in c.gear) if (c.gear[sl]) g += D.items[c.gear[sl]].gear;
-  return g;
+  return Gear.gearPower(c);
 }
 
 export function armorMod(c) {
-  const a = c.gear.armor;
-  return a ? D.items[a].armorMod || 0 : 0;
+  return Gear.armorMod(c);
 }
 
 // ---------------- growth ----------------
@@ -237,5 +229,5 @@ export function die(s, c, cause) {
   deleteBondsOf(s, c.id);
   s.stats.deaths++;
   // Anything they carried goes back to the armory.
-  for (const sl in c.gear) if (c.gear[sl]) s.armory[c.gear[sl]] = (s.armory[c.gear[sl]] || 0) + 1;
+  Gear.unequipAll(s, c);
 }

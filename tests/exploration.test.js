@@ -190,12 +190,14 @@ describe('Wolf dens', () => {
 
     // Clear the den: kill its wolves, then break it.
     s.enemies = [];
-    s.player.weaponDmg = def.hp * 2; // one blow, whatever the damage roll
     s.gatherCooldown = 0;
     expect(landmarkInReach(s)).toBe(den);
     expect(interactTarget(s).label).toMatch(/attack Wolf Den/);
     const hide = s.player.inventory.hide;
-    handleInteract(s);
+    for (let i = 0; i < 100 && !s.landmarks[den.id].cleared; i++) {
+      s.gatherCooldown = 0;
+      handleInteract(s);
+    }
     expect(s.landmarks[den.id].cleared).toBe(true);
     expect(s.player.inventory.hide).toBe(hide + def.clearReward.hide);
     for (let i = 0; i < def.every * 3; i++) update(s, idle);

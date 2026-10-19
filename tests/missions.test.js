@@ -12,6 +12,7 @@ import {
   restoreRandom,
   readyForMissions,
   starter,
+  wear,
 } from './helpers/setup.js';
 
 afterEach(restoreRandom);
@@ -51,8 +52,7 @@ describe('Combat Power', () => {
     const lin = starter(s, 'Lin'); // shaman INT 9 WIL 10, Curious (+3 explore), arcaneBase 3
     expect(Ms.combatPower(lin, 'explore')).toBe(4 + 1.5 * 19 + 2 + 3 + 3);
     expect(Ms.combatPower(lin, 'hunt')).toBe(4 + 28.5 + 0 + 3);
-    s.armory.hide_armor = 1;
-    lin.gear.armor = 'hide_armor';
+    wear(s, lin, 'hide_armor');
     expect(Ms.combatPower(lin, 'hunt')).toBe(4 + 28.5 + 4 + 3);
   });
 
@@ -148,8 +148,7 @@ describe('Win chance, closeness, injury and death', () => {
     expect(Ms.injuryChance(c, 1, false)).toBeCloseTo(0.56, 10);
     c.stats.con = 10;
     expect(Ms.injuryChance(c, 1, true)).toBeCloseTo(0.35 * 0.85, 10);
-    s.armory.hide_armor = 1;
-    c.gear.armor = 'hide_armor';
+    wear(s, c, 'hide_armor');
     expect(Ms.injuryChance(c, 1, true)).toBeCloseTo(0.35 * 0.85 * 0.88, 10);
     c.traits = ['cautious'];
     c.talents = [];
@@ -425,9 +424,7 @@ describe('A whole mission', () => {
   it('a wipe: everyone dead, no exploration, Renown or XP; the dead go to the memorial and their gear to the armory', () => {
     const s = readyForMissions(freshState());
     const [k, b] = [starter(s, 'Kael'), starter(s, 'Boris')];
-    s.armory.stone_spear = 1;
-    k.gear.weapon = 'stone_spear';
-    s.armory.stone_spear = 0;
+    const spear = wear(s, k, 'stone_spear');
     constantRandom(0); // encounter, won, everyone hurt, everyone dies
     const rep = Ms.launch(s, { realm: R, zone: 'fringe', objective: 'explore', squad: [k.id, b.id] }).report;
     expect(rep.outcome).toBe('wipe');
@@ -437,7 +434,7 @@ describe('A whole mission', () => {
     expect(s.roster.length).toBe(2);
     expect(s.memorial.length).toBe(2);
     expect(s.stats.deaths).toBe(2);
-    expect(s.armory.stone_spear).toBe(1);
+    expect(s.armory).toEqual([spear]);
     expect(Object.keys(s.bonds).some((key) => key.split('|').includes(k.id))).toBe(false);
   });
 

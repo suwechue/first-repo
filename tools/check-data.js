@@ -26,7 +26,7 @@ export function checkData(d) {
     ids(t.extra).forEach((m) => need(`tech.${k}.extra`, m, d.materials, 'material'));
   }
   for (const [k, it] of Object.entries(d.items)) {
-    if (!['weapon', 'armor'].includes(it.slot)) errors.push(`items.${k}.slot: must be weapon or armor`);
+    if (!d.gear.slots[it.slot]) errors.push(`items.${k}.slot: unknown slot "${it.slot}"`);
   }
   for (const [k, r] of Object.entries(d.recipes)) {
     r.requires.forEach((t) => need(`recipes.${k}.requires`, t, d.tech, 'tech'));

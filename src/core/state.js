@@ -33,7 +33,7 @@ export function makeInitialState() {
       hunger: P.hunger,
       maxHunger: P.hunger,
       facing: { x: 0, y: 1 },
-      weaponDmg: P.unarmedDmg,
+      gear: { weapon: null, offhand: null, head: null, body: null, hands: null, feet: null },
       inventory,
     },
 
@@ -54,7 +54,8 @@ export function makeInitialState() {
     roster: [], // living characters
     bonds: {}, // "idA|idB" -> -100..100
     bondMeta: {}, // "idA|idB" -> { since, missions, flags, mentor? }: when they last shared a mission
-    armory: {}, // itemKey -> count of unequipped gear
+    armory: [], // unequipped gear: { id, base, quality, props } (see systems/gear.js)
+    nextItemId: 1,
     memorial: [], // the fallen
     fragments: {}, // knowledge fragments, e.g. { gravitational: 17 }
     realms, // per-zone exploration progress

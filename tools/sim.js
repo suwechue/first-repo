@@ -12,6 +12,7 @@ import { D } from '../src/core/content.js';
 import { makeInitialState } from '../src/core/state.js';
 import { createRng, useRandomSource } from '../src/core/rng.js';
 import { initStarters, isInjured, equip, build } from '../src/systems/characters.js';
+import { SLOTS, createItem, itemStat } from '../src/systems/gear.js';
 import { recruit, refreshOffer, dawnArrival } from '../src/systems/recruiting.js';
 import { launch, zoneUnlocked, combatPower } from '../src/systems/missions.js';
 import { loadReference, referenceAvailable } from './reference.js';
@@ -46,6 +47,17 @@ function portEngine(seed) {
     refreshOffer: () => refreshOffer(s),
     dawn: () => dawnArrival(s), // M11: arrivals by chance, paid for in Renown
     equip: (c, slot, item) => equip(s, c, slot, item),
+    knowsItem: (base) => !!D.items[base],
+    slots: SLOTS,
+    count: (base) => s.armory.filter((it) => it.base === base).length,
+    addItem: (base) => createItem(s, base),
+    equipBestIn(c, slot) {
+      const cur = c.gear[slot] ? itemStat(c.gear[slot], 'gear') : -1;
+      const best = s.armory
+        .filter((it) => D.items[it.base].slot === slot)
+        .sort((a, b) => itemStat(b, 'gear') - itemStat(a, 'gear'))[0];
+      if (best && itemStat(best, 'gear') > cur) equip(s, c, slot, best.id);
+    },
     cp: (c, obj) => combatPower(c, obj),
     injured: (c) => isInjured(s, c),
     unlocked: (realm, zone) => zoneUnlocked(s, realm, zone),
@@ -67,6 +79,20 @@ function refEngine(seed) {
     refreshOffer: () => G.characters.refreshOffer(),
     dawn: () => G.characters.refreshOffer(), // the beta: a new candidate every dawn, paid in food
     equip: (c, slot, item) => G.characters.equip(c, slot, item),
+    // the beta's armory counts and two slots
+    slots: ['weapon', 'armor'],
+    knowsItem: (base) => !!G.config.ITEMS[base] && ['weapon', 'armor'].includes(G.config.ITEMS[base].slot),
+    count: (base) => G.state.armory[base] || 0,
+    addItem: (base) => (G.state.armory[base] = (G.state.armory[base] || 0) + 1),
+    equipBestIn(c, slot) {
+      const A = G.state.armory;
+      const val = (k) => G.config.ITEMS[k]?.gear || 0;
+      const cur = c.gear[slot] ? val(c.gear[slot]) : 0;
+      let best = null;
+      for (const k in A)
+        if (A[k] > 0 && G.config.ITEMS[k]?.slot === slot && val(k) > (best ? val(best) : cur)) best = k;
+      if (best) G.characters.equip(c, slot, best);
+    },
     cp: (c, obj) => G.missions.combatPower(c, obj),
     injured: (c) => G.characters.isInjured(c),
     unlocked: (realm, zone) => G.missions.zoneUnlocked(realm, zone),
@@ -109,36 +135,24 @@ function missionRates(engine, realm, zone, objective) {
 // ---------------------------------------------------------------------------
 const MAX_EXPEDITIONS = 300;
 
-function craftGear(s) {
+/** Crafts every affordable gear recipe, up to 8 of each. */
+function craftGear(engine) {
+  const s = engine.s;
   const inv = s.player.inventory;
   for (const [, r] of Object.entries(D.recipes)) {
-    if (r.type !== 'item') continue;
-    while (Object.entries(r.costs).every(([k, v]) => inv[k] >= v)) {
+    if (r.type !== 'item' || !engine.knowsItem(r.item)) continue;
+    while (Object.entries(r.costs).every(([k, v]) => inv[k] >= v) && engine.count(r.item) < 8) {
       for (const [k, v] of Object.entries(r.costs)) inv[k] -= v;
-      s.armory[r.item] = (s.armory[r.item] || 0) + 1;
-      if ((s.armory[r.item] || 0) >= 8) break;
+      engine.addItem(r.item);
     }
   }
 }
 
+/** The strongest members get the best gear in every slot. */
 function equipBest(engine) {
   const s = engine.s;
   const byLevel = s.roster.slice().sort((a, b) => b.level - a.level);
-  for (const c of byLevel) {
-    for (const slot of ['weapon', 'armor']) {
-      const cur = c.gear[slot] ? D.items[c.gear[slot]].gear : 0;
-      let best = null;
-      for (const k in s.armory) {
-        if (
-          s.armory[k] > 0 &&
-          D.items[k].slot === slot &&
-          D.items[k].gear > (best ? D.items[best].gear : cur)
-        )
-          best = k;
-      }
-      if (best) engine.equip(c, slot, best);
-    }
-  }
+  for (const c of byLevel) for (const slot of engine.slots) engine.equipBestIn(c, slot);
 }
 
 function nextOrder(engine, realm) {
@@ -188,7 +202,7 @@ function campaign(engine) {
   let idleDays = 0;
   while (expeditions < MAX_EXPEDITIONS && !s.realms[realm][bossZone].bossDown) {
     if (s.roster.length < 6 && s.recruitOffer) engine.recruit();
-    craftGear(s);
+    craftGear(engine);
     equipBest(engine);
     const order = nextOrder(engine, realm);
     if (order.squad.length < D.mission.squad.min) {

@@ -1,0 +1,43 @@
+{
+  "slots": {
+    "weapon": {
+      "label": "Weapon"
+    },
+    "offhand": {
+      "label": "Off-hand"
+    },
+    "head": {
+      "label": "Head"
+    },
+    "body": {
+      "label": "Body"
+    },
+    "hands": {
+      "label": "Hands"
+    },
+    "feet": {
+      "label": "Feet"
+    }
+  },
+  "qualities": {
+    "crude": {
+      "label": "Crude",
+      "mul": 0.8
+    },
+    "standard": {
+      "label": "Standard",
+      "mul": 1
+    },
+    "fine": {
+      "label": "Fine",
+      "mul": 1.2
+    },
+    "masterwork": {
+      "label": "Masterwork",
+      "mul": 1.45
+    }
+  },
+  "defaultQuality": "standard",
+  "armorModCap": 0.5,
+  "playerEffects": ["blockChance", "moveSpeed", "gatherSpeed"]
+}

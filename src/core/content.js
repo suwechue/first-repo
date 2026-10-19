@@ -28,6 +28,7 @@ import forms from '../data/forms.json' with { type: 'json' };
 import knowledgeTiers from '../data/knowledge_tiers.json' with { type: 'json' };
 import growthTables from '../data/growth_tables.json' with { type: 'json' };
 import specializations from '../data/specializations.json' with { type: 'json' };
+import gear from '../data/gear.json' with { type: 'json' };
 import oldCity from '../data/prefabs/old_city.json' with { type: 'json' };
 
 const REALM_FILES = { verdant_wilds: verdantWilds };
@@ -62,6 +63,7 @@ export const RAW = {
   knowledgeTiers,
   growthTables,
   specializations,
+  gear,
   prefabs: PREFAB_FILES,
 };
 

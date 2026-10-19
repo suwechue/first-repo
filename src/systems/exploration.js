@@ -11,6 +11,7 @@ import { addEnemy } from './combat.js';
 import { give } from './inventory.js';
 import { findRelic } from './gathering.js';
 import { isNight } from './clock.js';
+import { playerDamage } from './gear.js';
 import { log, changed, cue } from './log.js';
 
 const COMPASS = ['east', 'south-east', 'south', 'south-west', 'west', 'north-west', 'north', 'north-east'];
@@ -172,7 +173,7 @@ export function interactLandmark(s, lm) {
 
 function attackDen(s, lm, def, st) {
   const A = D.game.player.attackSpread;
-  const dmg = Math.max(1, Math.round(s.player.weaponDmg * (A.min + rand() * A.range)));
+  const dmg = Math.max(1, Math.round(playerDamage(s) * (A.min + rand() * A.range)));
   st.hp = Math.max(0, (st.hp ?? def.den.hp) - dmg);
   cue('hit');
   if (st.hp > 0) {

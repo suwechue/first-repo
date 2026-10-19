@@ -62,7 +62,7 @@
   "logSize": 6,
   "save": {
     "key": "primitive_age_save_v1",
-    "version": 7
+    "version": 8
   },
   "messages": {
     "newGame": [

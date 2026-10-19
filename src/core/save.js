@@ -34,6 +34,7 @@ const FIELDS = [
   'reportQueue',
   'nextExpeditionId',
   'researchCarry',
+  'nextItemId',
   'nextCharId',
   'stats',
   'logMessages',
@@ -68,6 +69,8 @@ export function apply(state, data) {
   for (const f of FIELDS) if (data[f] !== undefined) state[f] = structuredClone(data[f]);
   state.player = Object.assign({}, fresh.player, data.player);
   state.player.inventory = Object.assign({}, fresh.player.inventory, data.player.inventory || {});
+  state.player.gear = Object.assign({}, fresh.player.gear, data.player.gear || {});
+  state.armory = Array.isArray(state.armory) ? state.armory.filter((it) => it && D.items[it.base]) : [];
   state.nexus = Object.assign({}, fresh.nexus, data.nexus || {});
   state.stats = Object.assign({}, fresh.stats, data.stats || {});
   // The world's changes: anything malformed is dropped rather than trusted, since the world itself

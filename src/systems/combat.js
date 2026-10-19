@@ -7,6 +7,7 @@ import { worldOf, randomReachableNear } from '../world/world.js';
 import { moveCircle } from '../world/collision.js';
 import { buildingTiles } from './building.js';
 import { give } from './inventory.js';
+import { playerDamage, damageToPlayer, playerEffect } from './gear.js';
 import { log, changed, cue } from './log.js';
 
 const E = D.game.enemies;
@@ -44,7 +45,7 @@ function enemyName(e) {
 
 export function attackEnemy(s, enemy) {
   const A = D.game.player.attackSpread;
-  const dmg = Math.max(1, Math.round(s.player.weaponDmg * (A.min + rand() * A.range)));
+  const dmg = Math.max(1, Math.round(playerDamage(s) * (A.min + rand() * A.range)));
   enemy.hp -= dmg;
   log(s, `You hit the ${enemyName(enemy)} for ${dmg}.`);
   cue('hit');
@@ -78,10 +79,16 @@ export function updateEnemies(s) {
       if (dToPlayer > O.attackRange) {
         moveCircle(world, e, (dx / len) * e.speed, (dy / len) * e.speed, E.radius, walls);
       } else if (e.attackCooldown <= 0) {
-        s.player.hp = Math.max(0, s.player.hp - e.dmg);
         e.attackCooldown = O.attackCooldown;
-        log(s, `The ${enemyName(e)} bites you for ${e.dmg}!`);
-        cue('hurt');
+        if (rand() < playerEffect(s, 'blockChance')) {
+          log(s, `You block the ${enemyName(e)}'s attack.`);
+          cue('hit');
+        } else {
+          const dmg = damageToPlayer(s, e.dmg);
+          s.player.hp = Math.max(0, s.player.hp - dmg);
+          log(s, `The ${enemyName(e)} bites you for ${dmg}!`);
+          cue('hurt');
+        }
         changed('vitals');
       }
     } else {

@@ -12,6 +12,7 @@ import { inNexusRange, interactNexus, nexusPrompt } from './nexus.js';
 import { updateExploration, landmarkInReach, landmarkPrompt, interactLandmark } from './exploration.js';
 import { updateExpeditions } from './missions.js';
 import { deskInReach, startStudy, stopStudy, updateResearch } from './research.js';
+import { playerEffect } from './gear.js';
 import { emit } from '../core/events.js';
 import { nearBuilding, tryCraft } from './crafting.js';
 import { reqsMet } from './tech.js';
@@ -109,7 +110,10 @@ export function handleInteract(s) {
     s.gatherCooldown = C.attack;
   } else if (t.kind === 'node') {
     gatherNode(s, t.obj);
-    s.gatherCooldown = C.gather;
+    s.gatherCooldown = Math.max(
+      1,
+      Math.round(C.gather * (1 - Math.min(0.75, playerEffect(s, 'gatherSpeed')))),
+    );
   } else if (t.kind === 'study') {
     startStudy(s);
   } else if (t.kind === 'nexus') {

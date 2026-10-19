@@ -7,6 +7,14 @@ import { recruit, recruitCost, rosterCap, dismiss, arrivalChance } from '../syst
 import { combatPower, awayOn } from '../systems/missions.js';
 import { assets } from '../render/assets.js';
 import { openSheet } from './sheet.js';
+import {
+  SLOTS,
+  itemName,
+  equip as equipPiece,
+  playerDamage,
+  playerDefense,
+  playerEffect,
+} from '../systems/gear.js';
 import { setScholar } from '../systems/research.js';
 import { log, changed } from '../systems/log.js';
 
@@ -35,21 +43,43 @@ function statusText(s, c) {
   return bits.length ? bits.join(' · ') : '<span class="good">Ready</span>';
 }
 
-function gearSelect(s, c, slot) {
-  const cur = c.gear[slot];
+/** A select for one slot: what is worn, and every armory piece that fits. `who` is a character id or 'player'. */
+function gearSelect(s, wearer, who, slot) {
+  const cur = wearer.gear[slot];
   const opts = [`<option value="">— none —</option>`];
-  if (cur) opts.push(`<option value="${cur}" selected>${D.items[cur].name}</option>`);
-  for (const k in s.armory) {
-    if (s.armory[k] > 0 && D.items[k].slot === slot) {
-      opts.push(`<option value="${k}">${D.items[k].name} (×${s.armory[k]})</option>`);
-    }
+  if (cur) opts.push(`<option value="${cur.id}" selected>${esc(itemName(cur))}</option>`);
+  for (const it of s.armory) {
+    if (D.items[it.base].slot === slot) opts.push(`<option value="${it.id}">${esc(itemName(it))}</option>`);
   }
-  return `<label>${slot}: <select data-equip="${c.id}" data-slot="${slot}">${opts.join('')}</select></label>`;
+  return `<label class="slot">${D.gear.slots[slot].label} <select data-equip="${who}" data-slot="${slot}">${opts.join('')}</select></label>`;
+}
+
+function gearSelects(s, wearer, who) {
+  return SLOTS.map((slot) => gearSelect(s, wearer, who, slot)).join(' ');
+}
+
+/** The player's own gear, at the top of the Roster. */
+function playerGear(s) {
+  const fx = (k, label, pct) => {
+    const v = playerEffect(s, k);
+    return v ? `${label} ${pct ? Math.round(v * 100) + '%' : v}` : '';
+  };
+  const stats = [
+    `Damage ${Math.round(playerDamage(s) * 10) / 10}`,
+    `Defense ${Math.round(playerDefense(s) * 10) / 10}`,
+    fx('blockChance', 'Block', true),
+    fx('moveSpeed', 'Speed +', true),
+    fx('gatherSpeed', 'Gathering +', true),
+  ]
+    .filter(Boolean)
+    .join(' · ');
+  return `<div class="char-card you"><div class="char-head"><b>You</b> <span class="muted">${stats}</span></div>
+    <div class="gear">${gearSelects(s, s.player, 'player')}</div></div>`;
 }
 
 export function renderRoster(s) {
   const el = $('roster-list');
-  let html = '';
+  let html = playerGear(s);
   for (const c of s.roster) {
     const cl = D.classes[c.cls];
     const stats = Object.keys(STAT_LABELS)
@@ -76,7 +106,7 @@ export function renderRoster(s) {
         <div class="xpbar"><div style="width:${pct}%"></div></div>
         <div class="stats">${stats}<span class="stat cpval" title="Combat Power (${PREVIEW_OBJECTIVE})">CP ${Math.round(combatPower(c, PREVIEW_OBJECTIVE))}</span></div>
         <div class="chips">${traitChips(c)}</div>
-        <div class="gear">${gearSelect(s, c, 'weapon')} ${gearSelect(s, c, 'armor')}</div>
+        <div class="gear">${gearSelects(s, c, c.id)}</div>
         <div class="bondline">${bonds || 'No bonds yet.'}</div>
         <button class="craft-btn" data-sheet-open="${c.id}">Character sheet</button>
         <button class="craft-btn" data-scholar="${c.id}">${c.assignment === 'research' ? 'Leave the desk' : 'Research at a desk'}</button>
@@ -117,7 +147,11 @@ export function renderRoster(s) {
   el.innerHTML = html;
   el.querySelectorAll('select[data-equip]').forEach((sel) =>
     sel.addEventListener('change', () => {
-      C.equip(s, C.byId(s, sel.getAttribute('data-equip')), sel.getAttribute('data-slot'), sel.value);
+      const who = sel.getAttribute('data-equip');
+      const wearer = who === 'player' ? s.player : C.byId(s, who);
+      const err = equipPiece(s, wearer, sel.getAttribute('data-slot'), sel.value || null);
+      if (err) log(s, err);
+      changed('vitals');
       renderRoster(s);
     }),
   );

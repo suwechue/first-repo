@@ -6,6 +6,7 @@ import { getBond, bondTier, pairKey } from '../systems/bonds.js';
 import { combatPower } from '../systems/missions.js';
 import { mostRunObjective } from '../systems/growth.js';
 import * as Mg from '../systems/magic.js';
+import { SLOTS, itemName } from '../systems/gear.js';
 import { addHistory } from '../systems/bonds.js';
 import { changed } from '../systems/log.js';
 import { assets } from '../render/assets.js';
@@ -58,9 +59,10 @@ function overview(s, c) {
     .filter(([, v]) => v > 0)
     .map(([o, v]) => `${objectiveLabel(o)} +${v}`)
     .join(' · ');
-  const gear = ['weapon', 'armor']
-    .map((sl) => `${sl}: ${c.gear[sl] ? D.items[c.gear[sl]].name : '—'}`)
-    .join(' · ');
+  const gear =
+    SLOTS.filter((sl) => c.gear[sl])
+      .map((sl) => `${D.gear.slots[sl].label}: ${esc(itemName(c.gear[sl]))}`)
+      .join(' · ') || 'nothing';
   const status = [];
   if (C.isInjured(s, c)) status.push(`<span class="bad">Injured until day ${c.injuredUntil}</span>`);
   if (c.grief > 0)

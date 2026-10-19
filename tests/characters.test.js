@@ -2,6 +2,7 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import { D } from '../src/core/content.js';
 import * as C from '../src/systems/characters.js';
+import { createItem } from '../src/systems/gear.js';
 import { generate, recruit, refreshOffer, recruitCost, rollTraits } from '../src/systems/recruiting.js';
 import { inPairs, getBond, setBond, bondTier, seedBond } from '../src/systems/bonds.js';
 import { freshState, constantRandom, restoreRandom, starter } from './helpers/setup.js';
@@ -183,30 +184,33 @@ describe('Bonds', () => {
 });
 
 describe('Gear and permadeath', () => {
-  it('equips from and returns to the shared armory, one slot each', () => {
+  it('equips from and returns to the shared armory, one piece per slot', () => {
     const s = freshState(18);
     const k = starter(s, 'Kael');
-    s.armory = { stone_axe: 1, hide_armor: 1 };
-    C.equip(s, k, 'weapon', 'hide_armor'); // wrong slot
+    const axe = createItem(s, 'stone_axe');
+    const armor = createItem(s, 'hide_armor');
+    expect(C.equip(s, k, 'weapon', armor.id)).toMatch(/does not go there/);
     expect(k.gear.weapon).toBeNull();
-    C.equip(s, k, 'weapon', 'stone_axe');
-    C.equip(s, k, 'armor', 'hide_armor');
-    expect(k.gear).toEqual({ weapon: 'stone_axe', armor: 'hide_armor' });
-    expect(s.armory).toEqual({ stone_axe: 0, hide_armor: 0 });
+    C.equip(s, k, 'weapon', axe.id);
+    C.equip(s, k, 'body', armor.id);
+    expect(k.gear.weapon).toBe(axe);
+    expect(k.gear.body).toBe(armor);
+    expect(s.armory).toEqual([]);
     expect(C.gearPower(k)).toBe(3 + 4);
     expect(C.armorMod(k)).toBe(0.12);
-    C.equip(s, k, 'weapon', '');
-    expect(s.armory.stone_axe).toBe(1);
+    C.equip(s, k, 'weapon', null);
+    expect(s.armory).toEqual([axe]);
   });
 
   it('death moves a character to the memorial, deletes their bonds and returns their gear', () => {
     const s = freshState(19);
     const k = starter(s, 'Kael');
-    k.gear.armor = 'hide_armor';
+    const armor = createItem(s, 'hide_armor');
+    C.equip(s, k, 'body', armor.id);
     C.die(s, k, 'test');
     expect(s.roster).not.toContain(k);
     expect(s.memorial).toEqual([{ name: k.name, cls: 'hunter', level: 1, day: 1, cause: 'test' }]);
     expect(Object.keys(s.bonds).some((key) => key.includes(k.id))).toBe(false);
-    expect(s.armory.hide_armor).toBe(1);
+    expect(s.armory).toEqual([armor]);
   });
 });

@@ -21,9 +21,41 @@
     "type": "item",
     "item": "stone_spear"
   },
+  "wooden_shield": {
+    "name": "Wooden Shield",
+    "desc": "Off-hand. Blocks some hits outright, and a little armor for a squad member.",
+    "costs": {
+      "wood": 4,
+      "fiber": 1
+    },
+    "requires": ["woodworking"],
+    "type": "item",
+    "item": "wooden_shield"
+  },
+  "scout_hood": {
+    "name": "Scout's Hood",
+    "desc": "Head. Sharper eyes: +1 PER for a squad member.",
+    "costs": {
+      "fiber": 3
+    },
+    "requires": ["stone_knapping"],
+    "type": "item",
+    "item": "scout_hood"
+  },
+  "hide_cap": {
+    "name": "Hide Cap",
+    "desc": "Head. Takes the edge off a blow.",
+    "costs": {
+      "hide": 1,
+      "fiber": 1
+    },
+    "requires": ["tanning"],
+    "type": "item",
+    "item": "hide_cap"
+  },
   "hide_armor": {
     "name": "Hide Armor",
-    "desc": "Armor. Lowers injury chance on expeditions.",
+    "desc": "Body. Lowers injury chance on expeditions and the damage you take.",
     "costs": {
       "hide": 3,
       "fiber": 2
@@ -31,6 +63,37 @@
     "requires": ["tanning"],
     "type": "item",
     "item": "hide_armor"
+  },
+  "hide_gloves": {
+    "name": "Hide Gloves",
+    "desc": "Hands. You gather faster; a squad member gathers better.",
+    "costs": {
+      "hide": 2
+    },
+    "requires": ["tanning"],
+    "type": "item",
+    "item": "hide_gloves"
+  },
+  "fiber_sandals": {
+    "name": "Fiber Sandals",
+    "desc": "Feet. A little quicker on your feet.",
+    "costs": {
+      "fiber": 2
+    },
+    "requires": ["stone_knapping"],
+    "type": "item",
+    "item": "fiber_sandals"
+  },
+  "hide_boots": {
+    "name": "Hide Boots",
+    "desc": "Feet. Quicker on your feet; a squad member explores better.",
+    "costs": {
+      "hide": 2,
+      "fiber": 1
+    },
+    "requires": ["tanning"],
+    "type": "item",
+    "item": "hide_boots"
   },
   "cook_food": {
     "name": "Cook Food (at Campfire)",
@@ -46,7 +109,7 @@
     "nearBuilding": "campfire"
   },
   "supplies": {
-    "name": "Expedition Supplies ×2",
+    "name": "Expedition Supplies \u00d72",
     "desc": "Packed rations and rope. Each squad member uses one per expedition.",
     "costs": {
       "food": 3,
@@ -71,7 +134,7 @@
   },
   "verdant_cloak": {
     "name": "Verdant Cloak",
-    "desc": "Armor lined with Verdant Silk. Strong injury protection.",
+    "desc": "Body. Lined with Verdant Silk: strong protection, and the squad meets fewer ambushes.",
     "costs": {
       "verdant_silk": 3,
       "hide": 2

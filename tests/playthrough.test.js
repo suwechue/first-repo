@@ -10,6 +10,7 @@ import { nexusStage, nexusPrompt, inNexusRange } from '../src/systems/nexus.js';
 import { launch } from '../src/systems/missions.js';
 import { nodeAmount, nearestNode } from '../src/systems/gathering.js';
 import { worldOf, zoneAt, nodesNear, nodeAtTile } from '../src/world/world.js';
+import { playerDamage } from '../src/systems/gear.js';
 import { on } from '../src/core/events.js';
 import { walkTo } from './helpers/walk.js';
 
@@ -127,8 +128,9 @@ describe('Stage 1 playthrough', () => {
 
     // Craft gear and supplies.
     expect(tryCraft(s, 'stone_spear')).toBe(true);
-    expect(s.armory.stone_spear).toBe(1);
-    expect(s.player.weaponDmg).toBe(4);
+    // a fresh piece goes straight onto the player when the slot is free
+    expect(s.player.gear.weapon.base).toBe('stone_spear');
+    expect(playerDamage(s)).toBe(4);
     expect(tryCraft(s, 'supplies')).toBe(true);
     expect(s.player.inventory.supplies).toBe(2);
 
@@ -217,8 +219,11 @@ describe('Stage 1 playthrough', () => {
     s.frame = 1; // not an ambient spawn frame
     update(s, idle);
     expect(s.player.hp).toBe(18);
-    s.player.weaponDmg = 100;
-    handleInteract(s);
+    for (let i = 0; i < 20 && s.enemies.includes(wolf); i++) {
+      s.gatherCooldown = 0;
+      s.player.hp = s.player.maxHp;
+      handleInteract(s);
+    }
     expect(s.enemies.includes(wolf)).toBe(false);
     expect(s.player.inventory.hide).toBe(1);
   });
