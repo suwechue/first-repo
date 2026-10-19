@@ -81,6 +81,17 @@ const MIGRATIONS = {
   5(d) {
     return { ...d, v: 6, expeditions: [], reportQueue: [], nextExpeditionId: 1 };
   },
+  // v6 -> v7: research (M13). No one is seated at a desk yet.
+  6(d) {
+    const seat = (c) => (c && typeof c === 'object' && !('assignment' in c) ? { ...c, assignment: null } : c);
+    return {
+      ...d,
+      v: 7,
+      researchCarry: 0,
+      roster: Array.isArray(d.roster) ? d.roster.map(seat) : d.roster,
+      recruitOffer: seat(d.recruitOffer),
+    };
+  },
 };
 
 /** Returns { data } at SAVE_VERSION, or { error } with a message for the player. */

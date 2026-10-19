@@ -7,7 +7,6 @@ import { spawnEnemy } from './combat.js';
 import { hungerTick, autoEat } from './player.js';
 import { log, changed, cue } from './log.js';
 
-const K = D.game.clock;
 const NIGHT = D.game.night;
 
 /**
@@ -46,10 +45,6 @@ export function updateClock(s) {
   s.frame++;
   s.dayTimer++;
 
-  if (s.frame % K.knowledgeEvery === 0) {
-    s.kp += K.knowledgeAmount;
-    changed('kp');
-  }
   if (s.frame % D.game.hunger.every === 0) hungerTick(s);
   if (s.dayTimer >= s.dayLength) newDay(s);
   autoEat(s);

@@ -121,6 +121,7 @@ export function build(s, spec) {
     // M10 Axiom Magic
     knowledge: { vectors: {}, forms: {}, pairUses: {}, magnitudes: {} },
     origin: spec.origin || D.tiers.recruit.origin,
+    assignment: null, // 'research' while seated at a Research Desk (M13)
     loadout: [],
     specialization: null,
   };

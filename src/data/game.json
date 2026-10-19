@@ -26,9 +26,7 @@
     "landmarkRange": 48
   },
   "clock": {
-    "dayLength": 3600,
-    "knowledgeEvery": 90,
-    "knowledgeAmount": 1
+    "dayLength": 3600
   },
   "hunger": {
     "every": 200,
@@ -64,7 +62,7 @@
   "logSize": 6,
   "save": {
     "key": "primitive_age_save_v1",
-    "version": 6
+    "version": 7
   },
   "messages": {
     "newGame": [
@@ -117,5 +115,12 @@
       "touch": "auto"
     },
     "touchModes": ["auto", "on", "off"]
+  },
+  "research": {
+    "studyRange": 48,
+    "scholar": {
+      "base": 8,
+      "perInt": 2
+    }
   }
 }

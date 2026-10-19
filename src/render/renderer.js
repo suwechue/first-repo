@@ -388,6 +388,7 @@ export function createRenderer(canvas, assets, makeCanvas = () => document.creat
       drawFog(s, world);
       drawTargetHint(s, view);
       if (view.nexusPrompt) label(view.nexusPrompt, world.nexus.x, world.nexus.y - 52);
+      if (s.mode === 'STUDYING') label('Studying… (move or E to stop)', s.player.x, s.player.y - 26);
       drawPlacingGhost(s, view.placement, world);
       drawNight(s, view, world);
       ctx.setTransform(1, 0, 0, 1, 0, 0);

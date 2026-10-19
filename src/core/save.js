@@ -33,6 +33,7 @@ const FIELDS = [
   'expeditions',
   'reportQueue',
   'nextExpeditionId',
+  'researchCarry',
   'nextCharId',
   'stats',
   'logMessages',

@@ -313,6 +313,18 @@ const SHAPES = {
     ctx.fillStyle = 'rgba(0,0,0,0.3)';
     ctx.fillRect(-10, -22, 16, 1);
   },
+  desk(ctx, def) {
+    ctx.fillStyle = '#4a3622';
+    ctx.fillRect(-12, -2, 3, 12);
+    ctx.fillRect(9, -2, 3, 12);
+    ctx.fillStyle = def.color;
+    ctx.fillRect(-14, -8, 28, 7);
+    ctx.fillStyle = '#e8ddc4';
+    ctx.fillRect(-9, -12, 9, 5);
+    ctx.fillRect(2, -11, 7, 4);
+    ctx.fillStyle = '#2b2318';
+    ctx.fillRect(-7, -10, 5, 1);
+  },
   beast(ctx, def, obj) {
     ctx.fillStyle = def.color || (obj.state === 'aggro' ? '#5a5a5a' : '#787878');
     ctx.beginPath();

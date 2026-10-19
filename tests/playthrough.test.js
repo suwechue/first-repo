@@ -2,10 +2,10 @@
 import { describe, it, expect } from 'vitest';
 import { D } from '../src/core/content.js';
 import { makeInitialState } from '../src/core/state.js';
-import { newGame, update, handleInteract } from '../src/systems/game.js';
+import { newGame, update, handleInteract, interactTarget } from '../src/systems/game.js';
 import { tryUnlockTech } from '../src/systems/tech.js';
 import { tryCraft } from '../src/systems/crafting.js';
-import { enterPlacing, tryPlaceBuilding } from '../src/systems/building.js';
+import { enterPlacing, tryPlaceBuilding, placementCheck } from '../src/systems/building.js';
 import { nexusStage, nexusPrompt, inNexusRange } from '../src/systems/nexus.js';
 import { launch } from '../src/systems/missions.js';
 import { nodeAmount, nearestNode } from '../src/systems/gathering.js';
@@ -79,9 +79,36 @@ describe('Stage 1 playthrough', () => {
     }
     expect(s.kp).toBe(kpAfter);
 
-    // Passive Knowledge: +1 per 90 frames.
+    // No passive Knowledge (M13): time alone earns nothing; study at a Research Desk does.
     const kp = s.kp;
     frames(s, 900);
+    expect(s.kp).toBe(kp);
+    // Find a clear spot with nothing to gather in reach, and build a desk beside it.
+    walkTo(
+      s,
+      (x, y) =>
+        nodesNear(world, (x + 0.5) * world.ts, (y + 0.5) * world.ts, 90).length === 0 &&
+        Math.hypot(x - pile.tx, y - pile.ty) < 12,
+    );
+    Object.assign(s.player.inventory, { wood: 4, stone: 2 });
+    enterPlacing(s, 'research_desk');
+    const spot = [];
+    for (let dy = -2; dy <= 2; dy++)
+      for (let dx = -2; dx <= 2; dx++) {
+        const p = placementCheck(s, 'research_desk', s.player.x + dx * 32, s.player.y + dy * 32);
+        if (p.ok && Math.hypot(p.x - s.player.x, p.y - s.player.y) < D.game.research.studyRange) spot.push(p);
+      }
+    expect(tryPlaceBuilding(s, spot[0].x, spot[0].y)).toBe(true);
+    s.gatherCooldown = 0;
+    const study = interactTarget(s);
+    expect(study.kind).toBe('study');
+    handleInteract(s);
+    expect(s.mode).toBe('STUDYING');
+    frames(s, 450);
+    expect(s.kp).toBe(kp + 10); // 1 per 45 frames
+    update(s, { ...idle, left: true }); // moving stops the study
+    expect(s.mode).toBe('EXPLORE');
+    frames(s, 450);
     expect(s.kp).toBe(kp + 10);
 
     // Research, with Knowledge and materials provided.

@@ -1,4 +1,24 @@
 {
+  "research_desk": {
+    "sprite": "research_desk",
+    "placeholder": "desk",
+    "name": "Research Desk",
+    "desc": "Study here to earn Knowledge, and seat one scholar from your roster.",
+    "costs": {
+      "wood": 4,
+      "stone": 2
+    },
+    "requires": ["stone_knapping"],
+    "radius": 14,
+    "color": "#8a6a44",
+    "size": [1, 1],
+    "blocks": true,
+    "research": {
+      "seats": 1,
+      "studyEvery": 45,
+      "studyKp": 1
+    }
+  },
   "campfire": {
     "sprite": "campfire",
     "placeholder": "campfire",

@@ -1,5 +1,6 @@
 // Ties the systems together: a new game, the interact key, and the per-frame update.
 import { D } from '../core/content.js';
+import { dist } from '../core/geometry.js';
 import { resetState } from '../core/state.js';
 import { seedRng } from '../core/rng.js';
 import { initStarters } from './characters.js';
@@ -10,6 +11,7 @@ import { attackEnemy, updateEnemies } from './combat.js';
 import { inNexusRange, interactNexus, nexusPrompt } from './nexus.js';
 import { updateExploration, landmarkInReach, landmarkPrompt, interactLandmark } from './exploration.js';
 import { updateExpeditions } from './missions.js';
+import { deskInReach, startStudy, stopStudy, updateResearch } from './research.js';
 import { emit } from '../core/events.js';
 import { nearBuilding, tryCraft } from './crafting.js';
 import { reqsMet } from './tech.js';
@@ -74,18 +76,27 @@ export function interactTarget(s) {
   const lm = landmarkInReach(s);
   if (lm) return { kind: 'landmark', obj: lm, x: lm.x, y: lm.y, label: landmarkPrompt(s, lm) };
   const node = nearestNode(s);
+  const desk = deskInReach(s);
+  // Between a node and a desk, the nearer one wins.
+  if (desk && (!node || dist(s.player, desk) < dist(s.player, node)))
+    return { kind: 'study', obj: desk, x: desk.x, y: desk.y, label: 'E: study at the Research Desk' };
   if (node) {
     const def = D.resources[node.type];
     const label = `E: ${def.verb || 'gather'} ${def.name} (${nodeAmount(s, node)})`;
     return { kind: 'node', obj: node, x: node.x, y: node.y, label };
   }
   if (inNexusRange(s)) return { kind: 'nexus', obj: null, label: nexusPrompt(s) };
+
   if (canCook(s)) return { kind: 'cook', obj: null, x: s.player.x, y: s.player.y, label: 'E: cook food' };
   return null;
 }
 
 /** The E key. */
 export function handleInteract(s) {
+  if (s.mode === 'STUDYING') {
+    stopStudy(s);
+    return;
+  }
   if (s.gatherCooldown > 0) return;
   const t = interactTarget(s);
   if (!t) return;
@@ -99,6 +110,8 @@ export function handleInteract(s) {
   } else if (t.kind === 'node') {
     gatherNode(s, t.obj);
     s.gatherCooldown = C.gather;
+  } else if (t.kind === 'study') {
+    startStudy(s);
   } else if (t.kind === 'nexus') {
     interactNexus(s);
     s.gatherCooldown = C.nexus;
@@ -109,11 +122,14 @@ export function handleInteract(s) {
 
 /** One fixed 1/60 s frame. */
 export function update(s, input) {
-  if (s.mode !== 'PLACING') updatePlayer(s, input);
+  if (s.mode === 'STUDYING' && (input.up || input.down || input.left || input.right)) stopStudy(s);
+  if (s.mode === 'EXPLORE') updatePlayer(s, input);
+  else if (s.gatherCooldown > 0) s.gatherCooldown--;
   updateResources(s);
   updateBuildings(s);
   updateEnemies(s);
   updateExploration(s);
+  updateResearch(s);
   updateClock(s);
   for (const rep of updateExpeditions(s)) {
     log(s, `A squad returns from ${D.realms[rep.realm].zones[rep.zone].name}: ${rep.outcome}.`);

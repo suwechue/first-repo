@@ -36,7 +36,13 @@ export function renderHall(s) {
   }
   const realm = D.realms[sel.realm];
   if (!Ms.zoneUnlocked(s, sel.realm, sel.zone)) sel.zone = firstZone(sel.realm);
-  sel.squad = sel.squad.filter((id) => C.byId(s, id) && !C.isInjured(s, C.byId(s, id)) && !Ms.awayOn(s, id));
+  sel.squad = sel.squad.filter(
+    (id) =>
+      C.byId(s, id) &&
+      !C.isInjured(s, C.byId(s, id)) &&
+      !Ms.awayOn(s, id) &&
+      C.byId(s, id).assignment !== 'research',
+  );
   const z = realm.zones[sel.zone];
   const obj = M.objectives[sel.objective];
 
@@ -73,9 +79,10 @@ export function renderHall(s) {
     const hurt = C.isInjured(s, c);
     const away = Ms.awayOn(s, c.id);
     const feud = sel.squad.includes(c.id) ? null : feudWith(s, c.id);
-    const off = hurt || !!feud || !!away;
+    const scholar = c.assignment === 'research';
+    const off = hurt || !!feud || !!away || scholar;
     html += `<label class="pick ${off ? 'locked' : ''}" title="${feud ? esc('Blood Feud with ' + feud.name) : ''}"><input type="checkbox" data-pick="${c.id}" ${sel.squad.indexOf(c.id) >= 0 ? 'checked' : ''} ${off ? 'disabled' : ''}>
-      ${esc(c.name)} <small>${D.classes[c.cls].name} L${c.level} · CP ${Math.round(Ms.combatPower(c, sel.objective))}${hurt ? ' · injured' : ''}${away ? ' · away' : ''}${c.grief > 0 ? ' · grieving' : ''}${feud ? ' · Blood Feud with ' + esc(feud.name.split(' ')[0]) : ''}</small></label>`;
+      ${esc(c.name)} <small>${D.classes[c.cls].name} L${c.level} · CP ${Math.round(Ms.combatPower(c, sel.objective))}${hurt ? ' · injured' : ''}${away ? ' · away' : ''}${scholar ? ' · researching' : ''}${c.grief > 0 ? ' · grieving' : ''}${feud ? ' · Blood Feud with ' + esc(feud.name.split(' ')[0]) : ''}</small></label>`;
   }
   html += '</div>';
   if (sel.note) html += `<div class="bad small">${esc(sel.note)}</div>`;

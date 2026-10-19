@@ -2,6 +2,7 @@
 import { D } from '../core/content.js';
 import { $, esc, label } from './dom.js';
 import { assets } from '../render/assets.js';
+import { scholarsPerDay } from '../systems/research.js';
 
 export function updateResourceBar(s) {
   const bar = $('resource-bar');
@@ -21,6 +22,8 @@ export function updateResourceBar(s) {
 
 export function updateKPLabel(s) {
   let t = `${s.kp} Knowledge`;
+  const daily = scholarsPerDay(s);
+  if (daily) t += ` (+${daily}/day)`;
   if (s.nexus.awake) t += ` · ${s.arcane} Arcane · ${s.renown} Renown`;
   $('kp-label').textContent = t;
 }

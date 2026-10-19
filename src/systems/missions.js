@@ -302,6 +302,7 @@ export function validate(s, o) {
     const c = C.byId(s, id);
     if (!c) return 'Unknown squad member.';
     if (C.isInjured(s, c)) return c.name + ' is recovering from an injury.';
+    if (c.assignment === 'research') return c.name + ' is researching at the desk.';
     const away = awayOn(s, c.id);
     if (away) return c.name + ' is away in ' + zoneDef(away.order.realm, away.order.zone).name + '.';
   }

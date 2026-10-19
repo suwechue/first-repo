@@ -64,6 +64,8 @@ export function makeInitialState() {
     expeditions: [], // squads out: { id, order, departed, returns, day } (frames)
     reportQueue: [], // reports of squads that have returned, oldest first, not yet read
     nextExpeditionId: 1,
+    researchCarry: 0, // fraction of a Knowledge Point the scholars have earned so far
+    studyTimer: 0, // runtime only: frames toward the next point of study
     nextCharId: 1,
     stats: { missions: 0, deaths: 0 },
 

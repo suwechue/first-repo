@@ -7,6 +7,7 @@ import { recruit, recruitCost, rosterCap, dismiss, arrivalChance } from '../syst
 import { combatPower, awayOn } from '../systems/missions.js';
 import { assets } from '../render/assets.js';
 import { openSheet } from './sheet.js';
+import { setScholar } from '../systems/research.js';
 import { log, changed } from '../systems/log.js';
 
 const STAT_LABELS = D.tiers.stats.labels;
@@ -28,6 +29,7 @@ function statusText(s, c) {
   const bits = [];
   if (C.isInjured(s, c)) bits.push(`<span class="bad">Injured until day ${c.injuredUntil}</span>`);
   if (awayOn(s, c.id)) bits.push('<span class="muted">Away on an expedition</span>');
+  if (c.assignment === 'research') bits.push('<span class="muted">Researching at a desk</span>');
   if (c.grief > 0)
     bits.push(`<span class="bad">Grieving (${c.grief} mission${c.grief > 1 ? 's' : ''})</span>`);
   return bits.length ? bits.join(' · ') : '<span class="good">Ready</span>';
@@ -77,6 +79,7 @@ export function renderRoster(s) {
         <div class="gear">${gearSelect(s, c, 'weapon')} ${gearSelect(s, c, 'armor')}</div>
         <div class="bondline">${bonds || 'No bonds yet.'}</div>
         <button class="craft-btn" data-sheet-open="${c.id}">Character sheet</button>
+        <button class="craft-btn" data-scholar="${c.id}">${c.assignment === 'research' ? 'Leave the desk' : 'Research at a desk'}</button>
       </div>`;
   }
   if (!s.roster.length) html = '<p class="muted">Your roster is empty.</p>';
@@ -115,6 +118,14 @@ export function renderRoster(s) {
   el.querySelectorAll('select[data-equip]').forEach((sel) =>
     sel.addEventListener('change', () => {
       C.equip(s, C.byId(s, sel.getAttribute('data-equip')), sel.getAttribute('data-slot'), sel.value);
+      renderRoster(s);
+    }),
+  );
+  el.querySelectorAll('[data-scholar]').forEach((b) =>
+    b.addEventListener('click', () => {
+      const c = C.byId(s, b.getAttribute('data-scholar'));
+      const err = setScholar(s, c, c.assignment !== 'research');
+      if (err) log(s, err);
       renderRoster(s);
     }),
   );
