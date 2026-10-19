@@ -329,6 +329,16 @@ The player fights in real time; squads still resolve by the mission math above. 
 - **Weapon types:** fists (reach 32, arc 100 degrees, cooldown 18), axe (reach 36, arc 130, cooldown 26, knockback 10), spear (reach 56, arc 40, cooldown 20, knockback 4), sling (melee as fists; fires the ranged shot).
 - **Telegraphs:** an enemy in range winds up before it strikes (wolf 24 frames, boar 36), and only hits if the player is still within its reach plus 8 when the wind-up ends and is not dodging. A stunned enemy cannot move or wind up.
 
+### Crafting and Invention (M16)
+
+Numbers live in `minigames.json` and `properties.json`; the minigames are UI plugins in `src/ui/minigames/plugins/`, one file each, found automatically.
+
+- **Gear crafting:** every weapon or armor recipe plays its recipe's minigame (`minigame`, else by slot: weapons Forge, armor Thermal, cloth Alignment) at its `difficulty` (1 to 10, default 3). Performance (0 to 1) sets the quality: under 0.35 Crude, under 0.65 Standard, under 0.9 Fine, else Masterwork. "Rush it" skips the minigame and always makes a Crude piece. Food and supplies stay instant. The game is paused while a minigame is open.
+- **Invention:** an Invention Bench (needs Elemental Attunement) designs a new weapon or armor piece on top of a known gear recipe. The player spends Vector points on the Vectors the settlement's era allows: the pool is 6 + 4 x Knowledge Tier. Complexity = total points / 10 + 3 for each Vector beyond the first; difficulty is complexity clamped to 1 to 10. Extra Knowledge can be spent as Research Points (5 Knowledge each, up to 10).
+- **Which minigame:** the archetype rules, top to bottom, first match wins, skipping a minigame that is not registered: Synthesis with 3 or more Vectors and none over half; Forge when Heat or Cold leads and the target is a weapon or armor; Thermal when Heat or Cold leads; Precision for Force or Motion; Alignment for Binding or Light; Precision if nothing matches.
+- **Property rolls:** Rolls = 1 + floor(3 x performance) + floor(Research Points / 5). Each roll draws, without repeats, from the properties that apply to the target and meet their Vector thresholds, weighted by weight x max(0.05, cosine similarity of the allocation and the property's signature) x (1 + performance). Every property's tier comes from complexity: under 3 Minor, under 6 Standard, under 9 Major, else Grand, one step higher when performance is over 0.85. The piece's quality follows performance as in gear crafting; its name leads with the first property's adjective (a Searing Stone Spear).
+- **What properties do:** each tier adds `stats` (dmg, defense, gear, armorMod) to the piece and `effects` in the same vocabulary gear uses, plus `attackSpeed` (shortens the player's weapon cooldown).
+
 ### Axiom Magic (M10)
 
 - **Spells:** a spell is a Vector, a Form and a Magnitude: Minor 5, Standard 10, Major 20, Grand 35. A caster knows Vectors and Forms (each with affinity points) and equips a loadout of up to 3 spells. Only Vectors and Forms at or below the settlement's Knowledge Tier can be learned, and a spell's Magnitude is capped by both its pair's unlocked Magnitude (Minor until a Breakthrough raises it) and the Knowledge Tier's cap: Tier 1 Standard, Tier 2 Major, Tier 3 and up Grand.
