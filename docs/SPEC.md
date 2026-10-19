@@ -317,6 +317,18 @@ Gear (M14) is the sum of the `gear` value of every equipped piece, times its qua
 - **Hunt locate check (M9):** before the quarry fight, the squad must find it. P_locate = min(0.95, 0.35 + 0.05 x the highest effective PER in the squad + 0.05 x the best hunt proficiency). The squad gets 3 attempts; each failed attempt costs 6 vigor. If every attempt fails, or vigor falls to the threshold while searching, the mission ends as a retreat without the fight.
 - **Encounters:** each non-final step is an encounter with probability `encounterChance` times every member's `encounterMul`, with the enemy drawn by weight from the zone.
 
+### Overworld combat (M15)
+
+The player fights in real time; squads still resolve by the mission math above. Numbers live in `game.json` (`combat`) and `gear.json` (`weaponTypes`).
+
+- **Stamina:** 100, refilling 0.6 a frame after 30 frames without spending any. Every action below costs some; without enough, the action does not happen.
+- **Light attack (8 stamina):** E on an enemy, or a click toward the mouse. It hits every enemy inside the weapon type's reach and arc, centered on the aim, for the weapon's damage x a random 0.85 to 1.15. Then the weapon type's cooldown.
+- **Heavy attack (25 stamina):** hold Q to charge, release to swing. Charged under 12 frames it is a light attack; otherwise damage x lerp(1.6, 2.6) by charge up to 45 frames, the arc is 30 degrees wider, and each enemy hit is knocked back by the weapon's knockback x 2 and stunned for 30 frames.
+- **Ranged (10 stamina and 1 stone):** R throws at the nearest enemy within range. Bare-handed it is a thrown stone (damage 2, range 180); a weapon of type `sling` fires for its own damage at range 300. The shot flies as a projectile and stops at the first enemy or solid tile.
+- **Dodge (22 stamina):** Space dashes 72 pixels over 14 frames in the held direction (or the way the player faces); for its first 12 frames nothing can hit the player. Cooldown 30 frames.
+- **Weapon types:** fists (reach 32, arc 100 degrees, cooldown 18), axe (reach 36, arc 130, cooldown 26, knockback 10), spear (reach 56, arc 40, cooldown 20, knockback 4), sling (melee as fists; fires the ranged shot).
+- **Telegraphs:** an enemy in range winds up before it strikes (wolf 24 frames, boar 36), and only hits if the player is still within its reach plus 8 when the wind-up ends and is not dodging. A stunned enemy cannot move or wind up.
+
 ### Axiom Magic (M10)
 
 - **Spells:** a spell is a Vector, a Form and a Magnitude: Minor 5, Standard 10, Major 20, Grand 35. A caster knows Vectors and Forms (each with affinity points) and equips a loadout of up to 3 spells. Only Vectors and Forms at or below the settlement's Knowledge Tier can be learned, and a spell's Magnitude is capped by both its pair's unlocked Magnitude (Minor until a Breakthrough raises it) and the Knowledge Tier's cap: Tier 1 Standard, Tier 2 Major, Tier 3 and up Grand.
