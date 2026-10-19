@@ -23,7 +23,8 @@
       "range": 40
     },
     "craftNearBuildingRange": 60,
-    "landmarkRange": 48
+    "landmarkRange": 48,
+    "benchRange": 48
   },
   "clock": {
     "dayLength": 3600

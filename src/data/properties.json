@@ -1,0 +1,421 @@
+{
+  "searing_edge": {
+    "name": "Searing Edge",
+    "adjective": "Searing",
+    "appliesTo": ["weapon"],
+    "signature": {
+      "heat": 0.7,
+      "force": 0.3
+    },
+    "threshold": {
+      "heat": 6
+    },
+    "weight": 10,
+    "tiers": {
+      "minor": {
+        "stats": {
+          "dmg": 1,
+          "gear": 1
+        },
+        "effects": {}
+      },
+      "standard": {
+        "stats": {
+          "dmg": 2,
+          "gear": 2
+        },
+        "effects": {}
+      },
+      "major": {
+        "stats": {
+          "dmg": 3,
+          "gear": 3
+        },
+        "effects": {}
+      },
+      "grand": {
+        "stats": {
+          "dmg": 5,
+          "gear": 5
+        },
+        "effects": {}
+      }
+    }
+  },
+  "frost_bite": {
+    "name": "Frostbite",
+    "adjective": "Frostbound",
+    "appliesTo": ["weapon"],
+    "signature": {
+      "cold": 0.8,
+      "motion": 0.2
+    },
+    "threshold": {
+      "cold": 6
+    },
+    "weight": 10,
+    "tiers": {
+      "minor": {
+        "stats": {
+          "dmg": 1
+        },
+        "effects": {
+          "huntCp": 1
+        }
+      },
+      "standard": {
+        "stats": {
+          "dmg": 1
+        },
+        "effects": {
+          "huntCp": 2
+        }
+      },
+      "major": {
+        "stats": {
+          "dmg": 2
+        },
+        "effects": {
+          "huntCp": 3
+        }
+      },
+      "grand": {
+        "stats": {
+          "dmg": 3
+        },
+        "effects": {
+          "huntCp": 5
+        }
+      }
+    }
+  },
+  "reinforced_haft": {
+    "name": "Reinforced Haft",
+    "adjective": "Reinforced",
+    "appliesTo": ["weapon"],
+    "signature": {
+      "force": 0.9
+    },
+    "threshold": {
+      "force": 5
+    },
+    "weight": 10,
+    "tiers": {
+      "minor": {
+        "stats": {
+          "dmg": 1,
+          "gear": 0
+        },
+        "effects": {}
+      },
+      "standard": {
+        "stats": {
+          "dmg": 2,
+          "gear": 1
+        },
+        "effects": {}
+      },
+      "major": {
+        "stats": {
+          "dmg": 4,
+          "gear": 2
+        },
+        "effects": {}
+      },
+      "grand": {
+        "stats": {
+          "dmg": 7,
+          "gear": 3
+        },
+        "effects": {}
+      }
+    }
+  },
+  "swift_strike": {
+    "name": "Swift Strike",
+    "adjective": "Swift",
+    "appliesTo": ["weapon"],
+    "signature": {
+      "motion": 0.8,
+      "force": 0.2
+    },
+    "threshold": {
+      "motion": 5
+    },
+    "weight": 9,
+    "tiers": {
+      "minor": {
+        "stats": {},
+        "effects": {
+          "attackSpeed": 0.05,
+          "exploreCp": 1
+        }
+      },
+      "standard": {
+        "stats": {},
+        "effects": {
+          "attackSpeed": 0.1,
+          "exploreCp": 1
+        }
+      },
+      "major": {
+        "stats": {},
+        "effects": {
+          "attackSpeed": 0.2,
+          "exploreCp": 2
+        }
+      },
+      "grand": {
+        "stats": {},
+        "effects": {
+          "attackSpeed": 0.35,
+          "exploreCp": 3
+        }
+      }
+    }
+  },
+  "warding_glyph": {
+    "name": "Warding Glyph",
+    "adjective": "Warded",
+    "appliesTo": ["armor"],
+    "signature": {
+      "binding": 0.7,
+      "light": 0.3
+    },
+    "threshold": {
+      "binding": 5
+    },
+    "weight": 10,
+    "tiers": {
+      "minor": {
+        "stats": {
+          "defense": 1,
+          "armorMod": 0.02
+        },
+        "effects": {}
+      },
+      "standard": {
+        "stats": {
+          "defense": 2,
+          "armorMod": 0.04
+        },
+        "effects": {}
+      },
+      "major": {
+        "stats": {
+          "defense": 3,
+          "armorMod": 0.06
+        },
+        "effects": {}
+      },
+      "grand": {
+        "stats": {
+          "defense": 5,
+          "armorMod": 0.1
+        },
+        "effects": {}
+      }
+    }
+  },
+  "radiant_ward": {
+    "name": "Radiant Ward",
+    "adjective": "Radiant",
+    "appliesTo": ["armor"],
+    "signature": {
+      "light": 0.8
+    },
+    "threshold": {
+      "light": 6
+    },
+    "weight": 8,
+    "tiers": {
+      "minor": {
+        "stats": {},
+        "effects": {
+          "deathMul": 0.95
+        }
+      },
+      "standard": {
+        "stats": {},
+        "effects": {
+          "deathMul": 0.9
+        }
+      },
+      "major": {
+        "stats": {},
+        "effects": {
+          "deathMul": 0.85
+        }
+      },
+      "grand": {
+        "stats": {},
+        "effects": {
+          "deathMul": 0.75
+        }
+      }
+    }
+  },
+  "stoneskin": {
+    "name": "Stoneskin",
+    "adjective": "Stoneskin",
+    "appliesTo": ["armor"],
+    "signature": {
+      "force": 0.8,
+      "cold": 0.2
+    },
+    "threshold": {
+      "force": 5
+    },
+    "weight": 10,
+    "tiers": {
+      "minor": {
+        "stats": {
+          "defense": 1,
+          "armorMod": 0.01
+        },
+        "effects": {}
+      },
+      "standard": {
+        "stats": {
+          "defense": 2,
+          "armorMod": 0.02
+        },
+        "effects": {}
+      },
+      "major": {
+        "stats": {
+          "defense": 3,
+          "armorMod": 0.04
+        },
+        "effects": {}
+      },
+      "grand": {
+        "stats": {
+          "defense": 4,
+          "armorMod": 0.06
+        },
+        "effects": {}
+      }
+    }
+  },
+  "ember_lining": {
+    "name": "Ember Lining",
+    "adjective": "Emberlined",
+    "appliesTo": ["armor"],
+    "signature": {
+      "heat": 0.8,
+      "binding": 0.2
+    },
+    "threshold": {
+      "heat": 5
+    },
+    "weight": 9,
+    "tiers": {
+      "minor": {
+        "stats": {},
+        "effects": {
+          "injuryMul": 0.95
+        }
+      },
+      "standard": {
+        "stats": {},
+        "effects": {
+          "injuryMul": 0.9
+        }
+      },
+      "major": {
+        "stats": {},
+        "effects": {
+          "injuryMul": 0.85
+        }
+      },
+      "grand": {
+        "stats": {},
+        "effects": {
+          "injuryMul": 0.8
+        }
+      }
+    }
+  },
+  "frostguard": {
+    "name": "Frostguard",
+    "adjective": "Frostguard",
+    "appliesTo": ["armor"],
+    "signature": {
+      "cold": 0.8,
+      "force": 0.2
+    },
+    "threshold": {
+      "cold": 5
+    },
+    "weight": 9,
+    "tiers": {
+      "minor": {
+        "stats": {},
+        "effects": {
+          "blockChance": 0.03
+        }
+      },
+      "standard": {
+        "stats": {},
+        "effects": {
+          "blockChance": 0.06
+        }
+      },
+      "major": {
+        "stats": {},
+        "effects": {
+          "blockChance": 0.1
+        }
+      },
+      "grand": {
+        "stats": {},
+        "effects": {
+          "blockChance": 0.15
+        }
+      }
+    }
+  },
+  "quickstep": {
+    "name": "Quickstep",
+    "adjective": "Quickstep",
+    "appliesTo": ["armor"],
+    "signature": {
+      "motion": 0.9
+    },
+    "threshold": {
+      "motion": 5
+    },
+    "weight": 9,
+    "tiers": {
+      "minor": {
+        "stats": {},
+        "effects": {
+          "moveSpeed": 0.03,
+          "encounterMul": 0.98
+        }
+      },
+      "standard": {
+        "stats": {},
+        "effects": {
+          "moveSpeed": 0.06,
+          "encounterMul": 0.96
+        }
+      },
+      "major": {
+        "stats": {},
+        "effects": {
+          "moveSpeed": 0.1,
+          "encounterMul": 0.94
+        }
+      },
+      "grand": {
+        "stats": {},
+        "effects": {
+          "moveSpeed": 0.15,
+          "encounterMul": 0.9
+        }
+      }
+    }
+  }
+}

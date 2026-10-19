@@ -26,9 +26,15 @@ export function qualityMul(it) {
   return GR.qualities[it.quality]?.mul ?? 1;
 }
 
-/** A number on the piece (gear, dmg, defense, armorMod), times its quality. */
+/** A rolled property's tier (M16): { stats, effects }. */
+export function propTier(p) {
+  return D.properties[p.id]?.tiers[p.tier] || { stats: {}, effects: {} };
+}
+
+/** A number on the piece (gear, dmg, defense, armorMod): its base times quality, plus its properties'. */
 export function itemStat(it, key) {
-  return (itemDef(it)[key] || 0) * qualityMul(it);
+  const props = (it.props || []).reduce((a, p) => a + (propTier(p).stats[key] || 0), 0);
+  return (itemDef(it)[key] || 0) * qualityMul(it) + props;
 }
 
 /**
@@ -43,13 +49,20 @@ export function itemEffects(it) {
     else out[k] = (out[k] || 0) + v * q;
   };
   for (const [k, v] of Object.entries(itemDef(it).effects || {})) add(k, v);
-  for (const p of it.props || []) for (const [k, v] of Object.entries(p.effects || {})) add(k, v);
+  // a property's effect is fixed by its tier, not scaled by quality
+  for (const p of it.props || []) {
+    for (const [k, v] of Object.entries(propTier(p).effects || {})) {
+      if (MULTIPLIERS.has(k)) out[k] = (out[k] ?? 1) * v;
+      else out[k] = (out[k] || 0) + v;
+    }
+  }
   return out;
 }
 
 export function itemName(it) {
   const q = GR.qualities[it.quality];
-  const lead = it.props?.[0]?.adjective ? it.props[0].adjective + ' ' : '';
+  const first = it.props?.[0] && D.properties[it.props[0].id];
+  const lead = first ? first.adjective + ' ' : '';
   return `${it.quality !== GR.defaultQuality ? q.label + ' ' : ''}${lead}${itemDef(it).name}`;
 }
 

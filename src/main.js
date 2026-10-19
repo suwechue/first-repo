@@ -67,6 +67,7 @@ window.addEventListener('keydown', (e) => {
     exitPlacing(state);
     ui.closeModal();
   }
+  if (state.paused) return; // a minigame has the keyboard
   if (k === 'e') handleInteract(state); // key repeat keeps gathering, limited by the cooldown
   if (state.mode === 'EXPLORE' && !e.repeat) {
     if (k === ' ') {

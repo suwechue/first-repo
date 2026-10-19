@@ -1,0 +1,81 @@
+{
+  "bySlot": {
+    "weapon": "forge",
+    "offhand": "precision",
+    "head": "thermal",
+    "body": "thermal",
+    "hands": "thermal",
+    "feet": "thermal"
+  },
+  "defaultDifficulty": 3,
+  "quality": [
+    {
+      "below": 0.35,
+      "quality": "crude"
+    },
+    {
+      "below": 0.65,
+      "quality": "standard"
+    },
+    {
+      "below": 0.9,
+      "quality": "fine"
+    },
+    {
+      "quality": "masterwork"
+    }
+  ],
+  "rushQuality": "crude",
+  "archetypeRules": [
+    {
+      "minigame": "synthesis",
+      "distinctVectorsAtLeast": 3,
+      "dominanceBelow": 0.5
+    },
+    {
+      "minigame": "forge",
+      "dominantVectorIn": ["heat", "cold"],
+      "targetCategoryIn": ["weapon", "armor"]
+    },
+    {
+      "minigame": "thermal",
+      "dominantVectorIn": ["heat", "cold"]
+    },
+    {
+      "minigame": "precision",
+      "dominantVectorIn": ["force", "motion"]
+    },
+    {
+      "minigame": "alignment",
+      "dominantVectorIn": ["binding", "light"]
+    }
+  ],
+  "archetypeDefault": "precision",
+  "invention": {
+    "poolBase": 6,
+    "poolPerTier": 4,
+    "kpPerResearchPoint": 5,
+    "maxResearchPoints": 10,
+    "extraVectorComplexity": 3,
+    "rollsPerformance": 3,
+    "researchPointsPerRoll": 5,
+    "tierBoostAbove": 0.85,
+    "tierByComplexity": [
+      {
+        "below": 3,
+        "tier": "minor"
+      },
+      {
+        "below": 6,
+        "tier": "standard"
+      },
+      {
+        "below": 9,
+        "tier": "major"
+      },
+      {
+        "tier": "grand"
+      }
+    ]
+  }
+}

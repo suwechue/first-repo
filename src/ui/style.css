@@ -791,3 +791,66 @@ table.bonds th {
 .vital-fill.stamina {
   background: #c9a54a;
 }
+
+/* ---- Crafting minigames ---- */
+#mg-canvas {
+  position: static;
+  width: 100%;
+  height: auto;
+  max-width: 680px;
+  aspect-ratio: 680 / 300;
+  display: block;
+  margin: 8px 0;
+  border: 2px solid var(--bark);
+  border-radius: 4px;
+  cursor: crosshair;
+}
+.mg-instructions {
+  margin-top: 6px;
+  font-size: 13px;
+}
+.mg-progress {
+  height: 6px;
+  background: #3a3226;
+  border-radius: 3px;
+  overflow: hidden;
+}
+.mg-progress > div {
+  height: 100%;
+  width: 0;
+  background: var(--ember);
+}
+.mg-extra {
+  margin-top: 8px;
+}
+.align-slot {
+  display: inline-block;
+  width: 34px;
+  height: 34px;
+  line-height: 34px;
+  margin: 3px;
+  text-align: center;
+  font-size: 20px;
+  border: 1px solid var(--bark);
+  border-radius: 4px;
+  background: var(--parchment-dark);
+}
+.align-slot.shown {
+  background: #dcefd0;
+}
+.align-btn {
+  width: 40px;
+  height: 40px;
+  margin: 3px;
+  font-size: 20px;
+  cursor: pointer;
+}
+.inv-vectors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 14px;
+}
+.inv-vectors input,
+#inv-rp {
+  width: 56px;
+}

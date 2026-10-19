@@ -5,7 +5,10 @@
       "file": "sprites/characters/player.png",
       "frameW": 32,
       "frameH": 32,
-      "anchor": [0.5, 1],
+      "anchor": [
+        0.5,
+        1
+      ],
       "dirs": 4,
       "anims": {
         "idle": {
@@ -26,7 +29,10 @@
       "file": "sprites/characters/villager.png",
       "frameW": 32,
       "frameH": 32,
-      "anchor": [0.5, 1],
+      "anchor": [
+        0.5,
+        1
+      ],
       "dirs": 4,
       "anims": {
         "idle": {
@@ -43,7 +49,10 @@
       "file": "sprites/enemies/wolf.png",
       "frameW": 32,
       "frameH": 32,
-      "anchor": [0.5, 0.85],
+      "anchor": [
+        0.5,
+        0.85
+      ],
       "dirs": 4,
       "anims": {
         "idle": {
@@ -64,7 +73,10 @@
       "file": "sprites/enemies/boar.png",
       "frameW": 32,
       "frameH": 32,
-      "anchor": [0.5, 0.85],
+      "anchor": [
+        0.5,
+        0.85
+      ],
       "dirs": 4,
       "anims": {
         "idle": {
@@ -85,7 +97,10 @@
       "file": "sprites/resources/tree_pine.png",
       "frameW": 64,
       "frameH": 96,
-      "anchor": [0.5, 0.95],
+      "anchor": [
+        0.5,
+        0.95
+      ],
       "anims": {
         "full": {
           "frames": 1
@@ -99,7 +114,10 @@
       "file": "sprites/resources/tree_dead.png",
       "frameW": 64,
       "frameH": 96,
-      "anchor": [0.5, 0.95],
+      "anchor": [
+        0.5,
+        0.95
+      ],
       "anims": {
         "full": {
           "frames": 1
@@ -113,7 +131,10 @@
       "file": "sprites/resources/rock.png",
       "frameW": 32,
       "frameH": 32,
-      "anchor": [0.5, 0.85],
+      "anchor": [
+        0.5,
+        0.85
+      ],
       "anims": {
         "full": {
           "frames": 1
@@ -127,7 +148,10 @@
       "file": "sprites/resources/bush.png",
       "frameW": 32,
       "frameH": 32,
-      "anchor": [0.5, 0.85],
+      "anchor": [
+        0.5,
+        0.85
+      ],
       "anims": {
         "full": {
           "frames": 1
@@ -141,7 +165,10 @@
       "file": "sprites/resources/berrybush.png",
       "frameW": 32,
       "frameH": 32,
-      "anchor": [0.5, 0.85],
+      "anchor": [
+        0.5,
+        0.85
+      ],
       "anims": {
         "full": {
           "frames": 1
@@ -155,7 +182,10 @@
       "file": "sprites/resources/salvage_pile.png",
       "frameW": 32,
       "frameH": 32,
-      "anchor": [0.5, 0.85],
+      "anchor": [
+        0.5,
+        0.85
+      ],
       "anims": {
         "full": {
           "frames": 1
@@ -169,7 +199,10 @@
       "file": "sprites/buildings/campfire.png",
       "frameW": 32,
       "frameH": 32,
-      "anchor": [0.5, 0.85],
+      "anchor": [
+        0.5,
+        0.85
+      ],
       "anims": {
         "idle": {
           "frames": 4,
@@ -181,43 +214,64 @@
       "file": "sprites/buildings/hut.png",
       "frameW": 64,
       "frameH": 64,
-      "anchor": [0.5, 0.95]
+      "anchor": [
+        0.5,
+        0.95
+      ]
     },
     "palisade": {
       "file": "sprites/buildings/palisade.png",
       "frameW": 32,
       "frameH": 64,
-      "anchor": [0.5, 0.95]
+      "anchor": [
+        0.5,
+        0.95
+      ]
     },
     "farm_plot": {
       "file": "sprites/buildings/farm_plot.png",
       "frameW": 32,
       "frameH": 32,
-      "anchor": [0.5, 0.5]
+      "anchor": [
+        0.5,
+        0.5
+      ]
     },
     "shrine": {
       "file": "sprites/buildings/shrine.png",
       "frameW": 32,
       "frameH": 64,
-      "anchor": [0.5, 0.95]
+      "anchor": [
+        0.5,
+        0.95
+      ]
     },
     "nexus_buried": {
       "file": "sprites/nexus/nexus_buried.png",
       "frameW": 96,
       "frameH": 96,
-      "anchor": [0.5, 0.7]
+      "anchor": [
+        0.5,
+        0.7
+      ]
     },
     "nexus_excavated": {
       "file": "sprites/nexus/nexus_excavated.png",
       "frameW": 96,
       "frameH": 96,
-      "anchor": [0.5, 0.7]
+      "anchor": [
+        0.5,
+        0.7
+      ]
     },
     "nexus_awake": {
       "file": "sprites/nexus/nexus_awake.png",
       "frameW": 96,
       "frameH": 96,
-      "anchor": [0.5, 0.7],
+      "anchor": [
+        0.5,
+        0.7
+      ],
       "anims": {
         "idle": {
           "frames": 4,
@@ -229,73 +283,109 @@
       "file": "sprites/city/ruin_wall.png",
       "frameW": 32,
       "frameH": 64,
-      "anchor": [0.5, 0.95]
+      "anchor": [
+        0.5,
+        0.95
+      ]
     },
     "ruin_pillar": {
       "file": "sprites/city/ruin_pillar.png",
       "frameW": 32,
       "frameH": 64,
-      "anchor": [0.5, 1]
+      "anchor": [
+        0.5,
+        1
+      ]
     },
     "ruin_rubble": {
       "file": "sprites/city/ruin_rubble.png",
       "frameW": 32,
       "frameH": 32,
-      "anchor": [0.5, 0.85]
+      "anchor": [
+        0.5,
+        0.85
+      ]
     },
     "ruin_statue": {
       "file": "sprites/city/ruin_statue.png",
       "frameW": 32,
       "frameH": 64,
-      "anchor": [0.5, 0.95]
+      "anchor": [
+        0.5,
+        0.95
+      ]
     },
     "ruin_arch": {
       "file": "sprites/city/ruin_arch.png",
       "frameW": 96,
       "frameH": 96,
-      "anchor": [0.5, 0.95]
+      "anchor": [
+        0.5,
+        0.95
+      ]
     },
     "ruin_fountain": {
       "file": "sprites/city/ruin_fountain.png",
       "frameW": 64,
       "frameH": 64,
-      "anchor": [0.5, 0.75]
+      "anchor": [
+        0.5,
+        0.75
+      ]
     },
     "lm_watchtower": {
       "file": "sprites/landmarks/lm_watchtower.png",
       "frameW": 64,
       "frameH": 128,
-      "anchor": [0.5, 0.95]
+      "anchor": [
+        0.5,
+        0.95
+      ]
     },
     "lm_den": {
       "file": "sprites/landmarks/lm_den.png",
       "frameW": 64,
       "frameH": 64,
-      "anchor": [0.5, 0.85]
+      "anchor": [
+        0.5,
+        0.85
+      ]
     },
     "lm_standing_stones": {
       "file": "sprites/landmarks/lm_standing_stones.png",
       "frameW": 96,
       "frameH": 64,
-      "anchor": [0.5, 0.85]
+      "anchor": [
+        0.5,
+        0.85
+      ]
     },
     "lm_cave": {
       "file": "sprites/landmarks/lm_cave.png",
       "frameW": 64,
       "frameH": 64,
-      "anchor": [0.5, 0.85]
+      "anchor": [
+        0.5,
+        0.85
+      ]
     },
     "lm_old_road_sign": {
       "file": "sprites/landmarks/lm_old_road_sign.png",
       "frameW": 32,
       "frameH": 64,
-      "anchor": [0.5, 0.95]
+      "anchor": [
+        0.5,
+        0.95
+      ]
     },
     "lm_cache": {
       "file": "sprites/landmarks/lm_cache.png",
       "frameW": 32,
       "frameH": 32,
-      "anchor": [0.5, 0.85],
+      "anchor": [
+        0.5,
+        0.85
+      ],
       "anims": {
         "full": {
           "frames": 1
@@ -309,13 +399,19 @@
       "file": "sprites/landmarks/lm_spring.png",
       "frameW": 64,
       "frameH": 64,
-      "anchor": [0.5, 0.6]
+      "anchor": [
+        0.5,
+        0.6
+      ]
     },
     "lm_camp": {
       "file": "sprites/landmarks/lm_camp.png",
       "frameW": 64,
       "frameH": 64,
-      "anchor": [0.5, 0.85],
+      "anchor": [
+        0.5,
+        0.85
+      ],
       "anims": {
         "full": {
           "frames": 1
@@ -329,85 +425,136 @@
       "file": "portraits/portrait_gatherer.png",
       "frameW": 96,
       "frameH": 96,
-      "anchor": [0.5, 0.5]
+      "anchor": [
+        0.5,
+        0.5
+      ]
     },
     "portrait_hunter": {
       "file": "portraits/portrait_hunter.png",
       "frameW": 96,
       "frameH": 96,
-      "anchor": [0.5, 0.5]
+      "anchor": [
+        0.5,
+        0.5
+      ]
     },
     "portrait_toolmaker": {
       "file": "portraits/portrait_toolmaker.png",
       "frameW": 96,
       "frameH": 96,
-      "anchor": [0.5, 0.5]
+      "anchor": [
+        0.5,
+        0.5
+      ]
     },
     "portrait_farmer": {
       "file": "portraits/portrait_farmer.png",
       "frameW": 96,
       "frameH": 96,
-      "anchor": [0.5, 0.5]
+      "anchor": [
+        0.5,
+        0.5
+      ]
     },
     "portrait_warrior": {
       "file": "portraits/portrait_warrior.png",
       "frameW": 96,
       "frameH": 96,
-      "anchor": [0.5, 0.5]
+      "anchor": [
+        0.5,
+        0.5
+      ]
     },
     "portrait_scout": {
       "file": "portraits/portrait_scout.png",
       "frameW": 96,
       "frameH": 96,
-      "anchor": [0.5, 0.5]
+      "anchor": [
+        0.5,
+        0.5
+      ]
     },
     "portrait_shaman": {
       "file": "portraits/portrait_shaman.png",
       "frameW": 96,
       "frameH": 96,
-      "anchor": [0.5, 0.5]
+      "anchor": [
+        0.5,
+        0.5
+      ]
     },
     "portrait_herbalist": {
       "file": "portraits/portrait_herbalist.png",
       "frameW": 96,
       "frameH": 96,
-      "anchor": [0.5, 0.5]
+      "anchor": [
+        0.5,
+        0.5
+      ]
     },
     "portrait_mage": {
       "file": "portraits/portrait_mage.png",
       "frameW": 96,
       "frameH": 96,
-      "anchor": [0.5, 0.5]
+      "anchor": [
+        0.5,
+        0.5
+      ]
     },
     "realm_verdant_fringe": {
       "file": "ui/realm_verdant_fringe.png",
       "frameW": 560,
       "frameH": 160,
-      "anchor": [0, 0]
+      "anchor": [
+        0,
+        0
+      ]
     },
     "realm_verdant_groves": {
       "file": "ui/realm_verdant_groves.png",
       "frameW": 560,
       "frameH": 160,
-      "anchor": [0, 0]
+      "anchor": [
+        0,
+        0
+      ]
     },
     "realm_verdant_warrens": {
       "file": "ui/realm_verdant_warrens.png",
       "frameW": 560,
       "frameH": 160,
-      "anchor": [0, 0]
+      "anchor": [
+        0,
+        0
+      ]
     },
     "realm_verdant_old_grove": {
       "file": "ui/realm_verdant_old_grove.png",
       "frameW": 560,
       "frameH": 160,
-      "anchor": [0, 0]
+      "anchor": [
+        0,
+        0
+      ]
     },
     "research_desk": {
       "file": "sprites/buildings/research_desk.png",
       "frameW": 32,
       "frameH": 48,
-      "anchor": [0.5, 0.9]
+      "anchor": [
+        0.5,
+        0.9
+      ]
+    },
+    "invention_bench": {
+      "file": "sprites/buildings/invention_bench.png",
+      "frameW": 32,
+      "frameH": 48,
+      "anchor": [
+        0.5,
+        0.9
+      ]
     }
   },
   "tilesets": {

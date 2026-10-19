@@ -105,5 +105,22 @@
     },
     "size": [1, 1],
     "blocks": true
+  },
+  "invention_bench": {
+    "sprite": "invention_bench",
+    "placeholder": "bench",
+    "name": "Invention Bench",
+    "desc": "Design new weapons and armor: spend Vector points and Knowledge, play the minigame, and roll properties.",
+    "costs": {
+      "wood": 8,
+      "stone": 6,
+      "mana_crystal": 1
+    },
+    "requires": ["elemental_attunement"],
+    "radius": 16,
+    "color": "#6b5a8a",
+    "size": [1, 1],
+    "blocks": true,
+    "invention": true
   }
 }

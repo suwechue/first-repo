@@ -2,6 +2,7 @@
 import { D } from '../core/content.js';
 import { $, esc, label } from './dom.js';
 import { assets } from '../render/assets.js';
+import { abortMinigame } from './minigames/runner.js';
 
 export function showReport(r) {
   const zone = D.realms[r.realm].zones[r.zone];
@@ -65,5 +66,6 @@ export function showReport(r) {
 }
 
 export function closeModal() {
+  abortMinigame(); // closing a minigame early makes nothing and costs nothing
   $('modal').classList.remove('open');
 }

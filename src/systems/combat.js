@@ -135,7 +135,7 @@ export function lightAttack(s, target = null) {
     hurtEnemy(s, e, rollDamage(playerDamage(s)));
   }
   s.player.swing = { t: 0, aim, reach: W.reach, arc: W.arc, heavy: false };
-  s.gatherCooldown = W.cooldown;
+  s.gatherCooldown = swingCooldown(s, W);
   return hit;
 }
 
@@ -174,8 +174,13 @@ export function releaseHeavy(s, target = null) {
     hurtEnemy(s, e, rollDamage(playerDamage(s) * mul), 'smash');
   }
   s.player.swing = { t: 0, aim, reach: W.reach, arc, heavy: true };
-  s.gatherCooldown = W.cooldown + K.heavy.recovery;
+  s.gatherCooldown = swingCooldown(s, W) + K.heavy.recovery;
   return hit;
+}
+
+/** The weapon's cooldown, shortened by attackSpeed (Swift Strike), at most by half. */
+function swingCooldown(s, W) {
+  return Math.max(1, Math.round(W.cooldown * (1 - Math.min(0.5, playerEffect(s, 'attackSpeed')))));
 }
 
 function knockback(s, e, aim, px) {

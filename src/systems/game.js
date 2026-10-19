@@ -125,6 +125,7 @@ export function handleInteract(s) {
 
 /** One fixed 1/60 s frame. */
 export function update(s, input) {
+  if (s.paused) return; // a crafting minigame is open
   if (s.mode === 'STUDYING' && (input.up || input.down || input.left || input.right)) stopStudy(s);
   if (s.mode === 'EXPLORE' && !s.player.dodge) updatePlayer(s, input);
   else if (s.gatherCooldown > 0) s.gatherCooldown--;

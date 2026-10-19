@@ -8,7 +8,9 @@
     },
     "requires": ["stone_knapping"],
     "type": "item",
-    "item": "stone_axe"
+    "item": "stone_axe",
+    "minigame": "forge",
+    "difficulty": 2
   },
   "stone_spear": {
     "name": "Stone Spear",
@@ -19,7 +21,9 @@
     },
     "requires": ["stone_knapping"],
     "type": "item",
-    "item": "stone_spear"
+    "item": "stone_spear",
+    "minigame": "forge",
+    "difficulty": 3
   },
   "sling": {
     "name": "Sling",
@@ -30,7 +34,9 @@
     },
     "requires": ["tanning"],
     "type": "item",
-    "item": "sling"
+    "item": "sling",
+    "minigame": "alignment",
+    "difficulty": 3
   },
   "wooden_shield": {
     "name": "Wooden Shield",
@@ -41,7 +47,9 @@
     },
     "requires": ["woodworking"],
     "type": "item",
-    "item": "wooden_shield"
+    "item": "wooden_shield",
+    "minigame": "precision",
+    "difficulty": 2
   },
   "scout_hood": {
     "name": "Scout's Hood",
@@ -51,7 +59,9 @@
     },
     "requires": ["stone_knapping"],
     "type": "item",
-    "item": "scout_hood"
+    "item": "scout_hood",
+    "minigame": "alignment",
+    "difficulty": 2
   },
   "hide_cap": {
     "name": "Hide Cap",
@@ -62,7 +72,9 @@
     },
     "requires": ["tanning"],
     "type": "item",
-    "item": "hide_cap"
+    "item": "hide_cap",
+    "minigame": "thermal",
+    "difficulty": 2
   },
   "hide_armor": {
     "name": "Hide Armor",
@@ -73,7 +85,9 @@
     },
     "requires": ["tanning"],
     "type": "item",
-    "item": "hide_armor"
+    "item": "hide_armor",
+    "minigame": "thermal",
+    "difficulty": 3
   },
   "hide_gloves": {
     "name": "Hide Gloves",
@@ -83,7 +97,9 @@
     },
     "requires": ["tanning"],
     "type": "item",
-    "item": "hide_gloves"
+    "item": "hide_gloves",
+    "minigame": "thermal",
+    "difficulty": 3
   },
   "fiber_sandals": {
     "name": "Fiber Sandals",
@@ -93,7 +109,9 @@
     },
     "requires": ["stone_knapping"],
     "type": "item",
-    "item": "fiber_sandals"
+    "item": "fiber_sandals",
+    "minigame": "alignment",
+    "difficulty": 1
   },
   "hide_boots": {
     "name": "Hide Boots",
@@ -104,7 +122,9 @@
     },
     "requires": ["tanning"],
     "type": "item",
-    "item": "hide_boots"
+    "item": "hide_boots",
+    "minigame": "thermal",
+    "difficulty": 3
   },
   "cook_food": {
     "name": "Cook Food (at Campfire)",
@@ -141,7 +161,9 @@
     },
     "requires": ["woodworking", "foundation_engineering"],
     "type": "item",
-    "item": "wildwood_spear"
+    "item": "wildwood_spear",
+    "minigame": "forge",
+    "difficulty": 5
   },
   "verdant_cloak": {
     "name": "Verdant Cloak",
@@ -152,6 +174,8 @@
     },
     "requires": ["tanning", "foundation_engineering"],
     "type": "item",
-    "item": "verdant_cloak"
+    "item": "verdant_cloak",
+    "minigame": "synthesis",
+    "difficulty": 6
   }
 }

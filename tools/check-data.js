@@ -178,6 +178,32 @@ export function checkData(d) {
       (e[list] || []).forEach((v) => need(`enemies.${k}.${list}`, v, d.vectors, 'vector'));
   }
 
+  // Crafting minigames and the Property Bank.
+  const minigameKeys = new Set([
+    ...d.minigames.archetypeRules.map((r) => r.minigame),
+    d.minigames.archetypeDefault,
+    ...Object.values(d.minigames.bySlot),
+  ]);
+  for (const [k, r] of Object.entries(d.recipes)) {
+    if (r.minigame && !minigameKeys.has(r.minigame))
+      errors.push(`recipes.${k}.minigame: unknown minigame "${r.minigame}"`);
+  }
+  ids(d.minigames.bySlot).forEach((sl) => need('minigames.bySlot', sl, d.gear.slots, 'slot'));
+  need('minigames.rushQuality', d.minigames.rushQuality, d.gear.qualities, 'quality');
+  d.minigames.quality.forEach((q, i) =>
+    need(`minigames.quality[${i}]`, q.quality, d.gear.qualities, 'quality'),
+  );
+  for (const [k, p] of Object.entries(d.properties)) {
+    ids(p.signature).forEach((v) => need(`properties.${k}.signature`, v, d.vectors, 'vector'));
+    ids(p.threshold).forEach((v) => need(`properties.${k}.threshold`, v, d.vectors, 'vector'));
+    p.appliesTo.forEach((c) => {
+      if (!['weapon', 'armor'].includes(c))
+        errors.push(`properties.${k}.appliesTo: "${c}" must be weapon or armor`);
+    });
+    for (const t of ['minor', 'standard', 'major', 'grand'])
+      if (!p.tiers[t]) errors.push(`properties.${k}.tiers: missing "${t}"`);
+  }
+
   // City prefabs and their props.
   need('world.city.prefab', W.city.prefab, d.prefabs, 'prefab');
   for (const [k, pf] of Object.entries(d.prefabs)) {

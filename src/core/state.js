@@ -76,6 +76,7 @@ export function makeInitialState() {
     nextExpeditionId: 1,
     researchCarry: 0, // fraction of a Knowledge Point the scholars have earned so far
     studyTimer: 0, // runtime only: frames toward the next point of study
+    paused: false, // runtime only: true while a crafting minigame is open
     nextCharId: 1,
     stats: { missions: 0, deaths: 0 },
 

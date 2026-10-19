@@ -313,6 +313,19 @@ const SHAPES = {
     ctx.fillStyle = 'rgba(0,0,0,0.3)';
     ctx.fillRect(-10, -22, 16, 1);
   },
+  bench(ctx, def) {
+    ctx.fillStyle = '#3a2a1a';
+    ctx.fillRect(-13, -2, 3, 12);
+    ctx.fillRect(10, -2, 3, 12);
+    ctx.fillStyle = def.color;
+    ctx.fillRect(-15, -9, 30, 8);
+    ctx.fillStyle = '#b9a6ff';
+    ctx.beginPath();
+    ctx.arc(-6, -13, 3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#c9a54a';
+    ctx.fillRect(3, -15, 8, 5);
+  },
   desk(ctx, def) {
     ctx.fillStyle = '#4a3622';
     ctx.fillRect(-12, -2, 3, 12);
