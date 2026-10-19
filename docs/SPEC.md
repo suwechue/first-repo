@@ -353,7 +353,8 @@ P_{injury} = Closeness \cdot 0.35 \cdot (1 - ConMod) \cdot (1 - ArmorMod)
 
 - **Digging:** needs Foundation Engineering and 3 digs of 4 stone and 2 wood each.
 - **Awakening:** once excavated, each Shrine adds 1 Awareness every 180 frames. At 40 Awareness the Nexus wakes and grants 4 Expedition Supplies and 10 Renown. Elemental Attunement needs the awake Nexus, 25 Knowledge, 8 Arcane Knowledge and 3 Mana Crystals.
-- **Clock:** a day is 3,600 frames. Passive Knowledge is +1 per 90 frames. Hunger falls 1 per 200 frames, and the player eats automatically below 40. If the player's health reaches zero they wake at the center of the map at half health, and nothing is lost. A frame is one fixed 1/60 second simulation step, whatever the display's refresh rate.
+- **Clock:** a day is 3,600 frames. Knowledge no longer trickles in on its own (M13; see Research). Hunger falls 1 per 200 frames, and the player eats automatically below 40. If the player's health reaches zero they wake at the center of the map at half health, and nothing is lost. A frame is one fixed 1/60 second simulation step, whatever the display's refresh rate.
+- **Research (M13):** Knowledge Points come from research, discoveries and relics. A Research Desk (a building) lets the player study: pressing E at it starts studying, which earns 1 Knowledge every 45 frames while the player stays put; moving or pressing E again stops. Each desk also seats one scholar: a roster character at home (not away, injured or already seated) assigned to research earns (8 + 2 x INT) Knowledge per day, credited a little every frame. A scholar cannot join an expedition until unassigned, and the Hall says so.
 - **Autosave:** every 900 frames and when the page closes, plus manual save, export and import.
 
 ## Axiom Magic and character abilities
@@ -579,6 +580,10 @@ Claude Code should build these milestones in order and stop after each one: run 
 | M10 | Axiom Magic: `vectors.json`, `forms.json`, Magnitude caps by Knowledge Tier, Focus Points, Instability, the repertoire bonus, caster growth tables, specializations, a spell loadout screen | Tests cover the Stability Check and the failure table. `npm run sim` shows how Vector matchups change win rates. A caster's loadout changes their Combat Power in the Hall preview |
 | M11 | Recruitment and Hall v2: Renown cost and arrival chance, Dismiss, the recruitment card with flavor text, chemistry preview, saved squads | A Blood Feud pair cannot be added to one squad. Arrival odds rise with Renown but Common stays the most frequent tier in a large sample |
 | M12 | Timed missions: duration, several squads out at once, a queue of reports, time-based Explore | A save made mid-mission loads with the squad still out and returns on time. Reports arrive in the order squads return |
+| M13 | Research: no passive Knowledge; the Research Desk, studying, scholars | Knowledge only rises from study, scholars, discoveries and relics. Study pays only while the player stays at the desk. Scholars need a free desk and cannot deploy |
+| M14 | Gear and armor: weapon, shield, head, body, hands and feet slots for the player and every character; gear as individual items | Each slot's effect has a test. A v6 save's gear moves into the new slots |
+| M15 | Overworld combat: light, heavy and ranged attacks, a dodge with stamina, weapon types, enemy telegraphs | Each attack's damage, range and cost has a test. A dodge avoids a telegraphed hit |
+| M16 | Crafting minigames: the five plugins, a minigame on every gear craft setting quality, and Invention with the Property Bank | Quality follows performance. Invention rolls follow the allocation's signature. A plugin registers with no other code change |
 
 All milestones M0 to M12 are built. Where the spec left a value open, the chosen value is in the Values tables above, marked "chosen".
 
